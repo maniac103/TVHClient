@@ -18,7 +18,7 @@ internal interface ServerStatusDao {
     fun loadActiveServerStatusSync(): ServerStatusEntity?
 
     @Query("$SERVER_STATUS_BASE_QUERY WHERE $CONNECTION_IS_ACTIVE")
-    fun loadActiveServerStatus(): LiveData<ServerStatusEntity>
+    fun loadActiveServerStatus(): LiveData<ServerStatusEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(serverStatus: ServerStatusEntity)

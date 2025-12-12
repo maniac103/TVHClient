@@ -13,7 +13,7 @@ open class StartupViewModel : ViewModel() {
     lateinit var appRepository: AppRepository
 
     private var connectionCount: LiveData<Int>
-    private var connectionLiveData: LiveData<Connection>
+    private var connectionLiveData: LiveData<Connection?>
     var connectionStatus: LiveData<Pair<Int, Boolean>>
 
     init {
@@ -29,7 +29,7 @@ open class StartupViewModel : ViewModel() {
     }
 
     internal class ConnectionStatusLiveData(connectionCount: LiveData<Int>,
-                                                  activeConnection: LiveData<Connection>) : MediatorLiveData<Pair<Int, Connection>>() {
+                                            activeConnection: LiveData<Connection?>) : MediatorLiveData<Pair<Int, Connection>>() {
         init {
             addSource(connectionCount) { count ->
                 value = Pair.create(count, activeConnection.value)

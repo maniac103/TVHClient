@@ -91,7 +91,7 @@ class SettingsProfilesFragment : PreferenceFragmentCompat() {
         addProfileValuesToListPreference(castingProfilesPreference, settingsViewModel.getHttpProfiles(), settingsViewModel.currentServerStatus.castingServerProfileId)
 
         settingsViewModel.activeConnectionLiveData.observe(viewLifecycleOwner) { connection ->
-            toolbarInterface.setSubtitle(connection.name ?: "")
+            toolbarInterface.setSubtitle(connection?.name ?: "")
         }
 
         settingsViewModel.currentServerStatusLiveData.observe(viewLifecycleOwner) {

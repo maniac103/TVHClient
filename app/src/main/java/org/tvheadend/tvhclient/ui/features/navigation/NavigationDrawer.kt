@@ -55,7 +55,7 @@ class NavigationDrawer(private val activity: AppCompatActivity,
 
         navigationViewModel.connectionLiveData.observe(activity) {
             this.showConnectionsInDrawerHeader()
-            headerResult.setActiveProfile(it.id.toLong())
+            it?.let { headerResult.setActiveProfile(it.id.toLong()) }
         }
 
         statusViewModel.channelCount.observe(activity) { count -> result.updateBadge(MENU_CHANNELS.toLong(), StringHolder(count.toString())) }

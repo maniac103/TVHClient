@@ -18,8 +18,8 @@ class ConnectionDataSource(private val db: AppRoomDatabase) : DataSourceInterfac
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    val liveDataActiveItem: LiveData<Connection>
-        get() = db.connectionDao.loadActiveConnection().map { entity -> entity.toConnection() }
+    val liveDataActiveItem: LiveData<Connection?>
+        get() = db.connectionDao.loadActiveConnection().map { entity -> entity?.toConnection() }
 
     val activeItem: Connection
         get() {

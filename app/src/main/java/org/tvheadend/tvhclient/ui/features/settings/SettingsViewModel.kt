@@ -47,7 +47,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     /**
      * Currently active connection as live data
      */
-    var activeConnectionLiveData: LiveData<Connection>
+    var activeConnectionLiveData: LiveData<Connection?>
 
     /**
      * Contains the list of all available connections as live data
@@ -65,7 +65,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
      *  the profile or clears the database the {@see currentServerStatus} variable can be updated.
      *  In this way the other setting screens will always have access to the latest values.
      */
-    var currentServerStatusLiveData: LiveData<ServerStatus>
+    var currentServerStatusLiveData: LiveData<ServerStatus?>
 
     /**
      * Contains a string with the name of the fragment that shall be shown

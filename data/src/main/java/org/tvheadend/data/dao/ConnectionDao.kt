@@ -17,7 +17,7 @@ internal interface ConnectionDao {
     fun loadAllConnectionsSync(): List<ConnectionEntity>
 
     @Query("SELECT * FROM connections WHERE active = 1")
-    fun loadActiveConnection(): LiveData<ConnectionEntity>
+    fun loadActiveConnection(): LiveData<ConnectionEntity?>
 
     @Query("SELECT * FROM connections WHERE active = 1")
     fun loadActiveConnectionSync(): ConnectionEntity?

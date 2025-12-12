@@ -16,8 +16,8 @@ class ServerStatusDataSource(private val db: AppRoomDatabase) : DataSourceInterf
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    val liveDataActiveItem: LiveData<ServerStatus>
-        get() = db.serverStatusDao.loadActiveServerStatus().map { it.toServerStatus() }
+    val liveDataActiveItem: LiveData<ServerStatus?>
+        get() = db.serverStatusDao.loadActiveServerStatus().map { it?.toServerStatus() }
 
     val activeItem: ServerStatus
         get() {
