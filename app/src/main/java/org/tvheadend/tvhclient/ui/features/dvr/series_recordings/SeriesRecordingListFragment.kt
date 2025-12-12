@@ -109,7 +109,7 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, 
             menu.findItem(R.id.menu_remove_all_recordings)?.isVisible = true
         }
 
-        menu.findItem(R.id.menu_add_recording)?.isVisible = isUnlocked && isConnectionToServerAvailable
+        menu.findItem(R.id.menu_add_recording)?.isVisible = isConnectionToServerAvailable
         menu.findItem(R.id.menu_search)?.isVisible = recyclerViewAdapter.itemCount > 0
         menu.findItem(R.id.media_route_menu_item)?.isVisible = false
     }
@@ -162,9 +162,9 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, 
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
         preparePopupOrToolbarSearchMenu(popupMenu.menu, seriesRecording.title, isConnectionToServerAvailable)
-        popupMenu.menu.findItem(R.id.menu_edit_recording)?.isVisible = isUnlocked
-        popupMenu.menu.findItem(R.id.menu_disable_recording)?.isVisible = htspVersion >= 19 && isUnlocked && seriesRecording.isEnabled
-        popupMenu.menu.findItem(R.id.menu_enable_recording)?.isVisible = htspVersion >= 19 && isUnlocked && !seriesRecording.isEnabled
+        popupMenu.menu.findItem(R.id.menu_edit_recording)?.isVisible = true
+        popupMenu.menu.findItem(R.id.menu_disable_recording)?.isVisible = htspVersion >= 19 && seriesRecording.isEnabled
+        popupMenu.menu.findItem(R.id.menu_enable_recording)?.isVisible = htspVersion >= 19 && !seriesRecording.isEnabled
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {

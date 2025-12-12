@@ -50,33 +50,14 @@ class SettingsUserInterfaceFragment : PreferenceFragmentCompat(), Preference.OnP
 
     override fun onPreferenceClick(preference: Preference): Boolean {
         when (preference.key) {
-            "multiple_channel_tags_enabled" -> handlePreferenceMultipleChannelTagsSelected()
-            "program_artwork_enabled" -> handlePreferenceShowArtworkSelected()
             "casting" -> handlePreferenceCastingSelected()
         }
         return true
     }
 
-    private fun handlePreferenceMultipleChannelTagsSelected() {
-        if (!settingsViewModel.isUnlocked) {
-            context?.sendSnackbarMessage(R.string.feature_not_available_in_free_version)
-            multipleChannelTagsPreference?.isChecked = false
-        }
-    }
-
-    private fun handlePreferenceShowArtworkSelected() {
-        if (!settingsViewModel.isUnlocked) {
-            context?.sendSnackbarMessage(R.string.feature_not_available_in_free_version)
-            programArtworkEnabledPreference?.isChecked = false
-        }
-    }
-
     private fun handlePreferenceCastingSelected() {
         if (settingsViewModel.currentServerStatus.htspVersion < 16) {
             context?.sendSnackbarMessage(R.string.feature_not_supported_by_server)
-            castMiniControllerPreference?.isChecked = false
-        } else if (!settingsViewModel.isUnlocked) {
-            context?.sendSnackbarMessage(R.string.feature_not_available_in_free_version)
             castMiniControllerPreference?.isChecked = false
         }
     }

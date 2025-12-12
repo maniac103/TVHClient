@@ -82,7 +82,7 @@ class StatusFragment : BaseFragment() {
         binding.connectionView.text = text
 
         binding.seriesRecordingsView.visibility = if (htspVersion >= 13) View.VISIBLE else View.GONE
-        binding.timerRecordingsView.visibility = if (htspVersion >= 18 && isUnlocked) View.VISIBLE else View.GONE
+        binding.timerRecordingsView.visibility = if (htspVersion >= 18) View.VISIBLE else View.GONE
 
         statusViewModel.channelCount.observe(viewLifecycleOwner) { count ->
             val channelCountText = "$count ${getString(R.string.available)}"

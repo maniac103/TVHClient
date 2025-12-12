@@ -6,7 +6,6 @@
         android:id="@+id/menu_add_recording"
         android:icon="?attr/ic_menu_add"
         android:title="@string/add"
-        android:visible="false"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_remove_all_recordings"

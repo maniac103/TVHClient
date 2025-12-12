@@ -111,7 +111,6 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     override fun onPreferenceClick(preference: Preference): Boolean {
         when (preference.key) {
             "profiles" -> handlePreferenceProfilesSelected()
-            "playback" -> handlePreferencePlaybackSelected()
             "download_directory" -> handlePreferenceDownloadDirectorySelected()
             else -> settingsViewModel.setNavigationMenuId(preference.key)
         }
@@ -137,22 +136,10 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
         }
     }
 
-    private fun handlePreferencePlaybackSelected() {
-        if (!settingsViewModel.isUnlocked) {
-            context?.sendSnackbarMessage(R.string.feature_not_available_in_free_version)
-        } else {
-            settingsViewModel.setNavigationMenuId("playback")
-        }
-    }
-
     private fun handlePreferenceDownloadDirectorySelected() {
-        if (!settingsViewModel.isUnlocked) {
-            context?.sendSnackbarMessage(R.string.feature_not_available_in_free_version)
-        } else {
-            activity?.let {
-                if (isReadPermissionGranted(it)) {
-                    showFolderSelectionDialog(it)
-                }
+        activity?.let {
+            if (isReadPermissionGranted(it)) {
+                showFolderSelectionDialog(it)
             }
         }
     }

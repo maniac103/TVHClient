@@ -29,11 +29,59 @@ class SettingsProfilesFragment : PreferenceFragmentCompat() {
         toolbarInterface.setTitle(getString(R.string.pref_profiles))
 
         htspPlaybackProfilesPreference = findPreference("htsp_playback_profiles")!!
+        htspPlaybackProfilesPreference.setOnPreferenceChangeListener { _, o ->
+            settingsViewModel.currentServerStatus.let {
+                it.htspPlaybackServerProfileId = Integer.valueOf(o as String)
+                settingsViewModel.updateServerStatus(it)
+            }
+            true
+        }
+
         httpPlaybackProfilesPreference = findPreference("http_playback_profiles")!!
+        httpPlaybackProfilesPreference.setOnPreferenceChangeListener { _, o ->
+            settingsViewModel.currentServerStatus.let {
+                it.httpPlaybackServerProfileId = Integer.valueOf(o as String)
+                settingsViewModel.updateServerStatus(it)
+            }
+            true
+        }
+
         recordingProfilesPreference = findPreference("recording_profiles")!!
+        recordingProfilesPreference.setOnPreferenceChangeListener { _, o ->
+            settingsViewModel.currentServerStatus.let {
+                it.recordingServerProfileId = Integer.valueOf(o as String)
+                settingsViewModel.updateServerStatus(it)
+            }
+            true
+        }
+
         seriesRecordingProfilesPreference = findPreference("series_recording_profiles")!!
+        seriesRecordingProfilesPreference.setOnPreferenceChangeListener { _, o ->
+            settingsViewModel.currentServerStatus.let {
+                it.seriesRecordingServerProfileId = Integer.valueOf(o as String)
+                settingsViewModel.updateServerStatus(it)
+            }
+            true
+        }
+
         timerRecordingProfilesPreference = findPreference("timer_recording_profiles")!!
+        timerRecordingProfilesPreference.setOnPreferenceChangeListener { _, o ->
+            settingsViewModel.currentServerStatus.let {
+                it.timerRecordingServerProfileId = Integer.valueOf(o as String)
+                settingsViewModel.updateServerStatus(it)
+            }
+            true
+        }
+
         castingProfilesPreference = findPreference("casting_profiles")!!
+        castingProfilesPreference.setOnPreferenceChangeListener { _, o ->
+            settingsViewModel.currentServerStatus.let {
+                it.castingServerProfileId = Integer.valueOf(o as String)
+                setCastingPreferenceSummary()
+                settingsViewModel.updateServerStatus(it)
+            }
+            true
+        }
 
         addProfileValuesToListPreference(htspPlaybackProfilesPreference, settingsViewModel.getHtspProfiles(), settingsViewModel.currentServerStatus.htspPlaybackServerProfileId)
         addProfileValuesToListPreference(httpPlaybackProfilesPreference, settingsViewModel.getHttpProfiles(), settingsViewModel.currentServerStatus.httpPlaybackServerProfileId)
@@ -46,10 +94,6 @@ class SettingsProfilesFragment : PreferenceFragmentCompat() {
             toolbarInterface.setSubtitle(connection.name ?: "")
         }
 
-        settingsViewModel.isUnlockedLiveData.observe(viewLifecycleOwner) {
-            initProfileChangeListeners()
-        }
-
         settingsViewModel.currentServerStatusLiveData.observe(viewLifecycleOwner) {
             setHttpPlaybackPreferenceSummary()
             setHtspPlaybackPreferenceSummary()
@@ -57,61 +101,6 @@ class SettingsProfilesFragment : PreferenceFragmentCompat() {
             setSeriesRecordingPreferenceSummary()
             setTimerRecordingPreferenceSummary()
             setCastingPreferenceSummary()
-        }
-    }
-
-    private fun initProfileChangeListeners() {
-        htspPlaybackProfilesPreference.setOnPreferenceChangeListener { _, o ->
-            settingsViewModel.currentServerStatus.let {
-                it.htspPlaybackServerProfileId = Integer.valueOf(o as String)
-                settingsViewModel.updateServerStatus(it)
-            }
-            true
-        }
-        httpPlaybackProfilesPreference.setOnPreferenceChangeListener { _, o ->
-            settingsViewModel.currentServerStatus.let {
-                it.httpPlaybackServerProfileId = Integer.valueOf(o as String)
-                settingsViewModel.updateServerStatus(it)
-            }
-            true
-        }
-        recordingProfilesPreference.setOnPreferenceChangeListener { _, o ->
-            settingsViewModel.currentServerStatus.let {
-                it.recordingServerProfileId = Integer.valueOf(o as String)
-                settingsViewModel.updateServerStatus(it)
-            }
-            true
-        }
-        seriesRecordingProfilesPreference.setOnPreferenceChangeListener { _, o ->
-            settingsViewModel.currentServerStatus.let {
-                it.seriesRecordingServerProfileId = Integer.valueOf(o as String)
-                settingsViewModel.updateServerStatus(it)
-            }
-            true
-        }
-        timerRecordingProfilesPreference.setOnPreferenceChangeListener { _, o ->
-            settingsViewModel.currentServerStatus.let {
-                it.timerRecordingServerProfileId = Integer.valueOf(o as String)
-                settingsViewModel.updateServerStatus(it)
-            }
-            true
-        }
-        if (settingsViewModel.isUnlocked) {
-            castingProfilesPreference.onPreferenceClickListener = null
-            castingProfilesPreference.setOnPreferenceChangeListener { _, o ->
-                settingsViewModel.currentServerStatus.let {
-                    it.castingServerProfileId = Integer.valueOf(o as String)
-                    setCastingPreferenceSummary()
-                    settingsViewModel.updateServerStatus(it)
-                }
-                true
-            }
-        } else {
-            castingProfilesPreference.onPreferenceChangeListener = null
-            castingProfilesPreference.setOnPreferenceClickListener {
-                context?.sendSnackbarMessage(R.string.feature_not_supported_by_server)
-                true
-            }
         }
     }
 

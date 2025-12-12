@@ -51,7 +51,7 @@
     <bool name="pref_default_show_recording_file_status_enabled">false</bool>
     <string name="pref_default_hours_of_epg_data_per_screen" translatable="false">4</string>
     <string name="pref_default_days_of_epg_data" translatable="false">7</string>
-    <bool name="pref_default_casting_minicontroller_enabled">false</bool>
+    <bool name="pref_default_casting_minicontroller_enabled">true</bool>
     <bool name="pref_default_genre_colors_for_channels_enabled">false</bool>
     <bool name="pref_default_genre_colors_for_recordings_enabled">false</bool>
     <bool name="pref_default_genre_colors_for_programs_enabled">false</bool>

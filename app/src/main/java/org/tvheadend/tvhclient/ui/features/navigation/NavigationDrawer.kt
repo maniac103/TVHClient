@@ -35,7 +35,6 @@ import org.tvheadend.tvhclient.ui.features.information.StatusFragment
 import org.tvheadend.tvhclient.ui.features.information.StatusViewModel
 import org.tvheadend.tvhclient.ui.features.information.WebViewFragment
 import org.tvheadend.tvhclient.ui.features.settings.SettingsActivity
-import org.tvheadend.tvhclient.ui.features.unlocker.UnlockerFragment
 import org.tvheadend.tvhclient.util.getThemeId
 import timber.log.Timber
 import java.util.*
@@ -54,7 +53,6 @@ class NavigationDrawer(private val activity: AppCompatActivity,
         createHeader()
         createMenu()
 
-        navigationViewModel.isUnlockedLiveData.observe(activity) { result.removeItem(MENU_UNLOCKER.toLong()) }
         navigationViewModel.connectionLiveData.observe(activity) {
             this.showConnectionsInDrawerHeader()
             headerResult.setActiveProfile(it.id.toLong())
@@ -138,9 +136,6 @@ class NavigationDrawer(private val activity: AppCompatActivity,
                 .withIdentifier(MENU_SETTINGS.toLong()).withName(R.string.settings)
                 .withIcon(getResourceIdFromAttr(R.attr.ic_menu_settings))
                 .withSelectable(false)
-        val extrasItem = PrimaryDrawerItem()
-                .withIdentifier(MENU_UNLOCKER.toLong()).withName(R.string.pref_unlocker)
-                .withIcon(getResourceIdFromAttr(R.attr.ic_menu_extras))
         val helpItem = PrimaryDrawerItem()
                 .withIdentifier(MENU_HELP.toLong()).withName(R.string.help_and_support)
                 .withIcon(getResourceIdFromAttr(R.attr.ic_menu_help))
@@ -163,7 +158,6 @@ class NavigationDrawer(private val activity: AppCompatActivity,
                 failedRecordingsItem,
                 removedRecordingsItem,
                 DividerDrawerItem(),
-                extrasItem,
                 settingsItem,
                 helpItem,
                 statusItem)
@@ -267,7 +261,6 @@ class NavigationDrawer(private val activity: AppCompatActivity,
             is FailedRecordingListFragment -> result.setSelection(MENU_FAILED_RECORDINGS.toLong(), false)
             is RemovedRecordingListFragment -> result.setSelection(MENU_REMOVED_RECORDINGS.toLong(), false)
             is StatusFragment -> result.setSelection(MENU_STATUS.toLong(), false)
-            is UnlockerFragment -> result.setSelection(MENU_UNLOCKER.toLong(), false)
             is WebViewFragment -> result.setSelection(MENU_HELP.toLong(), false)
         }
     }
@@ -285,7 +278,6 @@ class NavigationDrawer(private val activity: AppCompatActivity,
             MENU_TIMER_RECORDINGS -> TimerRecordingListFragment()
             MENU_FAILED_RECORDINGS -> FailedRecordingListFragment()
             MENU_REMOVED_RECORDINGS -> RemovedRecordingListFragment()
-            MENU_UNLOCKER -> UnlockerFragment()
             MENU_HELP -> HelpAndSupportFragment()
             MENU_STATUS -> StatusFragment()
             else -> null
@@ -343,7 +335,6 @@ class NavigationDrawer(private val activity: AppCompatActivity,
         const val MENU_REMOVED_RECORDINGS = 7
         const val MENU_STATUS = 8
         const val MENU_SETTINGS = 9
-        const val MENU_UNLOCKER = 10
-        const val MENU_HELP = 11
+        const val MENU_HELP = 10
     }
 }

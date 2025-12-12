@@ -60,32 +60,16 @@ class SettingsAdvancedFragment : PreferenceFragmentCompat(), Preference.OnPrefer
         findPreference<Preference>("load_more_epg_data")?.onPreferenceClickListener = this
 
         notificationsEnabledPreference = findPreference("notifications_enabled")
+        notificationsEnabledPreference?.onPreferenceClickListener = this
+
         notifyRunningRecordingCountEnabledPreference = findPreference("notify_running_recording_count_enabled")
+        notifyRunningRecordingCountEnabledPreference?.onPreferenceClickListener = this
+
         notifyLowStorageSpaceEnabledPreference = findPreference("notify_low_storage_space_enabled")
+        notifyLowStorageSpaceEnabledPreference?.onPreferenceClickListener = this
 
         connectionTimeoutPreference = findPreference("connection_timeout")
         connectionTimeoutPreference?.onPreferenceChangeListener = this
-
-        settingsViewModel.isUnlockedLiveData.observe(viewLifecycleOwner) {
-            initPreferenceChangeListeners()
-        }
-    }
-
-    private fun initPreferenceChangeListeners() {
-        notificationsEnabledPreference?.also {
-            it.onPreferenceClickListener = this
-            it.isEnabled = settingsViewModel.isUnlocked
-        }
-
-        notifyRunningRecordingCountEnabledPreference?.also {
-            it.onPreferenceClickListener = this
-            it.isEnabled = settingsViewModel.isUnlocked
-        }
-
-        notifyLowStorageSpaceEnabledPreference?.also {
-            it.onPreferenceClickListener = this
-            it.isEnabled = settingsViewModel.isUnlocked
-        }
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -109,9 +93,6 @@ class SettingsAdvancedFragment : PreferenceFragmentCompat(), Preference.OnPrefer
             "clear_database" -> handlePreferenceClearDatabaseSelected()
             "clear_search_history" -> handlePreferenceClearSearchHistorySelected()
             "clear_icon_cache" -> handlePreferenceClearIconCacheSelected()
-            "notifications_enabled" -> handlePreferenceNotificationsSelected()
-            "notify_running_recording_count_enabled" -> handlePreferenceNotifyRunningRecordingEnabledSelected()
-            "notify_low_storage_space_enabled" -> handlePreferenceNotifyLowStorageSpaceSelected()
             "load_more_epg_data" -> handlePreferenceLoadMoreEpgData()
         }
         return true
@@ -124,27 +105,6 @@ class SettingsAdvancedFragment : PreferenceFragmentCompat(), Preference.OnPrefer
             intent.action = "getMoreEvents"
             intent.putExtra("numFollowing", 250)
             ConnectionIntentService.enqueueWork(it, intent)
-        }
-    }
-
-    private fun handlePreferenceNotificationsSelected() {
-        if (!settingsViewModel.isUnlocked) {
-            context?.sendSnackbarMessage(R.string.feature_not_available_in_free_version)
-            notificationsEnabledPreference?.isChecked = false
-        }
-    }
-
-    private fun handlePreferenceNotifyRunningRecordingEnabledSelected() {
-        if (!settingsViewModel.isUnlocked) {
-            context?.sendSnackbarMessage(R.string.feature_not_available_in_free_version)
-            notifyRunningRecordingCountEnabledPreference?.isChecked = false
-        }
-    }
-
-    private fun handlePreferenceNotifyLowStorageSpaceSelected() {
-        if (!settingsViewModel.isUnlocked) {
-            context?.sendSnackbarMessage(R.string.feature_not_available_in_free_version)
-            notifyRunningRecordingCountEnabledPreference?.isChecked = false
         }
     }
 

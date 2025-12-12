@@ -67,8 +67,8 @@ class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, Down
     override fun onPrepareOptionsMenu(menu: Menu) {
         val ctx = context ?: return
         val recording = recording ?: return
-        preparePopupOrToolbarMiscMenu(ctx, binding.nestedToolbar.menu, null, isConnectionToServerAvailable, isUnlocked)
-        preparePopupOrToolbarRecordingMenu(ctx, binding.nestedToolbar.menu, recording, isConnectionToServerAvailable, htspVersion, isUnlocked)
+        preparePopupOrToolbarMiscMenu(ctx, binding.nestedToolbar.menu, null, isConnectionToServerAvailable)
+        preparePopupOrToolbarRecordingMenu(ctx, binding.nestedToolbar.menu, recording, isConnectionToServerAvailable, htspVersion)
         preparePopupOrToolbarSearchMenu(menu, recording.title, isConnectionToServerAvailable)
     }
 
@@ -88,7 +88,7 @@ class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, Down
             R.id.menu_cancel_recording -> return showConfirmationToCancelSelectedRecording(ctx, recording, this)
             R.id.menu_remove_recording -> return showConfirmationToRemoveSelectedRecording(ctx, recording, this)
             R.id.menu_edit_recording -> return editSelectedRecording(requireActivity(), recording.id)
-            R.id.menu_play -> return playSelectedRecording(ctx, recording.id, isUnlocked)
+            R.id.menu_play -> return playSelectedRecording(ctx, recording.id)
             R.id.menu_cast -> return castSelectedRecording(ctx, recording.id)
 
             R.id.menu_search_imdb -> return searchTitleOnImdbWebsite(ctx, recording.title)

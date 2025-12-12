@@ -8,7 +8,6 @@ import com.google.android.gms.cast.framework.OptionsProvider
 import com.google.android.gms.cast.framework.SessionProvider
 import com.google.android.gms.cast.framework.media.CastMediaOptions
 import com.google.android.gms.cast.framework.media.NotificationOptions
-import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.GlobalScope
 import org.tvheadend.data.AppRepository
 import org.tvheadend.data.di.DaggerRepositoryComponent
@@ -20,7 +19,6 @@ import org.tvheadend.tvhclient.di.module.SharedPreferencesModule
 import org.tvheadend.tvhclient.ui.common.onAttach
 import org.tvheadend.tvhclient.ui.features.playback.external.ExpandedControlsActivity
 import org.tvheadend.tvhclient.util.MigrateUtils
-import org.tvheadend.tvhclient.util.billing.BillingDataSource
 import org.tvheadend.tvhclient.util.logging.DebugTree
 import org.tvheadend.tvhclient.util.logging.FileLoggingTree
 import timber.log.Timber
@@ -37,22 +35,10 @@ class MainApplication : MultiDexApplication(), OptionsProvider {
     @Inject
     lateinit var sharedPreferences: SharedPreferences
 
-    private lateinit var fireBaseAnalytics: FirebaseAnalytics
     lateinit var appContainer: AppContainer
 
     inner class AppContainer {
         private val applicationScope = GlobalScope
-        private val billingDataSource = BillingDataSource.getInstance(
-            this@MainApplication,
-            applicationScope,
-            MainRepository.INAPP_SKUS,
-            null,
-            null
-        )
-        val mainRepository = MainRepository(
-            billingDataSource,
-            applicationScope
-        )
     }
 
     override fun onCreate() {
@@ -74,8 +60,6 @@ class MainApplication : MultiDexApplication(), OptionsProvider {
         component.inject(this)
 
         instance = this
-
-        fireBaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         // Initialize the logging. Log to the console only when in debug mode.
         Timber.plant(DebugTree())

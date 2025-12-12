@@ -192,7 +192,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
 
         if (!baseViewModel.isSearchActive) {
             menu.findItem(R.id.menu_genre_color_information)?.isVisible = showGenreColors
-            menu.findItem(R.id.menu_program_timeframe)?.isVisible = isUnlocked
+            menu.findItem(R.id.menu_program_timeframe)?.isVisible = true
             menu.findItem(R.id.menu_search)?.isVisible = recyclerViewAdapter.itemCount > 0
             menu.findItem(R.id.menu_search_channels)?.isVisible = recyclerViewAdapter.itemCount > 0
 
@@ -334,9 +334,9 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
         popupMenu.menuInflater.inflate(R.menu.program_popup_and_toolbar_menu, popupMenu.menu)
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
-        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, isConnectionToServerAvailable, htspVersion, isUnlocked)
+        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, isConnectionToServerAvailable, htspVersion)
         preparePopupOrToolbarSearchMenu(popupMenu.menu, channel.programTitle, isConnectionToServerAvailable)
-        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, program, isConnectionToServerAvailable, isUnlocked)
+        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, program, isConnectionToServerAvailable)
 
         // If no program data is available for the channel, hide all menu items except
         // playing the channel. This is the only option possible
@@ -357,7 +357,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
                 }
                 R.id.menu_record_program_with_custom_profile -> return@setOnMenuItemClickListener recordSelectedProgramWithCustomProfile(ctx, channel.programId, channel.id, channelViewModel.getRecordingProfileNames(), channelViewModel.getRecordingProfile())
                 R.id.menu_record_program_as_series_recording -> return@setOnMenuItemClickListener recordSelectedProgramAsSeriesRecording(ctx, channel.programTitle, channel.id, channelViewModel.getRecordingProfile(), htspVersion)
-                R.id.menu_play -> return@setOnMenuItemClickListener playSelectedChannel(ctx, channel.id, isUnlocked)
+                R.id.menu_play -> return@setOnMenuItemClickListener playSelectedChannel(ctx, channel.id)
                 R.id.menu_cast -> return@setOnMenuItemClickListener castSelectedChannel(ctx, channel.id)
 
                 R.id.menu_search_imdb -> return@setOnMenuItemClickListener searchTitleOnImdbWebsite(ctx, channel.programTitle)
@@ -390,7 +390,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
                 && Integer.valueOf(sharedPreferences.getString("channel_icon_action", resources.getString(R.string.pref_default_channel_icon_action))!!) > 0
                 && isConnectionToServerAvailable) {
             recyclerViewAdapter.getItem(position)?.let {
-                playOrCastChannel(view.context, it.id, isUnlocked)
+                playOrCastChannel(view.context, it.id)
             }
         } else {
             showChannelDetails(position)

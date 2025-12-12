@@ -1,6 +1,5 @@
 package org.tvheadend.data
 
-import androidx.lifecycle.MutableLiveData
 import org.tvheadend.data.source.ChannelDataSource
 import org.tvheadend.data.source.ChannelTagDataSource
 import org.tvheadend.data.source.ConnectionDataSource
@@ -31,11 +30,4 @@ constructor(
         override val miscData: MiscDataSource,
         override val subscriptionData: SubscriptionDataSource,
         override val inputData: InputDataSource
-) : RepositoryInterface {
-
-    private var isUnlockedLiveData = MutableLiveData<Boolean>()
-
-    init {
-        isUnlockedLiveData.value = false
-    }
-}
+) : RepositoryInterface

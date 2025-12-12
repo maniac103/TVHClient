@@ -110,7 +110,6 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
     private lateinit var navigationDrawer: NavigationDrawer
     private lateinit var syncStateReceiver: SyncStateReceiver
 
-    private var isUnlocked: Boolean = false
     private var isDualPane: Boolean = false
 
     private lateinit var queryTextSubmitTask: Runnable
@@ -139,9 +138,6 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
         baseViewModel = ViewModelProvider(this)[BaseViewModel::class.java]
         navigationViewModel = ViewModelProvider(this)[NavigationViewModel::class.java]
         statusViewModel = ViewModelProvider(this)[StatusViewModel::class.java]
-
-        // Allows billing to refresh purchases during onResume
-        lifecycle.addObserver(baseViewModel.billingLifecycleObserver)
 
         snackbarMessageReceiver = SnackbarMessageReceiver(baseViewModel)
         networkStatusReceiver = NetworkStatusReceiver(baseViewModel)
@@ -191,7 +187,6 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
         isDualPane = findViewById<View>(R.id.details) != null
 
         miniController = findViewById(R.id.cast_mini_controller)
-        miniController.gone()
 
         navigationDrawer = NavigationDrawer(this, savedInstanceState, toolbar, navigationViewModel, statusViewModel, isDualPane)
 
@@ -231,11 +226,6 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
         // will be shown in a separate fragment program list.
         queryTextSubmitTask = Runnable {
             Timber.d("Delayed search timer elapsed, starting search")
-        }
-
-        baseViewModel.isUnlockedLiveData.observe(this) { isUnlocked ->
-            Timber.d("Received live data, isUnlocked value changed to $isUnlocked")
-            baseViewModel.isUnlocked = isUnlocked || BuildConfig.OVERRIDE_UNLOCKED
         }
 
         baseViewModel.startupCompleteLiveData.observe(this) { event ->
@@ -290,16 +280,6 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
             event.getContentIfNotHandled()?.let {
                 this.showSnackbarMessage(it)
             }
-        }
-        baseViewModel.isUnlockedLiveData.observe(this) { unlocked ->
-            Timber.d("Received live data, unlocked changed to $unlocked")
-            invalidateOptionsMenu()
-            miniController.visibleOrGone(
-                isUnlocked && sharedPreferences.getBoolean(
-                    "casting_minicontroller_enabled",
-                    resources.getBoolean(R.bool.pref_default_casting_minicontroller_enabled)
-                )
-            )
         }
 
         Timber.d("Done initializing")
@@ -433,7 +413,6 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
         super.onPrepareOptionsMenu(menu)
 
         when (navigationViewModel.currentNavigationMenuId) {
-            NavigationDrawer.MENU_UNLOCKER,
             NavigationDrawer.MENU_HELP -> {
                 menu.findItem(R.id.media_route_menu_item)?.isVisible = false
                 menu.findItem(R.id.menu_search).isVisible = false
@@ -444,11 +423,11 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
             NavigationDrawer.MENU_STATUS -> {
                 menu.findItem(R.id.media_route_menu_item)?.isVisible = false
                 menu.findItem(R.id.menu_search).isVisible = false
-                menu.findItem(R.id.menu_send_wake_on_lan_packet)?.isVisible = baseViewModel.isUnlocked && baseViewModel.connection.isWolEnabled
+                menu.findItem(R.id.menu_send_wake_on_lan_packet)?.isVisible = baseViewModel.connection.isWolEnabled
             }
             else -> {
-                menu.findItem(R.id.media_route_menu_item)?.isVisible = baseViewModel.isUnlocked
-                menu.findItem(R.id.menu_send_wake_on_lan_packet)?.isVisible = baseViewModel.isUnlocked && baseViewModel.connection.isWolEnabled
+                menu.findItem(R.id.media_route_menu_item)?.isVisible = true
+                menu.findItem(R.id.menu_send_wake_on_lan_packet)?.isVisible = baseViewModel.connection.isWolEnabled
             }
         }
         return true

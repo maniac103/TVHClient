@@ -125,8 +125,8 @@ class ProgramDetailsFragment : BaseFragment(), ClearSearchResultsOrPopBackStackI
         menu.findItem(R.id.menu_play)?.isVisible = false
 
         preparePopupOrToolbarSearchMenu(menu, program?.title, isConnectionToServerAvailable)
-        preparePopupOrToolbarRecordingMenu(ctx, binding.nestedToolbar.menu, program?.recording, isConnectionToServerAvailable, htspVersion, isUnlocked)
-        preparePopupOrToolbarMiscMenu(ctx, binding.nestedToolbar.menu, program, isConnectionToServerAvailable, isUnlocked)
+        preparePopupOrToolbarRecordingMenu(ctx, binding.nestedToolbar.menu, program?.recording, isConnectionToServerAvailable, htspVersion)
+        preparePopupOrToolbarMiscMenu(ctx, binding.nestedToolbar.menu, program, isConnectionToServerAvailable)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -152,7 +152,7 @@ class ProgramDetailsFragment : BaseFragment(), ClearSearchResultsOrPopBackStackI
             }
             R.id.menu_record_program_with_custom_profile -> return recordSelectedProgramWithCustomProfile(ctx, program.eventId, program.channelId, programViewModel.getRecordingProfileNames(), programViewModel.getRecordingProfile())
             R.id.menu_record_program_as_series_recording -> return recordSelectedProgramAsSeriesRecording(ctx, program.title, program.channelId, programViewModel.getRecordingProfile(), htspVersion)
-            R.id.menu_play -> return playSelectedChannel(ctx, program.channelId, isUnlocked)
+            R.id.menu_play -> return playSelectedChannel(ctx, program.channelId)
             R.id.menu_cast -> return castSelectedChannel(ctx, program.channelId)
 
             R.id.menu_search_imdb -> return searchTitleOnImdbWebsite(ctx, program.title)

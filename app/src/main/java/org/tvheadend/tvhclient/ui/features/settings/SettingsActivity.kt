@@ -19,7 +19,6 @@ import org.tvheadend.tvhclient.ui.common.onAttach
 import org.tvheadend.tvhclient.ui.features.information.ChangeLogFragment
 import org.tvheadend.tvhclient.ui.features.information.InformationFragment
 import org.tvheadend.tvhclient.ui.features.information.PrivacyPolicyFragment
-import org.tvheadend.tvhclient.ui.features.unlocker.UnlockerFragment
 import org.tvheadend.tvhclient.util.extensions.showSnackbarMessage
 import org.tvheadend.tvhclient.util.getThemeId
 import timber.log.Timber
@@ -71,11 +70,6 @@ class SettingsActivity : AppCompatActivity(), RemoveFragmentFromBackstackInterfa
                 this.showSnackbarMessage(it)
             }
         }
-
-        settingsViewModel.isUnlockedLiveData.observe(this) { isUnlocked ->
-            Timber.d("Received live data, isUnlocked value changed to $isUnlocked")
-            settingsViewModel.isUnlocked = isUnlocked || BuildConfig.OVERRIDE_UNLOCKED
-        }
     }
 
     public override fun onStart() {
@@ -120,7 +114,6 @@ class SettingsActivity : AppCompatActivity(), RemoveFragmentFromBackstackInterfa
             "profiles" -> SettingsProfilesFragment()
             "playback" -> SettingsPlaybackFragment()
             "advanced" -> SettingsAdvancedFragment()
-            "unlocker" -> UnlockerFragment.newInstance(settingsViewModel.isUnlocked)
             "information" -> InformationFragment()
             "privacy_policy" -> PrivacyPolicyFragment()
             "changelog" -> ChangeLogFragment.newInstance(showFullChangelog = true)

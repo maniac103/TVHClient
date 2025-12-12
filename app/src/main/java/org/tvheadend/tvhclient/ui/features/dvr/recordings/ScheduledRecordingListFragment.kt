@@ -18,11 +18,6 @@ class ScheduledRecordingListFragment : RecordingListFragment() {
         }
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.menu_add_recording)?.isVisible = isUnlocked
-    }
-
     override fun getQueryHint(): String {
         return getString(R.string.search_scheduled_recordings)
     }

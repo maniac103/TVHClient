@@ -144,8 +144,8 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         popupMenu.menuInflater.inflate(R.menu.recordings_popup_menu, popupMenu.menu)
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
-        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, null, isConnectionToServerAvailable, isUnlocked)
-        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, isConnectionToServerAvailable, htspVersion, isUnlocked)
+        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, null, isConnectionToServerAvailable)
+        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, isConnectionToServerAvailable, htspVersion)
         preparePopupOrToolbarSearchMenu(popupMenu.menu, recording.title, isConnectionToServerAvailable)
 
         popupMenu.setOnMenuItemClickListener { item ->
@@ -154,9 +154,9 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
                 R.id.menu_cancel_recording -> return@setOnMenuItemClickListener showConfirmationToCancelSelectedRecording(ctx, recording, null)
                 R.id.menu_remove_recording -> return@setOnMenuItemClickListener showConfirmationToRemoveSelectedRecording(ctx, recording, null)
                 R.id.menu_edit_recording -> return@setOnMenuItemClickListener editSelectedRecording(requireActivity(), recording.id)
-                R.id.menu_share_recording -> return@setOnMenuItemClickListener shareSelectedRecording(ctx, recording.id, isUnlocked)
+                R.id.menu_share_recording -> return@setOnMenuItemClickListener shareSelectedRecording(ctx, recording.id)
 
-                R.id.menu_play -> return@setOnMenuItemClickListener playSelectedRecording(ctx, recording.id, isUnlocked)
+                R.id.menu_play -> return@setOnMenuItemClickListener playSelectedRecording(ctx, recording.id)
                 R.id.menu_cast -> return@setOnMenuItemClickListener castSelectedRecording(ctx, recording.id)
 
                 R.id.menu_search_imdb -> return@setOnMenuItemClickListener searchTitleOnImdbWebsite(ctx, recording.title)
@@ -178,7 +178,7 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         recordingViewModel.selectedListPosition = position
         if (view.id == R.id.icon || view.id == R.id.icon_text) {
             recyclerViewAdapter.getItem(position)?.let {
-                playOrCastRecording(view.context, it.id, isUnlocked)
+                playOrCastRecording(view.context, it.id)
             }
         } else {
             showRecordingDetails(position)

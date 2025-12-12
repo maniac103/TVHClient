@@ -34,8 +34,7 @@ fun preparePopupOrToolbarRecordingMenu(context: Context,
                                        menu: Menu,
                                        recording: Recording?,
                                        isConnectionToServerAvailable: Boolean,
-                                       htspVersion: Int,
-                                       isUnlocked: Boolean) {
+                                       htspVersion: Int) {
 
     // Hide the menus because the ones in the toolbar are not hidden when set in the xml
     menu.children.forEach { it.isVisible = false }
@@ -50,8 +49,8 @@ fun preparePopupOrToolbarRecordingMenu(context: Context,
                         && !recording.isAborted)) {
             Timber.d("Recording is not recording or scheduled")
             menu.findItem(R.id.menu_record_program)?.isVisible = true
-            menu.findItem(R.id.menu_record_program_and_edit)?.isVisible = isUnlocked
-            menu.findItem(R.id.menu_record_program_with_custom_profile)?.isVisible = isUnlocked
+            menu.findItem(R.id.menu_record_program_and_edit)?.isVisible = true
+            menu.findItem(R.id.menu_record_program_with_custom_profile)?.isVisible = true
             menu.findItem(R.id.menu_record_program_as_series_recording)?.isVisible = htspVersion >= 13
 
         } else if (recording.isCompleted) {
@@ -59,23 +58,23 @@ fun preparePopupOrToolbarRecordingMenu(context: Context,
             menu.findItem(R.id.menu_play)?.isVisible = true
             menu.findItem(R.id.menu_cast)?.isVisible = context.getCastSession() != null
             menu.findItem(R.id.menu_remove_recording)?.isVisible = true
-            menu.findItem(R.id.menu_download_recording)?.isVisible = isUnlocked
-            menu.findItem(R.id.menu_share_recording)?.isVisible = isUnlocked
+            menu.findItem(R.id.menu_download_recording)?.isVisible = true
+            menu.findItem(R.id.menu_share_recording)?.isVisible = true
 
         } else if (recording.isScheduled && !recording.isRecording) {
             Timber.d("Recording is scheduled")
             menu.findItem(R.id.menu_cancel_recording)?.isVisible = true
-            menu.findItem(R.id.menu_edit_recording)?.isVisible = isUnlocked
-            menu.findItem(R.id.menu_disable_recording)?.isVisible = htspVersion >= 23 && isUnlocked && recording.isEnabled
-            menu.findItem(R.id.menu_enable_recording)?.isVisible = htspVersion >= 23 && isUnlocked && !recording.isEnabled
+            menu.findItem(R.id.menu_edit_recording)?.isVisible = true
+            menu.findItem(R.id.menu_disable_recording)?.isVisible = htspVersion >= 23 && recording.isEnabled
+            menu.findItem(R.id.menu_enable_recording)?.isVisible = htspVersion >= 23 && !recording.isEnabled
 
         } else if (recording.isRecording) {
             Timber.d("Recording is being recorded")
             menu.findItem(R.id.menu_play)?.isVisible = true
             menu.findItem(R.id.menu_cast)?.isVisible = context.getCastSession() != null
             menu.findItem(R.id.menu_stop_recording)?.isVisible = true
-            menu.findItem(R.id.menu_edit_recording)?.isVisible = isUnlocked
-            menu.findItem(R.id.menu_share_recording)?.isVisible = isUnlocked
+            menu.findItem(R.id.menu_edit_recording)?.isVisible = true
+            menu.findItem(R.id.menu_share_recording)?.isVisible = true
 
         } else if (recording.isFailed || recording.isFileMissing || recording.isMissed || recording.isAborted) {
             Timber.d("Recording is failed, file is missing, has been missed or was aborted")
@@ -92,8 +91,7 @@ fun preparePopupOrToolbarRecordingMenu(context: Context,
 fun preparePopupOrToolbarMiscMenu(context: Context,
                                   menu: Menu,
                                   program: ProgramInterface?,
-                                  isConnectionToServerAvailable: Boolean,
-                                  isUnlocked: Boolean) {
+                                  isConnectionToServerAvailable: Boolean) {
 
     menu.findItem(R.id.menu_cast)?.isVisible = false
     menu.findItem(R.id.menu_play)?.isVisible = false
@@ -114,7 +112,7 @@ fun preparePopupOrToolbarMiscMenu(context: Context,
     }
     // Show the add reminder menu only for programs and
     // recordings where the start time is in the future.
-    if (isUnlocked && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
+    if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
         val currentTime = System.currentTimeMillis()
         var startTime = currentTime
         if (program != null && program.start > 0) {
@@ -466,9 +464,8 @@ fun recordSelectedProgramWithCustomProfile(context: Context, eventId: Int, chann
     return true
 }
 
-fun playSelectedChannel(context: Context, channelId: Int, isUnlocked: Boolean): Boolean {
-    if (isUnlocked
-            && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("internal_player_for_channels_enabled",
+fun playSelectedChannel(context: Context, channelId: Int): Boolean {
+    if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("internal_player_for_channels_enabled",
                     context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))) {
         val intent = Intent(context, PlaybackActivity::class.java)
         intent.putExtra("channelId", channelId)
@@ -481,9 +478,8 @@ fun playSelectedChannel(context: Context, channelId: Int, isUnlocked: Boolean): 
     return true
 }
 
-fun playSelectedRecording(context: Context, dvrId: Int, isUnlocked: Boolean): Boolean {
-    if (isUnlocked
-            && PreferenceManager.getDefaultSharedPreferences(context).getBoolean("internal_player_for_recordings_enabled",
+fun playSelectedRecording(context: Context, dvrId: Int): Boolean {
+    if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("internal_player_for_recordings_enabled",
                     context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))) {
         val intent = Intent(context, PlaybackActivity::class.java)
         intent.putExtra("dvrId", dvrId)
@@ -503,12 +499,10 @@ fun downloadSelectedRecording(context: Context, dvrId: Int): Boolean {
     return true
 }
 
-fun shareSelectedRecording(context: Context, dvrId: Int, isUnlocked: Boolean): Boolean {
-    if (isUnlocked) {
-        val intent = Intent(context, ShareRecordingActivity::class.java)
-        intent.putExtra("dvrId", dvrId)
-        context.startActivity(intent)
-    }
+fun shareSelectedRecording(context: Context, dvrId: Int): Boolean {
+    val intent = Intent(context, ShareRecordingActivity::class.java)
+    intent.putExtra("dvrId", dvrId)
+    context.startActivity(intent)
     return true
 }
 
@@ -526,33 +520,33 @@ fun castSelectedRecording(context: Context, id: Int): Boolean {
     return true
 }
 
-fun playOrCastChannel(context: Context, channelId: Int, isUnlocked: Boolean): Boolean {
+fun playOrCastChannel(context: Context, channelId: Int): Boolean {
     val channelIconAction = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("channel_icon_action",
             context.resources.getString(R.string.pref_default_channel_icon_action))!!)
 
     if (channelIconAction == 1) {
-        playSelectedChannel(context, channelId, isUnlocked)
+        playSelectedChannel(context, channelId)
     } else if (channelIconAction == 2) {
         if (context.getCastSession() != null) {
             castSelectedChannel(context, channelId)
         } else {
-            playSelectedChannel(context, channelId, isUnlocked)
+            playSelectedChannel(context, channelId)
         }
     }
     return true
 }
 
-fun playOrCastRecording(context: Context, recordingId: Int, isUnlocked: Boolean): Boolean {
+fun playOrCastRecording(context: Context, recordingId: Int): Boolean {
     val channelIconAction = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("channel_icon_action",
             context.resources.getString(R.string.pref_default_channel_icon_action))!!)
 
     if (channelIconAction == 1) {
-        playSelectedRecording(context, recordingId, isUnlocked)
+        playSelectedRecording(context, recordingId)
     } else if (channelIconAction == 2) {
         if (context.getCastSession() != null) {
             castSelectedRecording(context, recordingId)
         } else {
-            playSelectedRecording(context, recordingId, isUnlocked)
+            playSelectedRecording(context, recordingId)
         }
     }
     return true

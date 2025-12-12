@@ -26,7 +26,6 @@ abstract class BaseFragment : Fragment() {
     protected lateinit var baseViewModel: BaseViewModel
     protected lateinit var toolbarInterface: ToolbarInterface
     protected var isDualPane: Boolean = false
-    protected var isUnlocked: Boolean = false
     protected var htspVersion: Int = 13
     protected var isConnectionToServerAvailable: Boolean = false
     protected lateinit var connection: Connection
@@ -44,11 +43,6 @@ abstract class BaseFragment : Fragment() {
         baseViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { isAvailable ->
             Timber.d("Received live data, connection to server availability changed to $isAvailable")
             isConnectionToServerAvailable = isAvailable
-        }
-
-        baseViewModel.isUnlockedLiveData.observe(viewLifecycleOwner) { unlocked ->
-            Timber.d("Received live data, unlocked changed to $unlocked")
-            isUnlocked = unlocked
         }
 
         connection = baseViewModel.connection

@@ -5,31 +5,23 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.preference.PreferenceManager
 import org.tvheadend.data.AppRepository
 import org.tvheadend.data.entity.Connection
 import org.tvheadend.tvhclient.MainApplication
-import org.tvheadend.tvhclient.MainRepository
-import org.tvheadend.tvhclient.MainRepository.Companion.UNLOCKER
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.common.NetworkStatus
 import org.tvheadend.tvhclient.ui.common.interfaces.NetworkStatusInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SnackbarMessageInterface
 import org.tvheadend.tvhclient.ui.features.MainActivity
 import org.tvheadend.tvhclient.util.livedata.Event
-import timber.log.Timber
 import javax.inject.Inject
 
 open class BaseViewModel(application: Application) : AndroidViewModel(application), SnackbarMessageInterface, NetworkStatusInterface {
 
     @Inject
     lateinit var appRepository: AppRepository
-
-    private var mainRepository: MainRepository
 
     var sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
@@ -55,17 +47,6 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
 
     var connection: Connection
 
-    /**
-     * Contains the live data information that the application is unlocked or not
-     */
-    var isUnlockedLiveData: LiveData<Boolean>
-        private set
-
-    /**
-     * Contains the information that the application is unlocked or not
-     */
-    var isUnlocked = false
-
     var htspVersion: Int
     var removeFragmentWhenSearchIsDone = false
 
@@ -75,20 +56,9 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     val isSearchActive: Boolean
         get() = !searchQueryLiveData.value.isNullOrEmpty()
 
-    val messages: LiveData<Int>
-        get() = mainRepository.messages.asLiveData()
-
-    val billingLifecycleObserver: LifecycleObserver
-        get() = mainRepository.billingLifecycleObserver
-
     init {
         inject()
         startupCompleteLiveData.value = Event(false)
-
-        mainRepository = (application as MainApplication).appContainer.mainRepository
-
-        Timber.d("Observing isUnlockedLiveData from main repository")
-        isUnlockedLiveData = mainRepository.isPurchased(UNLOCKER).asLiveData()
 
         connection = appRepository.connectionData.activeItem
         htspVersion = appRepository.serverStatusData.activeItem.htspVersion
