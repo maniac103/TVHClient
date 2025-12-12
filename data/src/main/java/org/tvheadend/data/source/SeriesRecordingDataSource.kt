@@ -1,7 +1,7 @@
 package org.tvheadend.data.source
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,17 +31,13 @@ class SeriesRecordingDataSource(private val db: AppRoomDatabase) : DataSourceInt
         return db.seriesRecordingDao.itemCount
     }
 
-    override fun getLiveDataItems(): LiveData<List<SeriesRecording>> {
-        return Transformations.map(db.seriesRecordingDao.loadAllRecordings()) { entities ->
+    override fun getLiveDataItems(): LiveData<List<SeriesRecording>> =
+        db.seriesRecordingDao.loadAllRecordings().map { entities ->
             entities.map { it.toRecording() }
         }
-    }
 
-    override fun getLiveDataItemById(id: Any): LiveData<SeriesRecording> {
-        return Transformations.map(db.seriesRecordingDao.loadRecordingById(id as String)) { entity ->
-            entity.toRecording()
-        }
-    }
+    override fun getLiveDataItemById(id: Any): LiveData<SeriesRecording> =
+        db.seriesRecordingDao.loadRecordingById(id as String).map { it.toRecording() }
 
     override fun getItemById(id: Any): SeriesRecording? {
         var seriesRecording: SeriesRecording? = null

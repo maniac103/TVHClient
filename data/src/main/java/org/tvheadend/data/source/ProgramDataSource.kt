@@ -1,7 +1,7 @@
 package org.tvheadend.data.source
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,17 +58,13 @@ class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<P
         return db.programDao.itemCount
     }
 
-    override fun getLiveDataItems(): LiveData<List<Program>> {
-        return Transformations.map(db.programDao.loadPrograms()) { entities ->
+    override fun getLiveDataItems(): LiveData<List<Program>> =
+        db.programDao.loadPrograms().map { entities ->
             entities.map { it.toProgram() }
         }
-    }
 
-    override fun getLiveDataItemById(id: Any): LiveData<Program> {
-        return Transformations.map(db.programDao.loadProgramById(id as Int)) { entity ->
-            entity.toProgram()
-        }
-    }
+    override fun getLiveDataItemById(id: Any): LiveData<Program> =
+        db.programDao.loadProgramById(id as Int).map { entity -> entity.toProgram() }
 
     override fun getItemById(id: Any): Program? {
         var program: Program?
@@ -86,17 +82,15 @@ class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<P
         return programs
     }
 
-    fun getLiveDataItemsFromTime(time: Long): LiveData<List<Program>> {
-        return Transformations.map(db.programDao.loadProgramsFromTime(time)) { entities ->
+    fun getLiveDataItemsFromTime(time: Long): LiveData<List<Program>> =
+        db.programDao.loadProgramsFromTime(time).map { entities ->
             entities.map { it.toProgram() }
         }
-    }
 
-    fun getLiveDataItemByChannelIdAndTime(channelId: Int, time: Long): LiveData<List<Program>> {
-        return Transformations.map(db.programDao.loadProgramsFromChannelFromTime(channelId, time)) { entities ->
+    fun getLiveDataItemByChannelIdAndTime(channelId: Int, time: Long): LiveData<List<Program>> =
+        db.programDao.loadProgramsFromChannelFromTime(channelId, time).map { entities ->
             entities.map { it.toProgram() }
         }
-    }
 
     fun getItemByChannelIdAndBetweenTime(channelId: Int, startTime: Long, endTime: Long): List<EpgProgram> {
         val programs = ArrayList<EpgProgram>()

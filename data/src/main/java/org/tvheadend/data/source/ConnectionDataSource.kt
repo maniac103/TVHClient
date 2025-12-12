@@ -1,7 +1,7 @@
 package org.tvheadend.data.source
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,10 +19,7 @@ class ConnectionDataSource(private val db: AppRoomDatabase) : DataSourceInterfac
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     val liveDataActiveItem: LiveData<Connection>
-        get() = Transformations.map(db.connectionDao.loadActiveConnection()) { entity ->
-            Timber.d("Active live data item for connection is null ${entity == null}")
-            entity?.toConnection() ?: Connection()
-        }
+        get() = db.connectionDao.loadActiveConnection().map { entity -> entity.toConnection() }
 
     val activeItem: Connection
         get() {
@@ -72,17 +69,13 @@ class ConnectionDataSource(private val db: AppRoomDatabase) : DataSourceInterfac
         return db.connectionDao.connectionCount
     }
 
-    override fun getLiveDataItems(): LiveData<List<Connection>> {
-        return Transformations.map(db.connectionDao.loadAllConnections()) { entities ->
+    override fun getLiveDataItems(): LiveData<List<Connection>> =
+        db.connectionDao.loadAllConnections().map { entities ->
             entities.map { it.toConnection() }
         }
-    }
 
-    override fun getLiveDataItemById(id: Any): LiveData<Connection> {
-        return Transformations.map(db.connectionDao.loadConnectionById(id as Int)) { entity ->
-            entity.toConnection()
-        }
-    }
+    override fun getLiveDataItemById(id: Any): LiveData<Connection> =
+        db.connectionDao.loadConnectionById(id as Int).map { entity -> entity.toConnection() }
 
     override fun getItemById(id: Any): Connection? {
         var connection: Connection?

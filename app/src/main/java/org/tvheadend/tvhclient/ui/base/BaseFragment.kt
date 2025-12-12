@@ -39,7 +39,7 @@ abstract class BaseFragment : Fragment() {
             toolbarInterface = activity as ToolbarInterface
         }
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
         baseViewModel = ViewModelProvider(requireActivity())[BaseViewModel::class.java]
         baseViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { isAvailable ->
             Timber.d("Received live data, connection to server availability changed to $isAvailable")

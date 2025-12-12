@@ -50,7 +50,7 @@ class SettingsAdvancedFragment : PreferenceFragmentCompat(), Preference.OnPrefer
 
         (activity as ToolbarInterface).setTitle(getString(R.string.pref_advanced_settings))
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
 
         findPreference<Preference>("debug_mode_enabled")?.onPreferenceClickListener = this
         findPreference<Preference>("send_debug_logfile_enabled")?.onPreferenceClickListener = this
@@ -239,9 +239,7 @@ class SettingsAdvancedFragment : PreferenceFragmentCompat(), Preference.OnPrefer
         }
     }
 
-    override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
-        if (preference == null) return false
-
+    override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
         Timber.d("Preference ${preference.key} changed, checking if it is valid")
         when (preference.key) {
             "connection_timeout" ->
