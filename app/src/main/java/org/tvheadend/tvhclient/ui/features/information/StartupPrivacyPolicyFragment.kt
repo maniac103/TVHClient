@@ -25,7 +25,7 @@ class StartupPrivacyPolicyFragment : WebViewFragment(), BackPressedInterface, Hi
         }
 
         toolbarInterface.setTitle(getString(R.string.pref_privacy_policy))
-        toolbarInterface.setSubtitle("")
+        toolbarInterface.setSubtitle(null)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {

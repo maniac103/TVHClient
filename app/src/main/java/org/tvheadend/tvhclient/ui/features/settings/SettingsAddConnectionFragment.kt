@@ -12,7 +12,7 @@ class SettingsAddConnectionFragment : SettingsConnectionBaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         toolbarInterface.setTitle(getString(R.string.add_connection))
-        toolbarInterface.setSubtitle("")
+        toolbarInterface.setSubtitle(null)
 
         // When the fragment is created for the first time, create a new empty
         // connection which can be populated with the new information.

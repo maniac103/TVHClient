@@ -5,38 +5,42 @@ import android.content.Context
 import android.content.IntentFilter
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
+import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import org.tvheadend.tvhclient.BuildConfig
+import com.google.android.material.appbar.AppBarLayout
 import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.R
+import org.tvheadend.tvhclient.databinding.MiscContentActivityBinding
+import org.tvheadend.tvhclient.ui.base.BaseActivity
 import org.tvheadend.tvhclient.ui.common.SnackbarMessageReceiver
 import org.tvheadend.tvhclient.ui.common.interfaces.BackPressedInterface
-import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.common.onAttach
 import org.tvheadend.tvhclient.ui.features.information.ChangeLogFragment
 import org.tvheadend.tvhclient.ui.features.information.InformationFragment
 import org.tvheadend.tvhclient.ui.features.information.PrivacyPolicyFragment
 import org.tvheadend.tvhclient.util.extensions.showSnackbarMessage
-import org.tvheadend.tvhclient.util.getThemeId
 import timber.log.Timber
 
-class SettingsActivity : AppCompatActivity(), RemoveFragmentFromBackstackInterface, ToolbarInterface {
+class SettingsActivity : BaseActivity(), RemoveFragmentFromBackstackInterface {
+    private lateinit var binding: MiscContentActivityBinding
+
+    override val appBar: AppBarLayout get() = binding.appBar
+    override val toolbar: Toolbar get() = binding.toolbar
+    override val content: View get() = binding.coordinator
 
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var snackbarMessageReceiver: SnackbarMessageReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(getThemeId(this))
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.misc_content_activity)
+
+        binding = MiscContentActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         MainApplication.component.inject(this)
-
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
         snackbarMessageReceiver = SnackbarMessageReceiver(settingsViewModel)
@@ -72,6 +76,11 @@ class SettingsActivity : AppCompatActivity(), RemoveFragmentFromBackstackInterfa
         }
     }
 
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
     public override fun onStart() {
         super.onStart()
         LocalBroadcastManager.getInstance(this).registerReceiver(snackbarMessageReceiver, IntentFilter(SnackbarMessageReceiver.SNACKBAR_ACTION))
@@ -84,14 +93,6 @@ class SettingsActivity : AppCompatActivity(), RemoveFragmentFromBackstackInterfa
 
     override fun attachBaseContext(context: Context) {
         super.attachBaseContext(onAttach(context))
-    }
-
-    override fun setTitle(title: String) {
-        supportActionBar?.title = title
-    }
-
-    override fun setSubtitle(subtitle: String) {
-        supportActionBar?.subtitle = subtitle
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

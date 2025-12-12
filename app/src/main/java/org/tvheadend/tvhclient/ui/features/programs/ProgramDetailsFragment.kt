@@ -46,7 +46,7 @@ class ProgramDetailsFragment : BaseFragment(), ClearSearchResultsOrPopBackStackI
         }
 
         toolbarInterface.setTitle(getString(R.string.details))
-        toolbarInterface.setSubtitle("")
+        toolbarInterface.setSubtitle(null)
 
         // In case the fragment was called from the program activity, program list or any adapter
         arguments?.let {

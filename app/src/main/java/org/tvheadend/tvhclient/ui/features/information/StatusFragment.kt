@@ -40,7 +40,7 @@ class StatusFragment : BaseFragment() {
         }
 
         toolbarInterface.setTitle(getString(R.string.status))
-        toolbarInterface.setSubtitle("")
+        toolbarInterface.setSubtitle(null)
 
         showStatus()
         showSubscriptionAndInputStatus()

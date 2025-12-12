@@ -50,7 +50,7 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
 
         updateUI()
 
-        toolbarInterface.setSubtitle("")
+        toolbarInterface.setSubtitle(null)
         toolbarInterface.setTitle(if (seriesRecordingViewModel.recording.id.isNotEmpty())
             getString(R.string.edit_recording)
         else

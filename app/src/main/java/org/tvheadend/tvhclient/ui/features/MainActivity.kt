@@ -5,7 +5,6 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.database.Cursor
@@ -22,7 +21,6 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -37,17 +35,19 @@ import com.google.android.gms.cast.framework.CastState
 import com.google.android.gms.cast.framework.CastStateListener
 import com.google.android.gms.cast.framework.IntroductoryOverlay
 import com.google.android.gms.cast.framework.SessionManagerListener
+import com.google.android.material.appbar.AppBarLayout
 import org.tvheadend.api.AuthenticationFailureReason
 import org.tvheadend.api.AuthenticationStateResult
 import org.tvheadend.api.ConnectionFailureReason
 import org.tvheadend.api.ConnectionStateResult
 import org.tvheadend.tvhclient.BuildConfig
 import org.tvheadend.tvhclient.R
+import org.tvheadend.tvhclient.databinding.MainActivityBinding
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.service.SyncState
 import org.tvheadend.tvhclient.service.SyncStateReceiver
 import org.tvheadend.tvhclient.service.SyncStateResult
-import org.tvheadend.tvhclient.ui.base.BaseViewModel
+import org.tvheadend.tvhclient.ui.base.BaseActivity
 import org.tvheadend.tvhclient.ui.common.NetworkStatus
 import org.tvheadend.tvhclient.ui.common.NetworkStatusReceiver
 import org.tvheadend.tvhclient.ui.common.SnackbarMessageReceiver
@@ -59,7 +59,6 @@ import org.tvheadend.tvhclient.ui.common.interfaces.HideNavigationDrawerInterfac
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ShowProgramListFragmentInterface
-import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.common.onAttach
 import org.tvheadend.tvhclient.ui.common.showConfirmationToReconnectToServer
 import org.tvheadend.tvhclient.ui.common.showOrCancelNotificationDiskSpaceIsLow
@@ -80,21 +79,21 @@ import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import org.tvheadend.tvhclient.util.extensions.showSnackbarMessage
 import org.tvheadend.tvhclient.util.extensions.visible
-import org.tvheadend.tvhclient.util.extensions.visibleOrGone
-import org.tvheadend.tvhclient.util.getThemeId
 import timber.log.Timber
 
 
-class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterface, SearchView.OnQueryTextListener, SearchView.OnSuggestionListener, SyncStateReceiver.Listener, View.OnFocusChangeListener {
+class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryTextListener, SearchView.OnSuggestionListener, SyncStateReceiver.Listener, View.OnFocusChangeListener {
 
-    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var navigationViewModel: NavigationViewModel
     private lateinit var statusViewModel: StatusViewModel
-    private lateinit var baseViewModel: BaseViewModel
 
     private lateinit var snackbarMessageReceiver: SnackbarMessageReceiver
     private lateinit var networkStatusReceiver: NetworkStatusReceiver
-    private lateinit var toolbar: Toolbar
+    private lateinit var binding: MainActivityBinding
+
+    override val appBar: AppBarLayout get() = binding.appBar
+    override val toolbar: Toolbar get() = binding.toolbar
+    override val content: View get() = binding.coordinator
 
     private lateinit var syncProgress: ProgressBar
 
@@ -118,8 +117,6 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
     private lateinit var miniController: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(getThemeId(this))
-
         if (BuildConfig.DEBUG) {
             StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder()
                     .detectLeakedSqlLiteObjects()
@@ -129,13 +126,10 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
                     .build())
         }
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_activity)
 
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        binding = MainActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        baseViewModel = ViewModelProvider(this)[BaseViewModel::class.java]
         navigationViewModel = ViewModelProvider(this)[NavigationViewModel::class.java]
         statusViewModel = ViewModelProvider(this)[StatusViewModel::class.java]
 
@@ -188,7 +182,7 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
 
         miniController = findViewById(R.id.cast_mini_controller)
 
-        navigationDrawer = NavigationDrawer(this, savedInstanceState, toolbar, navigationViewModel, statusViewModel, isDualPane)
+        navigationDrawer = NavigationDrawer(this, savedInstanceState, binding.toolbar, navigationViewModel, statusViewModel, isDualPane)
 
         supportFragmentManager.addOnBackStackChangedListener {
 
@@ -326,14 +320,6 @@ class MainActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterfa
         LocalBroadcastManager.getInstance(this).unregisterReceiver(syncStateReceiver)
         LocalBroadcastManager.getInstance(this).unregisterReceiver(snackbarMessageReceiver)
         unregisterReceiver(networkStatusReceiver)
-    }
-
-    override fun setTitle(title: String) {
-        supportActionBar?.title = title
-    }
-
-    override fun setSubtitle(subtitle: String) {
-        supportActionBar?.subtitle = subtitle
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {

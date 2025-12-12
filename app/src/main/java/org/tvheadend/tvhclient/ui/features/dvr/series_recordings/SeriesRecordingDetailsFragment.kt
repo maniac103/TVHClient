@@ -31,7 +31,7 @@ class SeriesRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface
 
         if (!isDualPane) {
             toolbarInterface.setTitle(getString(R.string.details))
-            toolbarInterface.setSubtitle("")
+            toolbarInterface.setSubtitle(null)
         }
 
         arguments?.let {

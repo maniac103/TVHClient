@@ -49,7 +49,7 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
 
         updateUI()
 
-        toolbarInterface.setSubtitle("")
+        toolbarInterface.setSubtitle(null)
         toolbarInterface.setTitle(if (id > 0)
             getString(R.string.edit_recording)
         else

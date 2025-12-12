@@ -32,7 +32,7 @@ class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, Down
 
         if (!isDualPane) {
             toolbarInterface.setTitle(getString(R.string.details))
-            toolbarInterface.setSubtitle("")
+            toolbarInterface.setSubtitle(null)
         }
 
         // Get the recording id after an orientation change has occurred

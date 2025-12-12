@@ -28,7 +28,7 @@ class SettingsUserInterfaceFragment : PreferenceFragmentCompat(), Preference.OnP
 
         (activity as ToolbarInterface).let {
             it.setTitle(getString(R.string.pref_user_interface))
-            it.setSubtitle("")
+            it.setSubtitle(null)
         }
 
         programArtworkEnabledPreference = findPreference("program_artwork_enabled")

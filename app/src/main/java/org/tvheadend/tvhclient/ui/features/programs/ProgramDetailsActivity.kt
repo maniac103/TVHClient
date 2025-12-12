@@ -3,11 +3,15 @@ package org.tvheadend.tvhclient.ui.features.programs
 import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.AppBarLayout
 import org.tvheadend.tvhclient.R
+import org.tvheadend.tvhclient.databinding.MiscContentActivityBinding
+import org.tvheadend.tvhclient.ui.base.BaseActivity
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.common.onAttach
@@ -16,17 +20,18 @@ import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.getThemeId
 import timber.log.Timber
 
-class ProgramDetailsActivity : AppCompatActivity(), ToolbarInterface, LayoutControlInterface {
+class ProgramDetailsActivity : BaseActivity(), LayoutControlInterface {
+    private lateinit var binding: MiscContentActivityBinding
 
-    lateinit var toolbar: Toolbar
+    override val appBar: AppBarLayout get() = binding.appBar
+    override val toolbar: Toolbar get() = binding.toolbar
+    override val content: View get() = binding.coordinator
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(getThemeId(this))
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.misc_content_activity)
 
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        binding = MiscContentActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         if (savedInstanceState == null) {
             val fragment = ProgramDetailsFragment.newInstance(
@@ -38,14 +43,6 @@ class ProgramDetailsActivity : AppCompatActivity(), ToolbarInterface, LayoutCont
 
     override fun attachBaseContext(context: Context) {
         super.attachBaseContext(onAttach(context))
-    }
-
-    override fun setTitle(title: String) {
-        supportActionBar?.title = title
-    }
-
-    override fun setSubtitle(subtitle: String) {
-        supportActionBar?.subtitle = subtitle
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

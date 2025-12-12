@@ -11,6 +11,6 @@ class InformationFragment : WebViewFragment() {
         website = "information"
 
         toolbarInterface.setTitle(getString(R.string.pref_information))
-        toolbarInterface.setSubtitle("")
+        toolbarInterface.setSubtitle(null)
     }
 }

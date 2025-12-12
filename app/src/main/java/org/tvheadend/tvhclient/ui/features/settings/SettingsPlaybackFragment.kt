@@ -12,10 +12,9 @@ class SettingsPlaybackFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (activity is ToolbarInterface) {
-            val toolbarInterface = activity as ToolbarInterface
+        (activity as? ToolbarInterface)?.let { toolbarInterface ->
             toolbarInterface.setTitle(getString(R.string.playback))
-            toolbarInterface.setSubtitle("")
+            toolbarInterface.setSubtitle(null)
         }
     }
 

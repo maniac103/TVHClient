@@ -11,6 +11,6 @@ class HelpAndSupportFragment : WebViewFragment() {
         website = "help_and_support"
 
         toolbarInterface.setTitle(getString(R.string.help_and_support))
-        toolbarInterface.setSubtitle("")
+        toolbarInterface.setSubtitle(null)
     }
 }

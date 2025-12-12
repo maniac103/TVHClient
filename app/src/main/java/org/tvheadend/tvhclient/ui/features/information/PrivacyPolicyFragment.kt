@@ -11,6 +11,6 @@ class PrivacyPolicyFragment : WebViewFragment() {
         website = "privacy_policy"
 
         toolbarInterface.setTitle(getString(R.string.pref_privacy_policy))
-        toolbarInterface.setSubtitle("")
+        toolbarInterface.setSubtitle(null)
     }
 }

@@ -34,7 +34,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
 
         (activity as ToolbarInterface).let {
             it.setTitle(getString(R.string.settings))
-            it.setSubtitle("")
+            it.setSubtitle(null)
         }
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
