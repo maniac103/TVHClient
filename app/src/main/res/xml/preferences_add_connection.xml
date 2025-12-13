@@ -39,6 +39,7 @@
         <SwitchPreference
             android:defaultValue="@bool/pref_default_wol_enabled"
             android:key="wol_enabled"
+            android:widgetLayout="@layout/preference_material_switch"
             android:title="Enable Wake On Lan" />
         <EditTextPreference
             android:dependency="wol_enabled"
@@ -51,6 +52,7 @@
             android:dependency="wol_enabled"
             android:key="wol_broadcast_enabled"
             android:summary="@string/pref_wol_broadcast_sum"
+            android:widgetLayout="@layout/preference_material_switch"
             android:title="@string/pref_wol_broadcast" />
         <EditTextPreference
             android:defaultValue="@string/pref_default_wol_port"
