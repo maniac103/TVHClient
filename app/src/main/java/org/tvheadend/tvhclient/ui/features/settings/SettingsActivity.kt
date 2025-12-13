@@ -27,10 +27,6 @@ import timber.log.Timber
 class SettingsActivity : BaseActivity(), RemoveFragmentFromBackstackInterface {
     private lateinit var binding: MiscContentActivityBinding
 
-    override val appBar: AppBarLayout get() = binding.appBar
-    override val toolbar: Toolbar get() = binding.toolbar
-    override val content: View get() = binding.coordinator
-
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var snackbarMessageReceiver: SnackbarMessageReceiver
 
@@ -40,6 +36,7 @@ class SettingsActivity : BaseActivity(), RemoveFragmentFromBackstackInterface {
         binding = MiscContentActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupToolbar(binding.toolbar, binding.appBar, binding.coordinator)
         MainApplication.component.inject(this)
 
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]

@@ -21,8 +21,8 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -35,7 +35,6 @@ import com.google.android.gms.cast.framework.CastState
 import com.google.android.gms.cast.framework.CastStateListener
 import com.google.android.gms.cast.framework.IntroductoryOverlay
 import com.google.android.gms.cast.framework.SessionManagerListener
-import com.google.android.material.appbar.AppBarLayout
 import org.tvheadend.api.AuthenticationFailureReason
 import org.tvheadend.api.AuthenticationStateResult
 import org.tvheadend.api.ConnectionFailureReason
@@ -91,10 +90,6 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
     private lateinit var networkStatusReceiver: NetworkStatusReceiver
     private lateinit var binding: MainActivityBinding
 
-    override val appBar: AppBarLayout get() = binding.appBar
-    override val toolbar: Toolbar get() = binding.toolbar
-    override val content: View get() = binding.coordinator
-
     private lateinit var syncProgress: ProgressBar
 
     private var searchMenuItem: MenuItem? = null
@@ -107,6 +102,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
     private var castSessionManagerListener: SessionManagerListener<CastSession>? = null
 
     private lateinit var navigationDrawer: NavigationDrawer
+    private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var syncStateReceiver: SyncStateReceiver
 
     private var isDualPane: Boolean = false
@@ -129,6 +125,14 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
 
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setupToolbar(binding.toolbar, binding.appBar, binding.coordinator)
+        drawerToggle = ActionBarDrawerToggle(
+            this,
+            binding.root,
+            0, 0
+        )
+        binding.root.addDrawerListener(drawerToggle)
 
         navigationViewModel = ViewModelProvider(this)[NavigationViewModel::class.java]
         statusViewModel = ViewModelProvider(this)[StatusViewModel::class.java]
@@ -182,7 +186,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
 
         miniController = findViewById(R.id.cast_mini_controller)
 
-        navigationDrawer = NavigationDrawer(this, savedInstanceState, binding.toolbar, navigationViewModel, statusViewModel, isDualPane)
+        navigationDrawer = NavigationDrawer(this, binding.drawer, binding.root, navigationViewModel, statusViewModel, isDualPane)
 
         supportFragmentManager.addOnBackStackChangedListener {
 
@@ -190,11 +194,11 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             // Otherwise show the navigation menu again and invalidate any menus and update the toolbar.
             val fragment = supportFragmentManager.findFragmentById(R.id.main)
             if (fragment is HideNavigationDrawerInterface) {
-                navigationDrawer.enableDrawerIndicator(false)
-                supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            } else {
+                drawerToggle.isDrawerIndicatorEnabled = false
                 supportActionBar?.setDisplayHomeAsUpEnabled(false)
-                navigationDrawer.enableDrawerIndicator(true)
+            } else {
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                drawerToggle.isDrawerIndicatorEnabled = true
                 invalidateOptionsMenu()
             }
 
@@ -279,11 +283,9 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
         Timber.d("Done initializing")
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        var out = outState
-        // add the values which need to be saved from the drawer and header to the bundle
-        out = navigationDrawer.saveInstanceState(out)
-        super.onSaveInstanceState(out)
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        drawerToggle.syncState()
     }
 
     override fun attachBaseContext(context: Context) {
@@ -339,7 +341,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
                     introductoryOverlay = IntroductoryOverlay.Builder(
                             this@MainActivity, it)
                             .setTitleText(getString(R.string.intro_overlay_text))
-                            .setOverlayColor(R.color.primary)
+                            .setOverlayColor(R.color.primaryColor)
                             .setSingleTime()
                             .setOnOverlayDismissedListener { introductoryOverlay = null }
                             .build()
@@ -420,6 +422,10 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true
+        }
+
         return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()

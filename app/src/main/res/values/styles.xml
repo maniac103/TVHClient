@@ -62,6 +62,22 @@
         <item name="windowNoTitle">false</item>
     </style>
 
+    <style name="CustomMaterialDrawerStyle" parent="Widget.MaterialDrawerStyle">
+        <item name="materialDrawerBackground">@color/material_drawer_background_dark</item>
+        <item name="materialDrawerSelectedBackgroundColor">@color/material_drawer_selected_dark</item>
+    </style>
+
+    <style name="CustomMaterialDrawerStyle.Light" parent="Widget.MaterialDrawerStyle">
+        <item name="materialDrawerBackground">@color/material_drawer_background_light</item>
+        <item name="materialDrawerSelectedBackgroundColor">@color/material_drawer_selected_light</item>
+    </style>
+
+    <style name="CustomMaterialDrawerHeaderStyle" parent="Widget.MaterialDrawerHeaderStyle">
+        <item name="materialDrawerCompactStyle">true</item>
+        <item name="materialDrawerHeaderSelectionText">@color/title_text_dark</item>
+        <item name="materialDrawerHeaderSelectionSubtext">@color/subtitle_text_dark</item>
+    </style>
+
     <!-- Styles that will be used for the dark holo theme -->
     <style name="CustomTheme" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
 
@@ -137,13 +153,9 @@
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Material drawer colors">-->
+        <item name="materialDrawerStyle">@style/CustomMaterialDrawerStyle</item>
+        <item name="materialDrawerHeaderStyle">@style/CustomMaterialDrawerHeaderStyle</item>
         <item name="material_drawer_badge">@color/material_drawer_badge_dark</item>
-        <item name="material_drawer_background">@color/material_drawer_background_dark</item>
-        <item name="material_drawer_primary_text">@color/material_drawer_dark_primary_text</item>
-        <item name="material_drawer_primary_icon">@color/material_drawer_dark_primary_icon</item>
-        <item name="material_drawer_header_selection_text">@color/material_drawer_dark_primary_text</item>
-        <item name="material_drawer_header_selection_subtext">@color/material_drawer_dark_secondary_text</item>
-        <item name="material_drawer_selected">@color/material_drawer_selected_dark</item>
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Fast scrollbar styles">-->
@@ -160,6 +172,7 @@
 
         <!--<editor-fold desc="Misc">-->
         <item name="divider_color">@color/divider_color_dark</item>
+        <item name="selection_color">@color/material_drawer_selected_dark</item>
         <item name="rounded_corners">@drawable/rounded_corners_dark</item>
         <!--</editor-fold>-->
     </style>
@@ -238,11 +251,9 @@
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Material drawer colors">-->
+        <item name="materialDrawerStyle">@style/CustomMaterialDrawerStyle.Light</item>
+        <item name="materialDrawerHeaderStyle">@style/CustomMaterialDrawerHeaderStyle</item>
         <item name="material_drawer_badge">@color/material_drawer_badge_light</item>
-        <item name="material_drawer_background">@color/material_drawer_background_light</item>
-        <item name="material_drawer_header_selection_text">@color/material_drawer_dark_primary_text</item>
-        <item name="material_drawer_header_selection_subtext">@color/material_drawer_dark_secondary_text</item>
-        <item name="material_drawer_selected">@color/material_drawer_selected_light</item>
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Fast scrollbar styles">-->
@@ -260,6 +271,7 @@
         <!--<editor-fold desc="Misc">-->
         <item name="rounded_corners">@drawable/rounded_corners_light</item>
         <item name="divider_color">@color/divider_color_light</item>
+        <item name="selection_color">@color/material_drawer_selected_light</item>
         <!--</editor-fold>-->
     </style>
 

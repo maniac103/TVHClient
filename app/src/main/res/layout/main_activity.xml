@@ -69,4 +69,11 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+    <com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
+        android:id="@+id/drawer"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true" />
+
 </androidx.drawerlayout.widget.DrawerLayout>

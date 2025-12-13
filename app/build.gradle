@@ -121,7 +121,7 @@ dependencies {
     implementation "com.afollestad.material-dialogs:datetime:$materialDialogsVersion"
     implementation "com.afollestad.material-dialogs:lifecycle:${materialDialogsVersion}"
     //noinspection GradleDependency
-    implementation 'com.mikepenz:materialdrawer:7.0.0'
+    implementation 'com.mikepenz:materialdrawer:9.0.2'
 
     // Dependency injection
     implementation "com.google.dagger:dagger:$daggerVersion"

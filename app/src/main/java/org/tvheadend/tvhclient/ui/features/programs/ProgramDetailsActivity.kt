@@ -23,15 +23,13 @@ import timber.log.Timber
 class ProgramDetailsActivity : BaseActivity(), LayoutControlInterface {
     private lateinit var binding: MiscContentActivityBinding
 
-    override val appBar: AppBarLayout get() = binding.appBar
-    override val toolbar: Toolbar get() = binding.toolbar
-    override val content: View get() = binding.coordinator
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = MiscContentActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setupToolbar(binding.toolbar, binding.appBar, binding.coordinator)
 
         if (savedInstanceState == null) {
             val fragment = ProgramDetailsFragment.newInstance(

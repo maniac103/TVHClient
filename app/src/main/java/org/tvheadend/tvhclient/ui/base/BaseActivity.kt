@@ -20,9 +20,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.util.getThemeId
 
 abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
-    protected abstract val appBar: AppBarLayout
-    protected abstract val toolbar: Toolbar
-    protected abstract val content: View
+    private lateinit var toolbar: Toolbar
 
     protected lateinit var sharedPreferences: SharedPreferences
     protected lateinit var baseViewModel: BaseViewModel
@@ -35,10 +33,10 @@ abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
         baseViewModel = ViewModelProvider(this)[BaseViewModel::class.java]
     }
 
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
+    protected fun setupToolbar(toolbar: Toolbar, appBarLayout: AppBarLayout, contentView: View) {
+        this.toolbar = toolbar
         setSupportActionBar(toolbar)
-        enableDrawingBehindStatusBar()
+        enableDrawingBehindStatusBar(toolbar, appBarLayout, contentView)
     }
 
     override fun setTitle(title: String) {
@@ -49,10 +47,10 @@ abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
         toolbar.subtitle = subtitle
     }
 
-    private fun enableDrawingBehindStatusBar() {
+    private fun enableDrawingBehindStatusBar(toolbar: Toolbar, appBarLayout: AppBarLayout, contentView: View) {
         val appBarBackgroundColor = ColorStateList.valueOf(ThemeUtils.getThemeAttrColor(this, R.attr.toolbarColorPrimary))
         val appBarBackground = MaterialShapeDrawable.createWithElevationOverlay(this, 0.0f, appBarBackgroundColor)
-        appBar.statusBarForeground = appBarBackground
+        appBarLayout.statusBarForeground = appBarBackground
 
         EdgeToEdgeUtils.applyEdgeToEdge(window, true)
         ViewCompat.setOnApplyWindowInsetsListener(toolbar) { _, insets ->
@@ -60,8 +58,8 @@ abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
                     WindowInsetsCompat.Type.navigationBars() or
                     WindowInsetsCompat.Type.displayCutout()
             val relevantInsets = insets.getInsets(insetsType)
-            appBar.updatePadding(top = relevantInsets.top)
-            content.updatePadding(bottom = relevantInsets.bottom)
+            appBarLayout.updatePadding(top = relevantInsets.top)
+            contentView.updatePadding(bottom = relevantInsets.bottom)
             WindowInsetsCompat.CONSUMED
         }
     }
