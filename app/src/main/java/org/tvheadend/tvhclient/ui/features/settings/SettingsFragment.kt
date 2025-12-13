@@ -11,6 +11,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
@@ -55,6 +56,17 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
+    }
+
+    @Suppress("deprecation") // setTargetFragment is deprecated, but needed by super class
+    override fun onDisplayPreferenceDialog(preference: Preference) {
+        if (preference is ListPreference) {
+            val fragment = MaterialListPreferenceDialog.create(preference)
+            fragment.setTargetFragment(this, 0)
+            fragment.show(parentFragmentManager, "list_preference_dialog")
+        } else {
+            super.onDisplayPreferenceDialog(preference)
+        }
     }
 
     override fun onResume() {
