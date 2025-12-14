@@ -67,118 +67,14 @@
         <item name="materialDrawerSelectedBackgroundColor">@color/material_drawer_selected_dark</item>
     </style>
 
-    <style name="CustomMaterialDrawerStyle.Light" parent="Widget.MaterialDrawerStyle">
-        <item name="materialDrawerBackground">@color/material_drawer_background_light</item>
-        <item name="materialDrawerSelectedBackgroundColor">@color/material_drawer_selected_light</item>
-    </style>
-
     <style name="CustomMaterialDrawerHeaderStyle" parent="Widget.MaterialDrawerHeaderStyle">
         <item name="materialDrawerCompactStyle">true</item>
-        <item name="materialDrawerHeaderSelectionText">@color/title_text_dark</item>
-        <item name="materialDrawerHeaderSelectionSubtext">@color/subtitle_text_dark</item>
-    </style>
-
-    <!-- Styles that will be used for the dark holo theme -->
-    <style name="CustomTheme" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
-
-        <item name="windowActionModeOverlay">true</item>
-        <item name="android:actionModeBackground">@android:color/background_dark</item>
-        <item name="actionModeBackground">@android:color/background_dark</item>
-        <item name="android:colorBackground">@color/surfaceDarkColor</item>
-
-        <!--<editor-fold desc="Icons">-->
-        <item name="ic_menu_search">@drawable/ic_menu_search_dark</item>
-        <item name="ic_menu_save">@drawable/ic_menu_save_dark</item>
-        <item name="ic_menu_cancel">@drawable/ic_menu_cancel_dark</item>
-        <item name="ic_menu_add">@drawable/ic_menu_add_dark</item>
-        <item name="ic_menu_list">@drawable/ic_menu_list_dark</item>
-        <item name="ic_menu_download">@drawable/ic_menu_download_dark</item>
-        <item name="ic_menu_tags">@drawable/ic_menu_tag_dark</item>
-        <item name="ic_menu_record_once">@drawable/ic_menu_record_dark</item>
-        <item name="ic_menu_record_once_and_edit">@drawable/ic_menu_record_and_edit_dark</item>
-        <item name="ic_menu_record_once_custom_profile">@drawable/ic_menu_record_profile_dark</item>
-        <item name="ic_menu_record_series">@drawable/ic_menu_record_series_dark</item>
-        <item name="ic_menu_record_cancel">@drawable/ic_menu_cancel_dark</item>
-        <item name="ic_menu_record_remove">@drawable/ic_menu_delete_dark</item>
-        <item name="ic_menu_stop">@drawable/ic_menu_stop_dark</item>
-        <item name="ic_menu_refresh">@drawable/ic_menu_refresh_dark</item>
-        <item name="ic_menu_settings">@drawable/ic_menu_settings_dark</item>
-        <item name="ic_menu_play">@drawable/ic_menu_play_dark</item>
-        <item name="ic_menu_cast">@drawable/ic_menu_cast_dark</item>
-        <item name="ic_menu_delete">@drawable/ic_menu_delete_dark</item>
-        <item name="ic_menu_edit">@drawable/ic_menu_edit_dark</item>
-        <item name="ic_menu_timeframe">@drawable/ic_menu_timeframe_dark</item>
-        <item name="ic_menu_wol">@drawable/ic_menu_send_wol_dark</item>
-        <item name="ic_menu_help">@drawable/ic_menu_help_dark</item>
-        <item name="ic_menu_info">@drawable/ic_menu_info_dark</item>
-        <item name="ic_item_active">@drawable/item_active_dark</item>
-        <item name="ic_item_not_active">@drawable/item_not_active_dark</item>
-        <item name="ic_menu_channels">@drawable/ic_menu_channels_dark</item>
-        <item name="ic_menu_program_guide">@drawable/ic_menu_program_guide_dark</item>
-        <item name="ic_menu_completed_recordings">@drawable/ic_menu_completed_recordings_dark</item>
-        <item name="ic_menu_scheduled_recordings">@drawable/ic_menu_scheduled_recordings_dark</item>
-        <item name="ic_menu_series_recordings">@drawable/ic_menu_scheduled_recordings_dark</item>
-        <item name="ic_menu_timer_recordings">@drawable/ic_menu_scheduled_recordings_dark</item>
-        <item name="ic_menu_failed_recordings">@drawable/ic_menu_failed_recordings_dark</item>
-        <item name="ic_menu_removed_recordings">@drawable/ic_menu_removed_recordings_dark</item>
-        <item name="ic_menu_status">@drawable/ic_menu_status_dark</item>
-        <item name="ic_menu_information">@drawable/ic_menu_info_dark</item>
-        <item name="ic_menu_extras">@drawable/ic_menu_extras_dark</item>
-        <item name="ic_menu_share">@drawable/ic_menu_share_dark</item>
-        <item name="ic_arrow_drop_down_like_spinner">@drawable/ic_arrow_drop_down_like_spinner_dark</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Fonts">-->
-        <item name="TitleFont">@style/TitleFont.Dark</item>
-        <item name="SubtitleFont">@style/SubtitleFont.Dark</item>
-        <item name="ContentFont">@style/ContentFont.Dark</item>
-        <item name="ProgramGuideTitleFont">@style/ProgramGuideTitleFont.Dark</item>
-        <item name="ProgramGuideContentFont">@style/ProgramGuideContentFont.Dark</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Toolbar color">-->
-        <item name="toolbarColorPrimary">@color/toolbarPrimaryDarkColor</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Main color">-->
-        <item name="colorPrimary">@color/primaryColor</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Status bar color">-->
-        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Progressbar color">-->
-        <item name="colorSecondary">@color/secondaryColor</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Material drawer colors">-->
-        <item name="materialDrawerStyle">@style/CustomMaterialDrawerStyle</item>
-        <item name="materialDrawerHeaderStyle">@style/CustomMaterialDrawerHeaderStyle</item>
-        <item name="material_drawer_badge">@color/material_drawer_badge_dark</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Fast scrollbar styles">-->
-        <item name="fast_scroll_track">@drawable/fast_scroll_track_dark</item>
-        <item name="fast_scroll_thumb">@drawable/fast_scroll_thumb_dark</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Material dialog colors">-->
-        <item name="md_color_title">@color/title_text_dark</item>
-        <item name="md_color_content">@color/content_text_dark</item>
-        <item name="md_color_button_text">@color/title_text_dark</item>
-        <item name="md_corner_radius">@dimen/md_corner_radius</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Misc">-->
-        <item name="divider_color">@color/divider_color_dark</item>
-        <item name="selection_color">@color/material_drawer_selected_dark</item>
-        <item name="rounded_corners">@drawable/rounded_corners_dark</item>
-        <!--</editor-fold>-->
+        <item name="materialDrawerHeaderSelectionText">?colorOnPrimaryContainer</item>
+        <item name="materialDrawerHeaderSelectionSubtext">?colorOnPrimaryContainer</item>
     </style>
 
     <!-- Styles that will be used for the light holo theme -->
-    <style name="CustomTheme.Light" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
+    <style name="CustomTheme" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
 
         <item name="windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">@android:color/background_light</item>
@@ -234,26 +130,57 @@
         <item name="ProgramGuideContentFont">@style/ProgramGuideContentFont.Light</item>
         <!--</editor-fold>-->
 
-        <!--<editor-fold desc="Toolbar color">-->
-        <item name="toolbarColorPrimary">@color/toolbarPrimaryLightColor</item>
+        <!--<editor-fold desc="Theme colors">-->
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_onTertiaryContainer</item>
+        <item name="colorError">@color/md_theme_error</item>
+        <item name="colorOnError">@color/md_theme_onError</item>
+        <item name="colorErrorContainer">@color/md_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/md_theme_onErrorContainer</item>
+        <item name="android:colorBackground">@color/md_theme_background</item>
+        <item name="colorOnBackground">@color/md_theme_onBackground</item>
+        <item name="colorSurface">@color/md_theme_surface</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_outline</item>
+        <item name="colorOutlineVariant">@color/md_theme_outlineVariant</item>
+        <item name="colorSurfaceInverse">@color/md_theme_inverseSurface</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_inverseOnSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
+        <item name="colorPrimaryFixed">@color/md_theme_primaryFixed</item>
+        <item name="colorOnPrimaryFixed">@color/md_theme_onPrimaryFixed</item>
+        <item name="colorPrimaryFixedDim">@color/md_theme_primaryFixedDim</item>
+        <item name="colorOnPrimaryFixedVariant">@color/md_theme_onPrimaryFixedVariant</item>
+        <item name="colorSecondaryFixed">@color/md_theme_secondaryFixed</item>
+        <item name="colorOnSecondaryFixed">@color/md_theme_onSecondaryFixed</item>
+        <item name="colorSecondaryFixedDim">@color/md_theme_secondaryFixedDim</item>
+        <item name="colorOnSecondaryFixedVariant">@color/md_theme_onSecondaryFixedVariant</item>
+        <item name="colorTertiaryFixed">@color/md_theme_tertiaryFixed</item>
+        <item name="colorOnTertiaryFixed">@color/md_theme_onTertiaryFixed</item>
+        <item name="colorTertiaryFixedDim">@color/md_theme_tertiaryFixedDim</item>
+        <item name="colorOnTertiaryFixedVariant">@color/md_theme_onTertiaryFixedVariant</item>
+        <item name="colorSurfaceDim">@color/md_theme_surfaceDim</item>
+        <item name="colorSurfaceBright">@color/md_theme_surfaceBright</item>
+        <item name="colorSurfaceContainerLowest">@color/md_theme_surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/md_theme_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
         <!--</editor-fold>-->
 
-        <!--<editor-fold desc="Main color">-->
-        <item name="colorPrimary">@color/primaryColor</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Status bar color">-->
-        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Progressbar color">-->
-        <item name="colorSecondary">@color/secondaryColor</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Material drawer colors">-->
-        <item name="materialDrawerStyle">@style/CustomMaterialDrawerStyle.Light</item>
+        <!--<editor-fold desc="Material drawer styles">-->
         <item name="materialDrawerHeaderStyle">@style/CustomMaterialDrawerHeaderStyle</item>
-        <item name="material_drawer_badge">@color/material_drawer_badge_light</item>
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Fast scrollbar styles">-->
@@ -275,7 +202,7 @@
         <!--</editor-fold>-->
     </style>
 
-    <style name="SplashTheme" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
+    <style name="SplashTheme" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/background_splash</item>
     </style>
 

@@ -1,6 +1,7 @@
 package org.tvheadend.tvhclient.ui.common
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -13,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.preference.PreferenceManager
@@ -29,6 +31,7 @@ import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import org.tvheadend.tvhclient.util.getIconUrl
 import org.tvheadend.tvhclient.util.getThemeId
+import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -505,7 +508,7 @@ fun setChannelName(view: TextView, name: String?, iconUrl: String?) {
 @BindingAdapter("backgroundImage")
 fun setDualPaneBackground(view: ImageView, isSelected: Boolean) {
     if (isSelected) {
-        val icon = if (getThemeId(view.context) == R.style.CustomTheme_Light) R.drawable.dual_pane_selector_active_light else R.drawable.dual_pane_selector_active_dark
+        val icon = if (view.context.isInDarkMode()) R.drawable.dual_pane_selector_active_dark else R.drawable.dual_pane_selector_active_light // FIXME: via theme
         view.setBackgroundResource(icon)
     } else {
         val icon = R.drawable.dual_pane_selector_inactive
@@ -656,9 +659,9 @@ fun setGenreColor(view: TextView, contentType: Int, showGenreColors: Boolean, of
 @BindingAdapter("activeIcon")
 fun setConnectionActiveIcon(view: ImageView, isActive: Boolean) {
     // Set the active / inactive icon depending on the theme and selection status
-    if (getThemeId(view.context) == R.style.CustomTheme_Light) {
-        view.setImageResource(if (isActive) R.drawable.item_active_light else R.drawable.item_not_active_light)
-    } else {
+    if (view.context.isInDarkMode()) {
         view.setImageResource(if (isActive) R.drawable.item_active_dark else R.drawable.item_not_active_dark)
+    } else {
+        view.setImageResource(if (isActive) R.drawable.item_active_light else R.drawable.item_not_active_light)
     }
 }

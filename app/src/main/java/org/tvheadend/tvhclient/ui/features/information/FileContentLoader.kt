@@ -8,6 +8,7 @@ import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.getLocale
 import org.tvheadend.tvhclient.ui.common.interfaces.FileContentsLoadedInterface
 import org.tvheadend.tvhclient.util.getThemeId
+import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.io.InputStream
 import java.util.regex.Pattern
@@ -63,10 +64,10 @@ class FileContentLoader(val context: Context, private val defaultLocale: String,
 
     private fun replaceCorrectStyleSheet() {
         if (contents.contains("styles_light.css")) {
-            contents = if (getThemeId(context) == R.style.CustomTheme_Light) {
-                contents.replace("styles_light.css", "html/styles_light.css")
-            } else {
+            contents = if (context.isInDarkMode()) {
                 contents.replace("styles_light.css", "html/styles_dark.css")
+            } else {
+                contents.replace("styles_light.css", "html/styles_light.css")
             }
         }
     }

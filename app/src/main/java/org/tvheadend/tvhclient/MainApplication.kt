@@ -2,12 +2,15 @@ package org.tvheadend.tvhclient
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDexApplication
 import com.google.android.gms.cast.framework.CastOptions
 import com.google.android.gms.cast.framework.OptionsProvider
 import com.google.android.gms.cast.framework.SessionProvider
 import com.google.android.gms.cast.framework.media.CastMediaOptions
 import com.google.android.gms.cast.framework.media.NotificationOptions
+import com.google.android.material.color.DynamicColors
 import kotlinx.coroutines.GlobalScope
 import org.tvheadend.data.AppRepository
 import org.tvheadend.data.di.DaggerRepositoryComponent
@@ -28,7 +31,7 @@ import javax.inject.Inject
 // TODO when a notification is dismissed, it reappears when the recording gets updated,
 //  save the dismissed id in the viewmodel and don't add another notification if the id was already dismissed
 
-class MainApplication : MultiDexApplication(), OptionsProvider {
+class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Inject
     lateinit var appRepository: AppRepository
@@ -43,6 +46,8 @@ class MainApplication : MultiDexApplication(), OptionsProvider {
 
     override fun onCreate() {
         super.onCreate()
+
+        DynamicColors.applyToActivitiesIfAvailable(this)
 
         // Create the repository component which is then be used for the dependency injection.
         val repositoryComponent = DaggerRepositoryComponent
@@ -76,6 +81,8 @@ class MainApplication : MultiDexApplication(), OptionsProvider {
         // These tasks are for example migrating connections, updating or
         // removing preferences, removing old information from the database and others
         MigrateUtils(applicationContext, appRepository, sharedPreferences).doMigrate()
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        updateDefaultNightMode()
     }
 
     override fun attachBaseContext(context: Context) {
@@ -111,6 +118,26 @@ class MainApplication : MultiDexApplication(), OptionsProvider {
      */
     override fun getAdditionalSessionProviders(context: Context): List<SessionProvider>? {
         return null
+    }
+
+    override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
+        when (key) {
+            "selected_theme" -> updateDefaultNightMode()
+        }
+    }
+
+    private fun updateDefaultNightMode() {
+        val selected = sharedPreferences.getString("selected_theme", getString(R.string.pref_default_theme))
+        val mode = when (selected) {
+            "light" -> AppCompatDelegate.MODE_NIGHT_NO
+            "dark" -> AppCompatDelegate.MODE_NIGHT_YES
+            else -> when {
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ->
+                    AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
+                else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+        }
+        AppCompatDelegate.setDefaultNightMode(mode)
     }
 
     companion object {

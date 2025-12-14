@@ -1,5 +1,6 @@
 package org.tvheadend.tvhclient.util
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import androidx.preference.PreferenceManager
@@ -51,32 +52,8 @@ fun getIconUrl(context: Context, url: String?): String {
  * @return Id of the light or dark theme
  */
 fun getThemeId(context: Context): Int {
-    return when (PreferenceManager.getDefaultSharedPreferences(context).getString("selected_theme", context.resources.getString(R.string.pref_default_theme))) {
-        "light" -> {
-            Timber.d("Theme is set to light, returning light theme")
-            R.style.CustomTheme_Light
-        }
-        "dark" -> {
-            Timber.d("Theme is set to dark, returning dark theme")
-            R.style.CustomTheme
-        }
-        "auto" -> {
-            Timber.d("Theme is set to auto")
-            return when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-                Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_UNDEFINED -> {
-                    Timber.d("Night mode is not active, we're in day time, return the light theme")
-                    R.style.CustomTheme_Light
-                }
-                Configuration.UI_MODE_NIGHT_YES -> {
-                    Timber.d("Night mode is active, we're at night, return the dark theme")
-                    R.style.CustomTheme
-                }
-                else -> {
-                    Timber.d("Night mode is undefined, return the light theme")
-                    R.style.CustomTheme_Light
-                }
-            }
-        }
-        else -> R.style.CustomTheme_Light
-    }
+    return R.style.CustomTheme
 }
+
+fun Context.isInDarkMode() =
+    (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES

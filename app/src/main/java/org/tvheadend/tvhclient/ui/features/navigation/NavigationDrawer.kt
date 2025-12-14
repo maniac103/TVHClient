@@ -2,11 +2,9 @@ package org.tvheadend.tvhclient.ui.features.navigation
 
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.graphics.Outline
 import android.graphics.drawable.ColorDrawable
 import android.util.TypedValue
 import android.view.View
-import android.view.ViewOutlineProvider
 import androidx.annotation.AttrRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
@@ -17,8 +15,6 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
-import com.mikepenz.materialdrawer.holder.BadgeStyle
-import com.mikepenz.materialdrawer.holder.ColorHolder
 import com.mikepenz.materialdrawer.holder.ImageHolder
 import com.mikepenz.materialdrawer.holder.StringHolder
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
@@ -46,7 +42,6 @@ import org.tvheadend.tvhclient.ui.features.information.StatusFragment
 import org.tvheadend.tvhclient.ui.features.information.StatusViewModel
 import org.tvheadend.tvhclient.ui.features.information.WebViewFragment
 import org.tvheadend.tvhclient.ui.features.settings.SettingsActivity
-import org.tvheadend.tvhclient.util.getThemeId
 import timber.log.Timber
 import java.util.*
 
@@ -100,11 +95,10 @@ class NavigationDrawer(private val activity: AppCompatActivity,
         headerView = AccountHeaderView(activity).apply {
             profileImagesVisible = false
             selectionListEnabledForSingleProfile = false
-            headerBackground = if (getThemeId(activity) == R.style.CustomTheme_Light) {
-                ImageHolder(R.drawable.header_light)
-            } else {
-                ImageHolder(R.drawable.header_dark)
-            }
+
+            val bgColor = MaterialColors.getColor(this, R.attr.colorPrimaryContainer)
+            headerBackground = ImageHolder(ColorDrawable(bgColor))
+
             onAccountHeaderListener = { _, profile, current ->
                 drawerLayout.closeDrawers()
 
@@ -141,15 +135,10 @@ class NavigationDrawer(private val activity: AppCompatActivity,
     }
 
     private fun createMenu() {
-        val badge = BadgeStyle().apply {
-            color = ColorHolder.fromColorRes(getResourceIdFromAttr(R.attr.material_drawer_badge))
-        }
-
         val channelItem = PrimaryDrawerItem().apply {
             identifier = MENU_CHANNELS.toLong()
             nameRes = R.string.channels
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_channels)
-            badgeStyle = badge
         }
         val programGuideItem = PrimaryDrawerItem().apply {
             identifier = MENU_PROGRAM_GUIDE.toLong()
@@ -160,37 +149,31 @@ class NavigationDrawer(private val activity: AppCompatActivity,
             identifier = MENU_COMPLETED_RECORDINGS.toLong()
             nameRes = R.string.completed_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_completed_recordings)
-            badgeStyle = badge
         }
         val scheduledRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_SCHEDULED_RECORDINGS.toLong()
             nameRes = R.string.scheduled_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_scheduled_recordings)
-            badgeStyle = badge
         }
         val seriesRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_SERIES_RECORDINGS.toLong()
             nameRes = R.string.series_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_scheduled_recordings)
-            badgeStyle = badge
         }
         val timerRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_TIMER_RECORDINGS.toLong()
             nameRes = R.string.timer_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_scheduled_recordings)
-            badgeStyle = badge
         }
         val failedRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_FAILED_RECORDINGS.toLong()
             nameRes = R.string.failed_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_failed_recordings)
-            badgeStyle = badge
         }
         val removedRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_REMOVED_RECORDINGS.toLong()
             nameRes = R.string.removed_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_removed_recordings)
-            badgeStyle = badge
         }
         val statusItem = PrimaryDrawerItem().apply {
             identifier = MENU_STATUS.toLong()

@@ -20,6 +20,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.getThemeId
+import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.io.BufferedReader
 import java.io.InputStream
@@ -156,7 +157,7 @@ class ChangeLogFragment : Fragment(), BackPressedInterface, HideNavigationDrawer
         init {
             Timber.d("Creating input stream from changelog file")
             inputStream = context.resources.openRawResource(R.raw.changelog)
-            isLightTheme = getThemeId(context) == R.style.CustomTheme_Light
+            isLightTheme = !context.isInDarkMode()
         }
 
         fun getChangeLogFromFile(loadFullChangelog: Boolean): String {
