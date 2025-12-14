@@ -13,6 +13,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.FileContentsLoadedInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.features.settings.RemoveFragmentFromBackstackInterface
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.extensions.visibleOrGone
@@ -36,6 +37,8 @@ open class WebViewFragment : Fragment(), FileContentsLoadedInterface {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        webView?.applyNavigationBarPadding()
 
         if (activity is ToolbarInterface) {
             toolbarInterface = activity as ToolbarInterface

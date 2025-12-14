@@ -126,7 +126,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupToolbar(binding.toolbar, binding.appBar, binding.coordinator)
+        setupToolbar(binding.toolbar, binding.appBar)
         drawerToggle = ActionBarDrawerToggle(
             this,
             binding.root,

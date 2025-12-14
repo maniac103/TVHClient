@@ -17,6 +17,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.HideNavigationDrawerInterfac
 import org.tvheadend.tvhclient.ui.common.interfaces.BackPressedInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.getThemeId
@@ -49,6 +50,8 @@ class ChangeLogFragment : Fragment(), BackPressedInterface, HideNavigationDrawer
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        webView?.applyNavigationBarPadding()
 
         if (activity is ToolbarInterface) {
             (activity as ToolbarInterface).setTitle(getString(R.string.pref_changelog))

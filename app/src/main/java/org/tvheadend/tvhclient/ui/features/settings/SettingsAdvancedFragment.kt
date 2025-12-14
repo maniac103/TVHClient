@@ -7,10 +7,13 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.provider.SearchRecentSuggestions
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
+import androidx.recyclerview.widget.RecyclerView
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
@@ -25,6 +28,7 @@ import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.common.SuggestionProvider
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.features.MainActivity
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import org.tvheadend.tvhclient.util.getIconUrl
 import org.tvheadend.tvhclient.util.logging.FileLoggingTree
@@ -43,6 +47,16 @@ class SettingsAdvancedFragment : PreferenceFragmentCompat(), Preference.OnPrefer
     private var connectionTimeoutPreference: EditTextPreference? = null
     lateinit var sharedPreferences: SharedPreferences
     lateinit var settingsViewModel: SettingsViewModel
+
+    override fun onCreateRecyclerView(
+        inflater: LayoutInflater,
+        parent: ViewGroup,
+        savedInstanceState: Bundle?
+    ): RecyclerView {
+        val view = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
+        view.applyNavigationBarPadding()
+        return view
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

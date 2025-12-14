@@ -19,6 +19,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.BackPressedInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.features.MainActivity
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 
 class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, ActionMode.Callback, RecyclerViewClickInterface {
 
@@ -38,6 +39,7 @@ class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, Action
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.recyclerView.applyNavigationBarPadding()
         settingsViewModel = ViewModelProvider(activity as SettingsActivity)[SettingsViewModel::class.java]
 
         if (activity is ToolbarInterface) {
@@ -48,6 +50,7 @@ class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, Action
         recyclerViewAdapter = ConnectionRecyclerViewAdapter(this, viewLifecycleOwner)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
+        binding.recyclerView.applyNavigationBarPadding()
 
         settingsViewModel.connectionListLiveData.observe(viewLifecycleOwner) { connections ->
             if (connections != null) {

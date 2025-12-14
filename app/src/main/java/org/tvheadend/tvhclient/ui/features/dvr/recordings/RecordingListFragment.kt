@@ -16,6 +16,7 @@ import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
 import org.tvheadend.tvhclient.ui.features.dvr.recordings.download.DownloadPermissionGrantedInterface
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.extensions.visibleOrGone
@@ -44,6 +45,7 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         recyclerViewAdapter = RecordingRecyclerViewAdapter(recordingViewModel, isDualPane, this, htspVersion)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
+        binding.recyclerView.applyNavigationBarPadding()
         binding.recyclerView.gone()
         binding.searchProgress.visibleOrGone(baseViewModel.isSearchActive)
     }

@@ -29,7 +29,7 @@ class ProgramDetailsActivity : BaseActivity(), LayoutControlInterface {
         binding = MiscContentActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupToolbar(binding.toolbar, binding.appBar, binding.coordinator)
+        setupToolbar(binding.toolbar, binding.appBar)
 
         if (savedInstanceState == null) {
             val fragment = ProgramDetailsFragment.newInstance(

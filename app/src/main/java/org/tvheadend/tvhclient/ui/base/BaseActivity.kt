@@ -29,10 +29,10 @@ abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
         baseViewModel = ViewModelProvider(this)[BaseViewModel::class.java]
     }
 
-    protected fun setupToolbar(toolbar: Toolbar, appBarLayout: AppBarLayout, contentView: View) {
+    protected fun setupToolbar(toolbar: Toolbar, appBarLayout: AppBarLayout) {
         this.toolbar = toolbar
         setSupportActionBar(toolbar)
-        enableDrawingBehindStatusBar(toolbar, appBarLayout, contentView)
+        enableDrawingBehindStatusBar(toolbar, appBarLayout)
     }
 
     override fun setTitle(title: String) {
@@ -43,13 +43,7 @@ abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
         toolbar.subtitle = subtitle
     }
 
-    private fun enableDrawingBehindStatusBar(toolbar: Toolbar, appBarLayout: AppBarLayout, contentView: View) {
-        /*
-        val appBarBackgroundColor = ColorStateList.valueOf(ThemeUtils.getThemeAttrColor(this, R.attr.colorsu))
-        val appBarBackground = MaterialShapeDrawable.createWithElevationOverlay(this, 0.0f, appBarBackgroundColor)
-        appBarLayout.statusBarForeground = appBarBackground
-*/
-
+    private fun enableDrawingBehindStatusBar(toolbar: Toolbar, appBarLayout: AppBarLayout) {
         EdgeToEdgeUtils.applyEdgeToEdge(window, true)
         ViewCompat.setOnApplyWindowInsetsListener(toolbar) { _, insets ->
             val insetsType = WindowInsetsCompat.Type.statusBars() or
@@ -57,7 +51,6 @@ abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
                     WindowInsetsCompat.Type.displayCutout()
             val relevantInsets = insets.getInsets(insetsType)
             appBarLayout.updatePadding(top = relevantInsets.top)
-            contentView.updatePadding(bottom = relevantInsets.bottom)
             WindowInsetsCompat.CONSUMED
         }
     }

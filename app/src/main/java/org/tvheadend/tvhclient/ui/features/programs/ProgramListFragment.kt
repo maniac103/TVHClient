@@ -18,6 +18,7 @@ import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.ClearSearchResultsOrPopBackStackInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.getCastSession
 import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.visible
@@ -56,6 +57,7 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
         recyclerViewAdapter = ProgramRecyclerViewAdapter(programViewModel, this, this, viewLifecycleOwner)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
+        binding.recyclerView.applyNavigationBarPadding()
         binding.recyclerView.gone()
         binding.searchProgress.visibleOrGone(baseViewModel.isSearchActive)
 

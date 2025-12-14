@@ -1,9 +1,11 @@
 package org.tvheadend.tvhclient.util
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
-import androidx.preference.PreferenceManager
+import android.view.View
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import org.tvheadend.tvhclient.R
 import timber.log.Timber
 import java.security.MessageDigest
@@ -57,3 +59,14 @@ fun getThemeId(context: Context): Int {
 
 fun Context.isInDarkMode() =
     (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
+fun View.applyNavigationBarPadding() {
+    ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
+        val insetsType = WindowInsetsCompat.Type.statusBars() or
+                WindowInsetsCompat.Type.navigationBars() or
+                WindowInsetsCompat.Type.displayCutout()
+        val relevantInsets = insets.getInsets(insetsType)
+        view.updatePadding(bottom = relevantInsets.bottom)
+        WindowInsetsCompat.CONSUMED
+    }
+}

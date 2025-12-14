@@ -36,7 +36,7 @@ class SettingsActivity : BaseActivity(), RemoveFragmentFromBackstackInterface {
         binding = MiscContentActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupToolbar(binding.toolbar, binding.appBar, binding.coordinator)
+        setupToolbar(binding.toolbar, binding.appBar)
         MainApplication.component.inject(this)
 
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]

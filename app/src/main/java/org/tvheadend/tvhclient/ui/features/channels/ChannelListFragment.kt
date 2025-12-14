@@ -23,6 +23,7 @@ import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.*
 import org.tvheadend.tvhclient.ui.features.programs.ProgramListFragment
 import org.tvheadend.tvhclient.ui.features.programs.ProgramViewModel
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.extensions.visibleOrGone
@@ -65,6 +66,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
         recyclerViewAdapter = ChannelRecyclerViewAdapter(channelViewModel, isDualPane, this, viewLifecycleOwner)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
+        binding.recyclerView.applyNavigationBarPadding()
         binding.recyclerView.gone()
         binding.recyclerView.setHasFixedSize(true)
         binding.searchProgress.visibleOrGone(baseViewModel.isSearchActive)
