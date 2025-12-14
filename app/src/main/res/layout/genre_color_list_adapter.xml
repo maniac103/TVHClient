@@ -12,7 +12,6 @@
             android:layout_width="24dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             app:genreColor="@{contentType}"
@@ -25,7 +24,7 @@
 
         <TextView
             android:id="@+id/genre"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"

@@ -67,7 +67,6 @@
                     android:layout_height="20dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
                     android:contentDescription="@null"
                     android:scaleType="fitCenter"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -95,7 +94,7 @@
 
                 <TextView
                     android:id="@+id/title_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -110,7 +109,7 @@
 
                 <TextView
                     android:id="@+id/title"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -124,7 +123,7 @@
 
                 <TextView
                     android:id="@+id/subtitle"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -138,7 +137,7 @@
 
                 <TextView
                     android:id="@+id/series_info"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -152,7 +151,7 @@
 
                 <TextView
                     android:id="@+id/summary_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -166,7 +165,7 @@
 
                 <TextView
                     android:id="@+id/summary"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -180,7 +179,7 @@
 
                 <TextView
                     android:id="@+id/description_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -194,7 +193,7 @@
 
                 <TextView
                     android:id="@+id/description"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -208,7 +207,7 @@
 
                 <TextView
                     android:id="@+id/time_date_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -221,11 +220,10 @@
 
                 <TextView
                     android:id="@+id/date"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     android:layout_marginTop="4dp"
                     app:dateText="@{program.start}"
                     app:layout_constraintStart_toStartOf="parent"
@@ -234,11 +232,10 @@
 
                 <TextView
                     android:id="@+id/start_time"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     android:layout_marginTop="4dp"
                     app:layout_constraintStart_toEndOf="@+id/date"
                     app:layout_constraintTop_toBottomOf="@+id/time_date_label"
@@ -247,11 +244,10 @@
 
                 <TextView
                     android:id="@+id/stop_time"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     android:layout_marginTop="4dp"
                     app:layout_constraintStart_toEndOf="@+id/start_time"
                     app:layout_constraintTop_toBottomOf="@+id/time_date_label"
@@ -260,7 +256,7 @@
 
                 <TextView
                     android:id="@+id/duration_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -273,7 +269,7 @@
 
                 <TextView
                     android:id="@+id/duration"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -287,7 +283,7 @@
 
                 <TextView
                     android:id="@+id/progress"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -301,7 +297,7 @@
 
                 <TextView
                     android:id="@+id/channel_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -315,7 +311,7 @@
 
                 <TextView
                     android:id="@+id/channel"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -330,7 +326,7 @@
 
                 <TextView
                     android:id="@+id/content_type_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -343,7 +339,7 @@
 
                 <TextView
                     android:id="@+id/content_type"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -357,7 +353,7 @@
 
                 <TextView
                     android:id="@+id/star_rating_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -370,7 +366,7 @@
 
                 <TextView
                     android:id="@+id/star_rating_text"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"

@@ -10,7 +10,7 @@
 
         <TextView
             android:id="@+id/connection_label_view"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -24,7 +24,7 @@
 
         <TextView
             android:id="@+id/connection_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -37,7 +37,7 @@
 
         <TextView
             android:id="@+id/channels_label_view"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -51,7 +51,7 @@
 
         <TextView
             android:id="@+id/channels_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -64,7 +64,7 @@
 
         <TextView
             android:id="@+id/programs_label_view"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -78,7 +78,7 @@
 
         <TextView
             android:id="@+id/programs_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -91,7 +91,7 @@
 
         <TextView
             android:id="@+id/recording_label_view"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -104,7 +104,7 @@
 
         <TextView
             android:id="@+id/completed_recordings_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -117,7 +117,7 @@
 
         <TextView
             android:id="@+id/upcoming_recordings_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -130,7 +130,7 @@
 
         <TextView
             android:id="@+id/series_recordings_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -143,7 +143,7 @@
 
         <TextView
             android:id="@+id/timer_recordings_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -156,7 +156,7 @@
 
         <TextView
             android:id="@+id/failed_recordings_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -169,7 +169,7 @@
 
         <TextView
             android:id="@+id/removed_recordings_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -182,7 +182,7 @@
 
         <TextView
             android:id="@+id/currently_recording_label_view"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -195,7 +195,7 @@
 
         <TextView
             android:id="@+id/currently_recording_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -208,7 +208,7 @@
 
         <TextView
             android:id="@+id/discspace_label_view"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -221,7 +221,7 @@
 
         <TextView
             android:id="@+id/total_discspace_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -234,7 +234,7 @@
 
         <TextView
             android:id="@+id/free_discspace_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -247,7 +247,7 @@
 
         <TextView
             android:id="@+id/server_api_version_label_view"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -260,7 +260,7 @@
 
         <TextView
             android:id="@+id/server_api_version_view"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"

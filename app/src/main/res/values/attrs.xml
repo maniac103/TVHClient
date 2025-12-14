@@ -42,18 +42,11 @@
 
     <attr name="ic_arrow_drop_down_like_spinner" format="reference" />
 
-    <attr name="TitleFont" format="reference" />
-    <attr name="SubtitleFont" format="reference" />
-    <attr name="ContentFont" format="reference" />
-    <attr name="ProgramGuideTitleFont" format="reference" />
-    <attr name="ProgramGuideContentFont" format="reference" />
-
     <attr name="rounded_corners" format="reference" />
 
     <attr name="fast_scroll_track" format="reference" />
     <attr name="fast_scroll_thumb" format="reference" />
 
     <attr name="divider_color" format="reference" />
-    <attr name="selection_color" format="reference" />
 
 </resources>

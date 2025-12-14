@@ -50,7 +50,6 @@
                     android:layout_height="20dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
                     android:contentDescription="@null"
                     android:scaleType="fitCenter"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -59,13 +58,11 @@
 
                 <TextView
                     android:id="@+id/disabled"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
                     app:disabledText="@{recording}"
                     app:htspVersion="@{htspVersion}"
                     app:layout_constraintEnd_toStartOf="@+id/state"
@@ -75,13 +72,11 @@
 
                 <TextView
                     android:id="@+id/is_series_recording"
-                    style="?attr/SubtitleFont"
+                    style="@style/SubtitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
                     android:text="@string/is_series_recording"
                     android:visibility="@{recording.autorecId != null &amp;&amp; !recording.autorecId.isEmpty ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toStartOf="@+id/state"
@@ -90,13 +85,11 @@
 
                 <TextView
                     android:id="@+id/is_timer_recording"
-                    style="?attr/SubtitleFont"
+                    style="@style/SubtitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
                     android:text="@string/is_timer_recording"
                     android:visibility="@{recording.timerecId != null &amp;&amp; !recording.timerecId.isEmpty ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toStartOf="@+id/state"
@@ -105,14 +98,12 @@
 
                 <TextView
                     android:id="@+id/title_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
                     android:text="@string/title"
                     app:layout_constraintEnd_toStartOf="@+id/state"
                     app:layout_constraintStart_toStartOf="parent"
@@ -120,7 +111,7 @@
 
                 <TextView
                     android:id="@+id/title"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -135,7 +126,7 @@
 
                 <TextView
                     android:id="@+id/subtitle_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -149,7 +140,7 @@
 
                 <TextView
                     android:id="@+id/subtitle"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -164,7 +155,7 @@
 
                 <TextView
                     android:id="@+id/summary_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -178,7 +169,7 @@
 
                 <TextView
                     android:id="@+id/summary"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -193,7 +184,7 @@
 
                 <TextView
                     android:id="@+id/description_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -207,7 +198,7 @@
 
                 <TextView
                     android:id="@+id/description"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -221,7 +212,7 @@
 
                 <TextView
                     android:id="@+id/time_date_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -234,11 +225,10 @@
 
                 <TextView
                     android:id="@+id/date"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     android:layout_marginTop="4dp"
                     android:singleLine="true"
                     app:dateText="@{recording.start}"
@@ -248,11 +238,10 @@
 
                 <TextView
                     android:id="@+id/start_time"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     app:layout_constraintStart_toEndOf="@+id/date"
                     app:layout_constraintTop_toTopOf="@+id/date"
                     app:timeText="@{recording.start}"
@@ -260,11 +249,10 @@
 
                 <TextView
                     android:id="@+id/stop_time"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
                     app:layout_constraintStart_toEndOf="@+id/start_time"
                     app:layout_constraintTop_toTopOf="@+id/date"
                     app:timeText="@{recording.stop}"
@@ -272,7 +260,7 @@
 
                 <TextView
                     android:id="@+id/duration_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -285,7 +273,7 @@
 
                 <TextView
                     android:id="@+id/duration"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -299,7 +287,7 @@
 
                 <TextView
                     android:id="@+id/channel_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -312,7 +300,7 @@
 
                 <TextView
                     android:id="@+id/channel"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -326,7 +314,7 @@
 
                 <TextView
                     android:id="@+id/episode_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -340,7 +328,7 @@
 
                 <TextView
                     android:id="@+id/episode"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -354,7 +342,7 @@
 
                 <TextView
                     android:id="@+id/comment_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -368,7 +356,7 @@
 
                 <TextView
                     android:id="@+id/comment"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -382,7 +370,7 @@
 
                 <TextView
                     android:id="@+id/status_label"
-                    style="?attr/TitleFont"
+                    style="@style/TitleFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -396,7 +384,7 @@
 
                 <TextView
                     android:id="@+id/data_size"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -410,7 +398,7 @@
 
                 <TextView
                     android:id="@+id/subscription_error"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -424,7 +412,7 @@
 
                 <TextView
                     android:id="@+id/stream_errors"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -438,7 +426,7 @@
 
                 <TextView
                     android:id="@+id/data_errors"
-                    style="?attr/ContentFont"
+                    style="@style/ContentFont"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"

@@ -15,7 +15,6 @@
             android:layout_width="56dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:contentDescription="@null"
             android:scaleType="fitStart"
@@ -30,7 +29,6 @@
             android:layout_height="20dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:contentDescription="@null"
             android:scaleType="fitCenter"
             app:layout_constraintEnd_toEndOf="parent"
@@ -53,11 +51,10 @@
 
         <TextView
             android:id="@+id/icon_text"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="56dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
             app:iconName="@{program.channelName}"
@@ -69,14 +66,12 @@
 
         <TextView
             android:id="@+id/title"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:ellipsize="end"
             app:layout_constraintEnd_toStartOf="@+id/state"
             app:layout_constraintStart_toEndOf="@+id/genre"
@@ -87,7 +82,7 @@
 
         <TextView
             android:id="@+id/subtitle"
-            style="?attr/SubtitleFont"
+            style="@style/SubtitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -107,7 +102,7 @@
 
         <TextView
             android:id="@+id/summary"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -127,7 +122,7 @@
 
         <TextView
             android:id="@+id/content_type"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -145,11 +140,10 @@
 
         <TextView
             android:id="@+id/date"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:gravity="start"
@@ -163,13 +157,11 @@
 
         <TextView
             android:id="@+id/start_time"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             app:layout_constraintEnd_toStartOf="@+id/stop_time"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/date"
@@ -179,11 +171,10 @@
 
         <TextView
             android:id="@+id/stop_time"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             app:layout_constraintEnd_toStartOf="@+id/duration"
             app:layout_constraintTop_toTopOf="@+id/date"
             app:timeText="@{program.stop}"
@@ -191,11 +182,10 @@
 
         <TextView
             android:id="@+id/duration"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_weight="0.3"
             android:gravity="end"
             android:text="@{@string/minutes(program.duration)}"
@@ -206,7 +196,7 @@
 
         <TextView
             android:id="@+id/progress"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -225,7 +215,7 @@
 
         <TextView
             android:id="@+id/series_info"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -243,7 +233,7 @@
 
         <TextView
             android:id="@+id/description"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"

@@ -22,7 +22,7 @@
 
         <TextView
             android:id="@+id/channel_icon_text"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="56dp"
             android:layout_height="40dp"
             android:onClick="@{(view) -> callback.onClick(view, position)}"
@@ -35,7 +35,7 @@
 
         <TextView
             android:id="@+id/channel_number"
-            style="?attr/ProgramGuideContentFont"
+            style="@style/ProgramGuideContentFont"
             android:layout_width="56dp"
             android:layout_height="20dp"
             android:ellipsize="end"

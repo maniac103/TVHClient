@@ -24,10 +24,10 @@
 
         <TextView
             android:id="@+id/viewpager_title_start_hours"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:background="?attr/selection_color"
+            android:background="?colorSurfaceContainerLow"
             android:gravity="end|center_vertical"
             android:padding="8dp"
             android:singleLine="true"
@@ -38,10 +38,10 @@
 
         <TextView
             android:id="@+id/viewpager_title_placeholder"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="8dp"
             android:layout_height="36dp"
-            android:background="?attr/selection_color"
+            android:background="?colorSurfaceContainerLow"
             android:gravity="center"
             android:text="@string/minus"
             app:layout_constraintStart_toEndOf="@+id/viewpager_title_start_hours"
@@ -49,10 +49,10 @@
 
         <TextView
             android:id="@+id/viewpager_title_end_hours"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="36dp"
-            android:background="?attr/selection_color"
+            android:background="?colorSurfaceContainerLow"
             android:gravity="start|center_vertical"
             android:padding="8dp"
             android:singleLine="true"
@@ -65,10 +65,10 @@
 
         <TextView
             android:id="@+id/viewpager_title_date"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:background="?attr/selection_color"
+            android:background="?colorSurfaceContainerLow"
             android:gravity="center"
             android:padding="4dp"
             android:singleLine="true"

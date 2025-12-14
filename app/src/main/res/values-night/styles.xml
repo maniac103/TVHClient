@@ -48,14 +48,6 @@
         <item name="ic_arrow_drop_down_like_spinner">@drawable/ic_arrow_drop_down_like_spinner_dark</item>
         <!--</editor-fold>-->
 
-        <!--<editor-fold desc="Fonts">-->
-        <item name="TitleFont">@style/TitleFont.Dark</item>
-        <item name="SubtitleFont">@style/SubtitleFont.Dark</item>
-        <item name="ContentFont">@style/ContentFont.Dark</item>
-        <item name="ProgramGuideTitleFont">@style/ProgramGuideTitleFont.Dark</item>
-        <item name="ProgramGuideContentFont">@style/ProgramGuideContentFont.Dark</item>
-        <!--</editor-fold>-->
-
         <!--<editor-fold desc="Theme colors">-->
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
@@ -123,7 +115,6 @@
 
         <!--<editor-fold desc="Misc">-->
         <item name="divider_color">@color/divider_color_dark</item>
-        <item name="selection_color">@color/material_drawer_selected_dark</item>
         <item name="rounded_corners">@drawable/rounded_corners_dark</item>
         <!--</editor-fold>-->
     </style>

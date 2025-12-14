@@ -15,7 +15,6 @@
             android:layout_width="56dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:contentDescription="@null"
             android:scaleType="fitStart"
@@ -39,11 +38,10 @@
 
         <TextView
             android:id="@+id/icon_text"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="56dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             app:iconName="@{recording.channelName}"
             app:iconUrl="@{recording.channelIcon}"
@@ -52,14 +50,12 @@
 
         <TextView
             android:id="@+id/title"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="88dp"
-            android:layout_marginLeft="88dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:ellipsize="end"
             android:text="@{recording.title}"
             app:layout_constraintEnd_toEndOf="parent"
@@ -69,11 +65,10 @@
 
         <TextView
             android:id="@+id/name"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:ellipsize="end"
             android:text="@{recording.name}"
             android:visibility="@{recording.name != null ? View.VISIBLE : View.GONE}"
@@ -84,7 +79,7 @@
 
         <TextView
             android:id="@+id/channel"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -95,11 +90,10 @@
 
         <TextView
             android:id="@+id/duration"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:gravity="end"
             android:text="@{@string/minutes(recording.duration)}"
             app:layout_constraintEnd_toEndOf="parent"
@@ -108,7 +102,7 @@
 
         <TextView
             android:id="@+id/days_of_week"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:daysText="@{recording.daysOfWeek}"
@@ -118,11 +112,10 @@
 
         <TextView
             android:id="@+id/start"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:gravity="end"
             app:layout_constraintEnd_toStartOf="@+id/stop"
             app:layout_constraintTop_toTopOf="@+id/days_of_week"
@@ -131,11 +124,10 @@
 
         <TextView
             android:id="@+id/stop"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:gravity="end"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/start"
@@ -144,12 +136,11 @@
 
         <TextView
             android:id="@+id/disabled"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             app:disabledText="@{recording.enabled}"
             app:htspVersion="@{htspVersion}"
             app:layout_constraintEnd_toEndOf="parent"
@@ -162,10 +153,8 @@
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_marginStart="88dp"
-            android:layout_marginLeft="88dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:background="?attr/divider_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

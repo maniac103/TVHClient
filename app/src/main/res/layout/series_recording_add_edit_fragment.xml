@@ -10,14 +10,12 @@
 
         <CheckBox
             android:id="@+id/is_enabled"
-            style="?attr/SubtitleFont"
+            style="@style/SubtitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginLeft="12dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:text="@string/activate_recording"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -25,14 +23,12 @@
 
         <CheckBox
             android:id="@+id/time_enabled"
-            style="?attr/SubtitleFont"
+            style="@style/SubtitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:layout_marginLeft="12dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:text="@string/enable_time_window"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +36,7 @@
 
         <EditText
             android:id="@+id/title"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -54,7 +50,7 @@
 
         <EditText
             android:id="@+id/name"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -68,11 +64,10 @@
 
         <EditText
             android:id="@+id/minimum_duration"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:hint="@string/duration_sum"
             android:importantForAutofill="no"
             android:inputType="number"
@@ -81,11 +76,10 @@
 
         <EditText
             android:id="@+id/maximum_duration"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:hint="@string/duration_sum"
             android:importantForAutofill="no"
             android:inputType="number"
@@ -94,11 +88,10 @@
 
         <EditText
             android:id="@+id/start_extra"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:hint="@string/minutes"
             android:importantForAutofill="no"
             android:inputType="number"
@@ -107,11 +100,10 @@
 
         <EditText
             android:id="@+id/stop_extra"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:hint="@string/minutes"
             android:importantForAutofill="no"
             android:inputType="number"
@@ -120,11 +112,10 @@
 
         <EditText
             android:id="@+id/directory"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginBottom="16dp"
             android:hint="@string/add_recording_directory"
             android:importantForAutofill="no"
@@ -135,7 +126,7 @@
 
         <TextView
             android:id="@+id/title_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -148,7 +139,7 @@
 
         <TextView
             android:id="@+id/name_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -161,7 +152,7 @@
 
         <TextView
             android:id="@+id/channel_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -174,11 +165,10 @@
 
         <TextView
             android:id="@+id/channel_name"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
             app:drawableEndCompat="?attr/ic_arrow_drop_down_like_spinner"
             app:drawableRightCompat="?attr/ic_arrow_drop_down_like_spinner"
@@ -189,11 +179,10 @@
 
         <TextView
             android:id="@+id/start_time_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
             android:text="@string/start_time"
             app:layout_constraintStart_toStartOf="parent"
@@ -201,7 +190,7 @@
 
         <TextView
             android:id="@+id/start_time"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -214,18 +203,17 @@
 
         <TextView
             android:id="@+id/start_window_time_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:layout_marginLeft="32dp"
             android:text="@string/stop_time"
             app:layout_constraintStart_toEndOf="@+id/start_time_label"
             app:layout_constraintTop_toTopOf="@+id/start_time_label" />
 
         <TextView
             android:id="@+id/start_window_time"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -238,7 +226,7 @@
 
         <TextView
             android:id="@+id/duplicate_detection_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -251,11 +239,10 @@
 
         <TextView
             android:id="@+id/duplicate_detection"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
             app:drawableEndCompat="?attr/ic_arrow_drop_down_like_spinner"
             app:drawableRightCompat="?attr/ic_arrow_drop_down_like_spinner"
@@ -266,7 +253,7 @@
 
         <TextView
             android:id="@+id/minimum_duration_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -279,7 +266,7 @@
 
         <TextView
             android:id="@+id/maximum_duration_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -292,7 +279,7 @@
 
         <TextView
             android:id="@+id/days_of_week_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -305,11 +292,10 @@
 
         <TextView
             android:id="@+id/days_of_week"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
             app:drawableEndCompat="?attr/ic_arrow_drop_down_like_spinner"
             app:drawableRightCompat="?attr/ic_arrow_drop_down_like_spinner"
@@ -320,7 +306,7 @@
 
         <TextView
             android:id="@+id/start_extra_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -333,7 +319,7 @@
 
         <TextView
             android:id="@+id/stop_extra_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -346,7 +332,7 @@
 
         <TextView
             android:id="@+id/priority_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -359,11 +345,10 @@
 
         <TextView
             android:id="@+id/priority"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
             app:drawableEndCompat="?attr/ic_arrow_drop_down_like_spinner"
             app:drawableRightCompat="?attr/ic_arrow_drop_down_like_spinner"
@@ -374,7 +359,7 @@
 
         <TextView
             android:id="@+id/dvr_config_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -387,11 +372,10 @@
 
         <TextView
             android:id="@+id/dvr_config"
-            style="?attr/ContentFont"
+            style="@style/ContentFont"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
             app:drawableEndCompat="?attr/ic_arrow_drop_down_like_spinner"
             app:drawableRightCompat="?attr/ic_arrow_drop_down_like_spinner"
@@ -402,7 +386,7 @@
 
         <TextView
             android:id="@+id/directory_label"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"

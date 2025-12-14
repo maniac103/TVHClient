@@ -14,7 +14,6 @@
             android:layout_width="48dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:contentDescription="@null"
@@ -31,7 +30,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
             android:checked="@{channelTag.selected}"
             android:onClick="@{() -> callback.onSelected(position)}"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -40,11 +38,10 @@
 
         <TextView
             android:id="@+id/title"
-            style="?attr/TitleFont"
+            style="@style/TitleFont"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
@@ -60,12 +57,11 @@
 
         <TextView
             android:id="@+id/count"
-            style="?attr/SubtitleFont"
+            style="@style/SubtitleFont"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
-            android:layout_marginRight="24dp"
             android:layout_marginBottom="8dp"
             android:gravity="center_vertical"
             android:text="@{String.valueOf(channelTag.channelCount)}"

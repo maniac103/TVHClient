@@ -2,50 +2,27 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--<editor-fold desc="Font for title texts in various screens">-->
-    <style name="TitleFont.Light" parent="TextAppearance.MaterialComponents.Headline5">
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/title_text_light</item>
-    </style>
-
-    <style name="TitleFont.Dark" parent="TitleFont.Light">
-        <item name="android:textColor">@color/title_text_dark</item>
+    <style name="TitleFont" parent="TextAppearance.Material3.TitleMedium.Emphasized">
     </style>
     <!--</editor-fold>-->
 
     <!--<editor-fold desc="Font for subtitles in various screens">-->
-    <style name="SubtitleFont.Light" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@color/subtitle_text_light</item>
-    </style>
-
-    <style name="SubtitleFont.Dark" parent="SubtitleFont.Light">
-        <item name="android:textColor">@color/subtitle_text_dark</item>
+    <style name="SubtitleFont" parent="TextAppearance.Material3.TitleMedium">
     </style>
     <!--</editor-fold>-->
 
     <!--<editor-fold desc="Font for content in various screens">-->
-    <style name="ContentFont.Light" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/content_text_light</item>
+    <style name="ContentFont" parent="TextAppearance.Material3.BodyMedium">
     </style>
 
-    <style name="ContentFont.Dark" parent="ContentFont.Light">
-        <item name="android:textColor">@color/content_text_dark</item>
-    </style>
     <!--</editor-fold>-->
 
     <!--<editor-fold desc="Font for the program guide screen">-->
-    <style name="ProgramGuideTitleFont.Light" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="android:textSize">12sp</item>
+    <style name="ProgramGuideTitleFont" parent="TextAppearance.Material3.TitleSmall.Emphasized">
     </style>
 
-    <style name="ProgramGuideTitleFont.Dark" parent="ProgramGuideTitleFont.Light" />
-
-    <style name="ProgramGuideContentFont.Light" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="android:textSize">11sp</item>
+    <style name="ProgramGuideContentFont" parent="TextAppearance.Material3.BodySmall">
     </style>
-
-    <style name="ProgramGuideContentFont.Dark" parent="ProgramGuideContentFont.Light" />
     <!--</editor-fold>-->
 
     <!--<editor-fold desc="Fonts for the internal player screen. The background is always dark">-->
@@ -60,11 +37,6 @@
     <!--<editor-fold desc="Theme for the internal players audio/video selection dialog">-->
     <style name="TrackSelectionDialogThemeOverlay" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
         <item name="windowNoTitle">false</item>
-    </style>
-
-    <style name="CustomMaterialDrawerStyle" parent="Widget.MaterialDrawerStyle">
-        <item name="materialDrawerBackground">@color/material_drawer_background_dark</item>
-        <item name="materialDrawerSelectedBackgroundColor">@color/material_drawer_selected_dark</item>
     </style>
 
     <style name="CustomMaterialDrawerHeaderStyle" parent="Widget.MaterialDrawerHeaderStyle">
@@ -120,14 +92,6 @@
         <item name="ic_menu_extras">@drawable/ic_menu_extras_light</item>
         <item name="ic_menu_share">@drawable/ic_menu_share_light</item>
         <item name="ic_arrow_drop_down_like_spinner">@drawable/ic_arrow_drop_down_like_spinner_light</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Fonts">-->
-        <item name="TitleFont">@style/TitleFont.Light</item>
-        <item name="SubtitleFont">@style/SubtitleFont.Light</item>
-        <item name="ContentFont">@style/ContentFont.Light</item>
-        <item name="ProgramGuideTitleFont">@style/ProgramGuideTitleFont.Light</item>
-        <item name="ProgramGuideContentFont">@style/ProgramGuideContentFont.Light</item>
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Theme colors">-->
@@ -198,7 +162,6 @@
         <!--<editor-fold desc="Misc">-->
         <item name="rounded_corners">@drawable/rounded_corners_light</item>
         <item name="divider_color">@color/divider_color_light</item>
-        <item name="selection_color">@color/material_drawer_selected_light</item>
         <!--</editor-fold>-->
     </style>
 
