@@ -27,6 +27,7 @@ import org.tvheadend.data.entity.Recording
 import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.util.extensions.gone
+import org.tvheadend.tvhclient.util.extensions.invisible
 import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import org.tvheadend.tvhclient.util.getIconUrl
@@ -652,7 +653,7 @@ fun setGenreColor(view: TextView, contentType: Int, showGenreColors: Boolean, of
         view.setBackgroundColor(color)
         view.visible()
     } else {
-        view.gone()
+        view.invisible()
     }
 }
 
