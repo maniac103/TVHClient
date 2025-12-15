@@ -60,11 +60,14 @@
 
         </LinearLayout>
 
-        <androidx.fragment.app.FragmentContainerView
+        <fragment
             android:id="@+id/cast_mini_controller"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:name="com.google.android.gms.cast.framework.media.widget.MiniControllerFragment" />
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            class="com.google.android.gms.cast.framework.media.widget.MiniControllerFragment"
+            tools:ignore="FragmentTagUsage" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
