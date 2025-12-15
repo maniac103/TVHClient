@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.AttributeSet
 import android.webkit.WebView
 
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class CustomWebViewForLollipop @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,

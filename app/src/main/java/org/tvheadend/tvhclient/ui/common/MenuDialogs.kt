@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.collection.mutableIntSetOf
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.preference.PreferenceManager
@@ -21,6 +22,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.ChannelTimeSelectedInterface
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.core.content.edit
 
 
 fun showChannelTagSelectionDialog(context: Context, channelTags: MutableList<ChannelTag>, channelCount: Int, callback: ChannelTagIdsSelectedInterface): Boolean {
@@ -66,15 +68,11 @@ fun showChannelTagSelectionDialog(context: Context, channelTags: MutableList<Cha
 
 class ChannelTagSelectionAdapter(private val channelTagList: List<ChannelTag>, private val isMultiChoice: Boolean) : RecyclerView.Adapter<ChannelTagSelectionAdapter.ViewHolder>() {
 
-    private val selectedChannelTagIds: MutableSet<Int>
+    private val selectedChannelTagIds = mutableSetOf<Int>()
     private lateinit var dialog: MaterialDialog
 
     internal val selectedTagIds: Set<Int>
         get() = selectedChannelTagIds
-
-    init {
-        this.selectedChannelTagIds = HashSet()
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -110,7 +108,7 @@ class ChannelTagSelectionAdapter(private val channelTagList: List<ChannelTag>, p
         this.dialog = dialog
     }
 
-    fun onChecked(@Suppress("UNUSED_PARAMETER") view: View, position: Int, isChecked: Boolean) {
+    fun onChecked(view: View, position: Int, isChecked: Boolean) {
         val tagId = channelTagList[position].tagId
         if (isChecked) {
             selectedChannelTagIds.add(tagId)
@@ -223,9 +221,9 @@ fun showChannelSortOrderSelectionDialog(context: Context): Boolean {
         title(R.string.pref_sort_channels)
         listItemsSingleChoice(R.array.pref_sort_channels_names, initialSelection = channelSortOrder) { _, index, _ ->
             Timber.d("New selected channel sort order changed from $channelSortOrder to $index")
-            val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
-            editor.putString("channel_sort_order", index.toString())
-            editor.apply()
+            PreferenceManager.getDefaultSharedPreferences(context).edit {
+                putString("channel_sort_order", index.toString())
+            }
         }
     }
     return false
@@ -238,9 +236,9 @@ fun showCompletedRecordingSortOrderSelectionDialog(context: Context): Boolean {
         title(R.string.pref_sort_completed_recordings)
         listItemsSingleChoice(R.array.pref_sort_completed_recordings_names, initialSelection = sortOrder) { _, index, _ ->
             Timber.d("New selected completed recording sort order changed from $sortOrder to $index")
-            val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
-            editor.putString("completed_recording_sort_order", index.toString())
-            editor.apply()
+            PreferenceManager.getDefaultSharedPreferences(context).edit {
+                putString("completed_recording_sort_order", index.toString())
+            }
         }
     }
     return false

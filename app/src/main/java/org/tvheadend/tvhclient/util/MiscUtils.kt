@@ -6,7 +6,6 @@ import android.view.View
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import org.tvheadend.tvhclient.R
 import timber.log.Timber
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException

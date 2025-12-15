@@ -1,6 +1,5 @@
 package org.tvheadend.tvhclient.ui.features.playback.external
 
-import android.os.Bundle
 import android.view.Menu
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.media.widget.ExpandedControllerActivity

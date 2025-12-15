@@ -23,6 +23,7 @@ import org.tvheadend.tvhclient.ui.common.SnackbarMessageReceiver
 import org.tvheadend.tvhclient.ui.features.playback.external.BasePlaybackActivity
 import timber.log.Timber
 import java.io.File
+import androidx.core.net.toUri
 
 
 class DownloadRecordingActivity : BasePlaybackActivity() {
@@ -34,7 +35,7 @@ class DownloadRecordingActivity : BasePlaybackActivity() {
         viewModel.recording?.let {
             if (getIsStoragePermissionGranted(this)) {
                 Timber.d("Initializing download manager")
-                downloadManager = getSystemService(Service.DOWNLOAD_SERVICE) as DownloadManager
+                downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
                 val url = viewModel.getPlaybackUrl()
                 Timber.d("Downloading recording from server with url $url")
                 startDownload(url, it)
@@ -78,7 +79,7 @@ class DownloadRecordingActivity : BasePlaybackActivity() {
         }
 
         Timber.d("Download recording from serverUrl '$downloadUrl' to $downloadDirectory/$recordingTitle")
-        val request = DownloadManager.Request(Uri.parse(downloadUrl))
+        val request = DownloadManager.Request(downloadUrl.toUri())
             .addRequestHeader("Authorization", credentials)
             .setTitle(recording.title)
             .setDescription(recording.description)
@@ -126,18 +127,13 @@ class DownloadRecordingActivity : BasePlaybackActivity() {
      */
     private fun getIsStoragePermissionGranted(activity: Activity): Boolean {
         Timber.d("Checking if storage permission was granted")
-        return if (Build.VERSION.SDK_INT >= 23) {
-            if (activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                Timber.d("Storage permissions were granted (API >= 23)")
-                true
-            } else {
-                Timber.d("Storage permissions are not yet granted (API >= 23)")
-                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
-                false
-            }
-        } else {
-            Timber.d("Storage permissions were granted (API < 23)")
+        return if (activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Timber.d("Storage permissions were granted (API >= 23)")
             true
+        } else {
+            Timber.d("Storage permissions are not yet granted (API >= 23)")
+            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+            false
         }
     }
 

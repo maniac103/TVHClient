@@ -11,7 +11,6 @@ import com.google.android.gms.cast.framework.SessionProvider
 import com.google.android.gms.cast.framework.media.CastMediaOptions
 import com.google.android.gms.cast.framework.media.NotificationOptions
 import com.google.android.material.color.DynamicColors
-import kotlinx.coroutines.GlobalScope
 import org.tvheadend.data.AppRepository
 import org.tvheadend.data.di.DaggerRepositoryComponent
 import org.tvheadend.data.di.RepositoryModule
@@ -37,12 +36,6 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
     lateinit var appRepository: AppRepository
     @Inject
     lateinit var sharedPreferences: SharedPreferences
-
-    lateinit var appContainer: AppContainer
-
-    inner class AppContainer {
-        private val applicationScope = GlobalScope
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -74,7 +67,6 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
             Timber.plant(FileLoggingTree(applicationContext))
         }
 
-        appContainer = AppContainer()
         Timber.d("Application build time is ${BuildConfig.BUILD_TIME}, git commit hash is ${BuildConfig.GIT_SHA}")
 
         // Execute some additional tasks before starting the application.

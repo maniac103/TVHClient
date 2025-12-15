@@ -20,6 +20,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.features.MainActivity
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
+import androidx.core.view.get
 
 class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, ActionMode.Callback, RecyclerViewClickInterface {
 
@@ -159,10 +160,10 @@ class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, Action
         val connection = recyclerViewAdapter.getItem(position)
         if (connection != null) {
             // Show or hide the wake on LAN menu item
-            menu.getItem(0).isVisible = connection.isWolEnabled && !connection.wolMacAddress.isNullOrEmpty()
+            menu[0].isVisible = connection.isWolEnabled && !connection.wolMacAddress.isNullOrEmpty()
             // Show or hide the activate / deactivate menu items
-            menu.getItem(1).isVisible = !connection.isActive
-            menu.getItem(2).isVisible = connection.isActive
+            menu[1].isVisible = !connection.isActive
+            menu[2].isVisible = connection.isActive
 
             mode.title = connection.name
         }

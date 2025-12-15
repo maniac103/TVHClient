@@ -9,6 +9,7 @@ import android.os.*
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.app.TaskStackBuilder
+import androidx.core.content.edit
 import androidx.fragment.app.FragmentActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
@@ -131,7 +132,9 @@ class SettingsFragment : BaseSettingsFragment(), Preference.OnPreferenceClickLis
                 folderChooser(context) { _, file ->
                     Timber.d("Folder ${file.absolutePath}, ${file.name} was selected")
                     val strippedPath = file.absolutePath.replace(Environment.getExternalStorageDirectory().absolutePath, "")
-                    sharedPreferences.edit().putString("download_directory", strippedPath).apply()
+                    sharedPreferences.edit {
+                        putString("download_directory", strippedPath)
+                    }
                     updateDownloadDirSummary()
                 }
             }
@@ -142,15 +145,11 @@ class SettingsFragment : BaseSettingsFragment(), Preference.OnPreferenceClickLis
     }
 
     private fun isReadPermissionGranted(activity: FragmentActivity): Boolean {
-        return if (Build.VERSION.SDK_INT >= 23) {
-            if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                true
-            } else {
-                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
-                false
-            }
-        } else {
+        return if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             true
+        } else {
+            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
+            false
         }
     }
 }

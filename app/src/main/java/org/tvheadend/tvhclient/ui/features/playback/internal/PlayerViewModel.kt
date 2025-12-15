@@ -31,6 +31,7 @@ import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import kotlin.math.max
+import androidx.core.net.toUri
 
 
 class PlayerViewModel(application: Application) : BaseViewModel(application), ServerConnectionStateListener, VideoListener, Player.EventListener {
@@ -196,7 +197,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         player.prepare(ProgressiveMediaSource.Factory(
                 htspSubscriptionDataSourceFactory,
                 TvheadendExtractorsFactory())
-                .createMediaSource(Uri.parse("htsp://channel/$channelId")))
+                .createMediaSource("htsp://channel/$channelId".toUri()))
 
         liveTvIsPlaying.value = true
         player.playWhenReady = true
@@ -212,7 +213,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         player.prepare(ProgressiveMediaSource.Factory(
                 htspFileInputStreamDataSourceFactory,
                 TvheadendExtractorsFactory())
-                .createMediaSource(Uri.parse("htsp://dvrfile/$recordingId")))
+            .createMediaSource("htsp://dvrfile/$recordingId".toUri()))
 
         liveTvIsPlaying.value = false
         player.playWhenReady = true
@@ -224,7 +225,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
 
         player.prepare(ProgressiveMediaSource.Factory(
                 DefaultDataSourceFactory(context, "Exoplayer-local"))
-                .createMediaSource(Uri.parse(localUri)))
+            .createMediaSource(localUri.toUri()))
 
         liveTvIsPlaying.value = false
         player.playWhenReady = true

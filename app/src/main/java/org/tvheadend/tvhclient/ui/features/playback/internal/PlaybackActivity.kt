@@ -114,7 +114,7 @@ class PlaybackActivity : AppCompatActivity() {
         timeshiftSupported = PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean("timeshift_enabled", resources.getBoolean(R.bool.pref_default_timeshift_enabled))
 
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager?
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager?
         orientation = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         orientationSensorListener = object : SensorEventListener {
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -511,17 +511,15 @@ class PlaybackActivity : AppCompatActivity() {
         super.onWindowFocusChanged(hasFocus)
         Timber.d("Window focus changed to $hasFocus")
         if (hasFocus) {
-            if (Build.VERSION.SDK_INT >= 19) {
-                window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        // Set the content to appear under the system bars so that the
-                        // content doesn't resize when the system bars hide and show.
-                        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        // Hide the nav bar and status bar
-                        or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        or View.SYSTEM_UI_FLAG_FULLSCREEN)
-            }
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    // Set the content to appear under the system bars so that the
+                    // content doesn't resize when the system bars hide and show.
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    // Hide the nav bar and status bar
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
         }
     }
 

@@ -57,7 +57,7 @@ class ExoPlayerUtils {
                     buildBitrateString(format)), buildTrackIdString(format)),
                     buildSampleMimeTypeString(format));
         }
-        return trackName.length() == 0 ? "unknown" : trackName;
+        return trackName.isEmpty() ? "unknown" : trackName;
     }
 
     private static String buildResolutionString(Format format) {
@@ -81,7 +81,7 @@ class ExoPlayerUtils {
     }
 
     private static String joinWithSeparator(String first, String second) {
-        return first.length() == 0 ? second : (second.length() == 0 ? first : first + ", " + second);
+        return first.isEmpty() ? second : (second.isEmpty() ? first : first + ", " + second);
     }
 
     private static String buildTrackIdString(Format format) {

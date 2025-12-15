@@ -29,6 +29,7 @@ import org.tvheadend.tvhclient.util.extensions.getCastSession
 import timber.log.Timber
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
+import androidx.core.net.toUri
 
 fun preparePopupOrToolbarRecordingMenu(context: Context,
                                        menu: Menu,
@@ -557,7 +558,7 @@ fun searchTitleOnYoutube(context: Context, title: String?): Boolean {
         val url = URLEncoder.encode(title, "utf-8")
         try {
             // Search for the given title using the installed youtube application
-            val intent = Intent(Intent.ACTION_SEARCH, Uri.parse("vnd.youtube:"))
+            val intent = Intent(Intent.ACTION_SEARCH, "vnd.youtube:".toUri())
             intent.putExtra("query", url)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
@@ -567,7 +568,7 @@ fun searchTitleOnYoutube(context: Context, title: String?): Boolean {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.putExtra("query", url)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            intent.data = Uri.parse("https://www.youtube.com/results?search_query=$url")
+            intent.data = "https://www.youtube.com/results?search_query=$url".toUri()
             context.startActivity(intent)
         }
     } catch (e: UnsupportedEncodingException) {
@@ -581,7 +582,7 @@ fun searchTitleOnGoogle(context: Context, title: String?): Boolean {
     try {
         val url = URLEncoder.encode(title, "utf-8")
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse("https://www.google.com/search?q=$url")
+        intent.data = "https://www.google.com/search?q=$url".toUri()
         context.startActivity(intent)
     } catch (e: UnsupportedEncodingException) {
         // NOP
@@ -593,11 +594,11 @@ fun searchTitleOnGoogle(context: Context, title: String?): Boolean {
 fun searchTitleOnImdbWebsite(context: Context, title: String?): Boolean {
     try {
         val url = URLEncoder.encode(title, "utf-8")
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("imdb:///find?s=tt&q=$url"))
+        val intent = Intent(Intent.ACTION_VIEW, "imdb:///find?s=tt&q=$url".toUri())
         try {
             context.startActivity(intent)
         } catch  (ex: ActivityNotFoundException) {
-            intent.data = Uri.parse("https://www.imdb.com/find?s=tt&q=$url")
+            intent.data = "https://www.imdb.com/find?s=tt&q=$url".toUri()
             context.startActivity(intent)
         }
     } catch (e: UnsupportedEncodingException) {
@@ -611,7 +612,7 @@ fun searchTitleOnFileAffinityWebsite(context: Context, title: String?): Boolean 
     try {
         val url = URLEncoder.encode(title, "utf-8")
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse("https://www.filmaffinity.com/es/search.php?stext=$url")
+        intent.data = "https://www.filmaffinity.com/es/search.php?stext=$url".toUri()
         context.startActivity(intent)
     } catch (e: UnsupportedEncodingException) {
         // NOP

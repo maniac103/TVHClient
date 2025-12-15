@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.util.Assertions
 import com.google.android.material.tabs.TabLayout
 import org.tvheadend.tvhclient.R
 import java.util.*
+import androidx.core.util.size
 
 class TrackSelectionDialog : DialogFragment() {
 
@@ -87,7 +88,7 @@ class TrackSelectionDialog : DialogFragment() {
 
         viewPager.adapter = FragmentAdapter(childFragmentManager)
         tabLayout.setupWithViewPager(viewPager)
-        tabLayout.visibility = if (tabFragments.size() > 1) View.VISIBLE else View.GONE
+        tabLayout.visibility = if (tabFragments.size > 1) View.VISIBLE else View.GONE
         cancelButton.setOnClickListener { dismiss() }
         okButton.setOnClickListener {
             onClickListener.onClick(dialog, DialogInterface.BUTTON_POSITIVE)
@@ -102,7 +103,7 @@ class TrackSelectionDialog : DialogFragment() {
         }
 
         override fun getCount(): Int {
-            return tabFragments.size()
+            return tabFragments.size
         }
 
         override fun getPageTitle(position: Int): CharSequence {

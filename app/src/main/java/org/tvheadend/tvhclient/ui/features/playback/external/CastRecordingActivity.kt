@@ -11,6 +11,7 @@ import com.google.android.gms.common.images.WebImage
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.util.extensions.getCastSession
 import timber.log.Timber
+import androidx.core.net.toUri
 
 class CastRecordingActivity : BasePlaybackActivity() {
 
@@ -32,14 +33,14 @@ class CastRecordingActivity : BasePlaybackActivity() {
 
         val icon = recording.channelIcon
         if (!icon.isNullOrEmpty()) {
-            val iconUrl: String? = if (icon.startsWith("http")) {
-                recording.channelIcon
+            val iconUrl = if (icon.startsWith("http")) {
+                icon
             } else {
-                viewModel.getServerUrl() + "/" + recording.channelIcon
+                viewModel.getServerUrl() + "/" + icon
             }
             Timber.d("Recording channel icon url: $iconUrl")
-            movieMetadata.addImage(WebImage(Uri.parse(iconUrl)))   // small cast icon
-            movieMetadata.addImage(WebImage(Uri.parse(iconUrl)))   // large background icon
+            movieMetadata.addImage(WebImage(iconUrl.toUri()))   // small cast icon
+            movieMetadata.addImage(WebImage(iconUrl.toUri()))   // large background icon
         }
 
         val castingProfileId = viewModel.getServerStatus().castingServerProfileId

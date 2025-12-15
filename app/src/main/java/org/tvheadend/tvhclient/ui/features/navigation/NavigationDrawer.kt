@@ -43,7 +43,7 @@ import org.tvheadend.tvhclient.ui.features.information.StatusViewModel
 import org.tvheadend.tvhclient.ui.features.information.WebViewFragment
 import org.tvheadend.tvhclient.ui.features.settings.SettingsActivity
 import timber.log.Timber
-import java.util.*
+import androidx.core.graphics.drawable.toDrawable
 
 class NavigationDrawer(private val activity: AppCompatActivity,
                        private val drawer: MaterialDrawerSliderView,
@@ -97,7 +97,7 @@ class NavigationDrawer(private val activity: AppCompatActivity,
             selectionListEnabledForSingleProfile = false
 
             val bgColor = MaterialColors.getColor(this, R.attr.colorPrimaryContainer)
-            headerBackground = ImageHolder(ColorDrawable(bgColor))
+            headerBackground = ImageHolder(bgColor.toDrawable())
 
             onAccountHeaderListener = { _, profile, current ->
                 drawerLayout.closeDrawers()

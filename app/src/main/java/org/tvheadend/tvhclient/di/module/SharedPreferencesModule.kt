@@ -7,7 +7,6 @@ import dagger.Module
 import dagger.Provides
 import org.tvheadend.data.di.FeatureScope
 
-@Suppress("unused")
 @Module
 class SharedPreferencesModule {
 

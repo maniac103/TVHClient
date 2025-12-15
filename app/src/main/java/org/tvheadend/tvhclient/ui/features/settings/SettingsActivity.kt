@@ -5,12 +5,9 @@ import android.content.Context
 import android.content.IntentFilter
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.material.appbar.AppBarLayout
 import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.MiscContentActivityBinding

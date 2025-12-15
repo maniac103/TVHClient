@@ -31,6 +31,7 @@ import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.core.graphics.scale
 
 // Constants required for the date calculation
 private const val ONE_DAY = 1000 * 3600 * 24
@@ -46,15 +47,8 @@ fun setLayoutWidth(view: View, increaseMargin: Boolean) {
         else
             view.context.resources.getDimension(R.dimen.dp_16)).toInt()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            layoutParams.marginStart = marginStart
-            view.layoutParams = layoutParams
-        } else {
-            layoutParams.setMargins(marginStart,
-                    layoutParams.topMargin,
-                    layoutParams.rightMargin,
-                    layoutParams.bottomMargin)
-        }
+        layoutParams.marginStart = marginStart
+        view.layoutParams = layoutParams
     }
 }
 
@@ -375,7 +369,7 @@ fun setProgramImage(view: ImageView, url: String?, viewWidth: Int = 0, visible: 
                 }
                 val aspectRatio = source.height.toDouble() / source.width.toDouble()
                 val targetHeight = (viewWidth * aspectRatio).toInt()
-                val result = Bitmap.createScaledBitmap(source, viewWidth, targetHeight, false)
+                val result = source.scale(viewWidth, targetHeight, false)
                 if (result != source) {
                     // Same bitmap is returned if sizes are the same
                     source.recycle()
@@ -559,7 +553,7 @@ fun setLocalizedDate(view: TextView, date: Long) {
         return
     }
 
-    var localizedDate = ""
+    var localizedDate: String
 
     val dateDiff = date/ONE_DAY - System.currentTimeMillis()/ONE_DAY
 

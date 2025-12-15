@@ -115,7 +115,7 @@ public class HtspSubscriptionDataSource implements DataSource, Closeable, Server
         SharedPreferences mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean timeshiftEnabled = mSharedPreferences.getBoolean("timeshift_enabled", context.getResources().getBoolean(R.bool.pref_default_timeshift_enabled));
         String timeshiftPeriodStr = mSharedPreferences.getString("timeshift_period", context.getResources().getString(R.string.pref_default_timeshift_period));
-        if (timeshiftEnabled && timeshiftPeriodStr != null) {
+        if (timeshiftEnabled) {
             timeshiftPeriod = Integer.parseInt(timeshiftPeriodStr);
         }
 
@@ -160,7 +160,7 @@ public class HtspSubscriptionDataSource implements DataSource, Closeable, Server
         if (!isSubscribed) {
             String path = dataSpec.uri.getPath();
             Timber.d("We are not yet subscribed to path %s", path);
-            if (path != null && path.length() > 0) {
+            if (path != null && !path.isEmpty()) {
 
                 int channelId = Integer.parseInt(path.substring(1));
                 Timber.d("Sending subscription start to service with id " + subscriptionId + " for channel id " + channelId);

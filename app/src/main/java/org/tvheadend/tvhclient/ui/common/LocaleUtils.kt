@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import androidx.preference.PreferenceManager
 import java.util.*
+import androidx.core.content.edit
 
 
 private const val SELECTED_LANGUAGE = "language"
@@ -31,10 +32,9 @@ private fun getPersistedData(context: Context, defaultLanguage: String): String 
 
 private fun persist(context: Context, language: String) {
     val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-    val editor = preferences.edit()
-
-    editor.putString(SELECTED_LANGUAGE, language)
-    editor.apply()
+    preferences.edit {
+        putString(SELECTED_LANGUAGE, language)
+    }
 }
 
 @TargetApi(Build.VERSION_CODES.N)
@@ -55,16 +55,9 @@ private fun updateResourcesLegacy(context: Context, language: String): Context {
     val resources = context.resources
     val configuration = resources.configuration
 
-    @Suppress("DEPRECATION")
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-        configuration.setLocale(locale)
-        configuration.setLayoutDirection(locale)
-        context.createConfigurationContext(configuration)
-    } else {
-        configuration.locale = locale
-        resources.updateConfiguration(configuration, resources.displayMetrics)
-        context
-    }
+    configuration.setLocale(locale)
+    configuration.setLayoutDirection(locale)
+    return context.createConfigurationContext(configuration)
 }
 
 fun getLocale(context: Context): Locale {

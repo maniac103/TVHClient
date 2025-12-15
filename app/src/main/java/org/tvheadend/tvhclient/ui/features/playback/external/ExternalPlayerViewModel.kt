@@ -25,6 +25,7 @@ import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import androidx.core.net.toUri
 
 class ExternalPlayerViewModel(application: Application) : BaseViewModel(application), ServerConnectionStateListener {
 
@@ -126,7 +127,7 @@ class ExternalPlayerViewModel(application: Application) : BaseViewModel(applicat
         // Convert the hostname to the IP address only when required.
         // This is usually required when a channel or recording shall
         // be played on a chromecast
-        val uri = Uri.parse(connection.streamingUrl)
+        val uri = connection.streamingUrl?.toUri() ?: return ""
         var hostname = uri.host
         if (convertHostnameToAddress) {
             Timber.d("Convert hostname $hostname to IP address")

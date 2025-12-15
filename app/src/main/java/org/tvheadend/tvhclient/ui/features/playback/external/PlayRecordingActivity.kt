@@ -6,6 +6,7 @@ import android.os.Environment
 import androidx.preference.PreferenceManager
 import timber.log.Timber
 import java.io.File
+import androidx.core.net.toUri
 
 class PlayRecordingActivity : BasePlaybackActivity() {
 
@@ -23,10 +24,10 @@ class PlayRecordingActivity : BasePlaybackActivity() {
 
         if (file.exists()) {
             Timber.d("Playing recording from local file ${file.absolutePath}")
-            intent.setDataAndType(Uri.parse(file.absolutePath), "video/mp4")
+            intent.setDataAndType(file.absolutePath.toUri(), "video/mp4")
         } else {
             Timber.d("Playing recording from server with url: $url")
-            intent.setDataAndType(Uri.parse(url), "video/mp4")
+            intent.setDataAndType(url.toUri(), "video/mp4")
         }
         startExternalPlayer(intent)
     }

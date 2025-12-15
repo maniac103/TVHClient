@@ -1,7 +1,6 @@
 package org.tvheadend.tvhclient.ui.features.dvr.recordings
 
 import android.os.Bundle
-import android.view.Menu
 import android.view.View
 import org.tvheadend.tvhclient.R
 import timber.log.Timber

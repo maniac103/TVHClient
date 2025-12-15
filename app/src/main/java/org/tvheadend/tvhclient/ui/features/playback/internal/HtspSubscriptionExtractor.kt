@@ -55,7 +55,7 @@ internal class HtspSubscriptionExtractor : Extractor {
         val scratch = ParsableByteArray(HtspSubscriptionDataSource.HEADER.size)
         // Find 8 bytes equal to HEADER at the start of the input.
         input.peekFully(scratch.data, 0, HtspSubscriptionDataSource.HEADER.size)
-        return Arrays.equals(scratch.data, HtspSubscriptionDataSource.HEADER)
+        return scratch.data.contentEquals(HtspSubscriptionDataSource.HEADER)
     }
 
     override fun init(output: ExtractorOutput) {

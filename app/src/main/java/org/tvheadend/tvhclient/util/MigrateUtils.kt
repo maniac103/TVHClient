@@ -12,6 +12,7 @@ import org.tvheadend.tvhclient.BuildConfig
 import org.tvheadend.tvhclient.R
 import timber.log.Timber
 import java.util.*
+import androidx.core.content.edit
 
 class MigrateUtils(val context: Context, val appRepository: AppRepository, val sharedPreferences: SharedPreferences) {
 
@@ -63,28 +64,28 @@ class MigrateUtils(val context: Context, val appRepository: AppRepository, val s
         }
 
         // Store the current version as the last installed version
-        val editor = sharedPreferences.edit()
-        editor.putInt("build_version_for_migration", currentApplicationVersion)
-        editor.apply()
+        sharedPreferences.edit {
+            putInt("build_version_for_migration", currentApplicationVersion)
+        }
     }
 
     private fun convertThemePreference() {
         val lightThemeEnabled = sharedPreferences.getBoolean("light_theme_enabled", context.resources.getBoolean(R.bool.pref_default_light_theme_enabled))
         Timber.d("Light theme is enabled $lightThemeEnabled, migrating preference to a string")
         val themeList = listOf(*context.resources.getStringArray(R.array.pref_theme_list))
-        val editor = sharedPreferences.edit()
-        editor.remove("light_theme_enabled")
-        editor.putString("selected_theme", if (lightThemeEnabled) themeList[0].toString() else themeList[1].toString())
-        editor.apply()
+        sharedPreferences.edit {
+            remove("light_theme_enabled")
+            putString("selected_theme", if (lightThemeEnabled) themeList[0].toString() else themeList[1].toString())
+        }
     }
 
     private fun convertInvalidEpgPreference() {
         val hours = Integer.parseInt(sharedPreferences.getString("hours_of_epg_data_per_screen", context.resources.getString(R.string.pref_default_hours_of_epg_data_per_screen))!!)
         Timber.d("Hours per screen is $hours")
         if (hours == 0) {
-            val editor = sharedPreferences.edit()
-            editor.putString("hours_of_epg_data_per_screen", "1")
-            editor.apply()
+            sharedPreferences.edit {
+                putString("hours_of_epg_data_per_screen", "1")
+            }
         }
     }
 
@@ -97,9 +98,9 @@ class MigrateUtils(val context: Context, val appRepository: AppRepository, val s
         }
         Timber.d("ow space threshold is $hours")
         if (hours == 0) {
-            val editor = sharedPreferences.edit()
-            editor.putString("low_storage_space_threshold", "1")
-            editor.apply()
+            sharedPreferences.edit {
+                putString("low_storage_space_threshold", "1")
+            }
         }
     }
 
@@ -122,23 +123,26 @@ class MigrateUtils(val context: Context, val appRepository: AppRepository, val s
      * The two new options are now the first ones so all other values need to be moved by two.
      */
     private fun increaseChannelSortOrderPreferenceValue() {
-        val editor = sharedPreferences.edit()
-        var channelSortOrder = Integer.valueOf(sharedPreferences.getString("channel_sort_order", context.resources.getString(R.string.pref_default_channel_sort_order))!!)
-        if (channelSortOrder >= 2) {
-            channelSortOrder += 2
+        sharedPreferences.edit {
+            var channelSortOrder = sharedPreferences.getString(
+                "channel_sort_order",
+                context.resources.getString(R.string.pref_default_channel_sort_order)
+            )?.toInt() ?: 0
+            if (channelSortOrder >= 2) {
+                channelSortOrder += 2
+            }
+            putString("channel_sort_order", channelSortOrder.toString())
         }
-        editor.putString("channel_sort_order", channelSortOrder.toString())
-        editor.apply()
     }
 
     /**
      * Convert the previous boolean channel icon action to the corresponding list entry
      */
     private fun convertChannelIconActionPreference() {
-        val editor = sharedPreferences.edit()
-        val enabled = sharedPreferences.getBoolean("channel_icon_starts_playback_enabled", true)
-        editor.putString("channel_icon_action", if (enabled) "2" else "0")
-        editor.apply()
+        sharedPreferences.edit {
+            val enabled = sharedPreferences.getBoolean("channel_icon_starts_playback_enabled", true)
+            putString("channel_icon_action", if (enabled) "2" else "0")
+        }
     }
 
     private fun convertConnectionHostAndPortValuesToUrl() {
@@ -158,11 +162,11 @@ class MigrateUtils(val context: Context, val appRepository: AppRepository, val s
      * Convert the previous internal player settings to the new one that differentiates between channels and recordings
      */
     private fun duplicateInternalPlayerSettingForRecordings() {
-        val editor = sharedPreferences.edit()
-        val enabled = sharedPreferences.getBoolean("internal_player_enabled", context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))
-        editor.putBoolean("internal_player_for_channels_enabled", enabled)
-        editor.putBoolean("internal_player_for_recordings_enabled", enabled)
-        editor.apply()
+        sharedPreferences.edit {
+            val enabled = sharedPreferences.getBoolean("internal_player_enabled", context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))
+            putBoolean("internal_player_for_channels_enabled", enabled)
+            putBoolean("internal_player_for_recordings_enabled", enabled)
+        }
     }
 
     /**
@@ -173,9 +177,9 @@ class MigrateUtils(val context: Context, val appRepository: AppRepository, val s
     private fun convertChannelSortOrderPreferenceBecauseDescendingOrderWasAdded() {
         var channelSortOrder = Integer.valueOf(sharedPreferences.getString("channel_sort_order", context.resources.getString(R.string.pref_default_channel_sort_order))!!)
         channelSortOrder = channelSortOrder * 2 + 1
-        val editor = sharedPreferences.edit()
-        editor.putString("channel_sort_order", channelSortOrder.toString())
-        editor.apply()
+        sharedPreferences.edit {
+            putString("channel_sort_order", channelSortOrder.toString())
+        }
     }
 
     private fun clearAllPlaybackProfiles() {
@@ -290,10 +294,10 @@ class MigrateUtils(val context: Context, val appRepository: AppRepository, val s
                 // program guide moved to position 2
                 value != 0 -> value++
             }
-            val editor = sharedPreferences.edit()
-            editor.putString("start_screen", value.toString())
-            editor.remove("defaultMenuPositionPref")
-            editor.apply()
+            sharedPreferences.edit {
+                putString("start_screen", value.toString())
+                remove("defaultMenuPositionPref")
+            }
         } catch (e: NumberFormatException) {
             // NOP
         }
@@ -303,40 +307,106 @@ class MigrateUtils(val context: Context, val appRepository: AppRepository, val s
      * Renames the names of the old preferences to the new naming scheme
      */
     private fun copyOldPreferenceValuesToNewOnes() {
-        val editor = sharedPreferences.edit()
+        sharedPreferences.edit {
 
-        // Advanced settings preferences
-        editor.putString("connection_timeout", sharedPreferences.getString("connectionTimeout", context.resources.getString(R.string.pref_default_connection_timeout)))
-        editor.putBoolean("debug_mode_enabled", sharedPreferences.getBoolean("pref_debug_mode", context.resources.getBoolean(R.bool.pref_default_debug_mode_enabled)))
+            // Advanced settings preferences
+            putString("connection_timeout", sharedPreferences.getString("connectionTimeout", context.resources.getString(R.string.pref_default_connection_timeout)))
+            putBoolean(
+                "debug_mode_enabled",
+                sharedPreferences.getBoolean("pref_debug_mode", context.resources.getBoolean(R.bool.pref_default_debug_mode_enabled))
+            )
 
-        // UI preferences
-        editor.putBoolean("light_theme_enabled", sharedPreferences.getBoolean("lightThemePref", context.resources.getBoolean(R.bool.pref_default_light_theme_enabled)))
-        editor.putBoolean("localized_date_time_format_enabled", sharedPreferences.getBoolean("useLocalizedDateTimeFormatPref", context.resources.getBoolean(R.bool.pref_default_localized_date_time_format_enabled)))
-        editor.putString("channel_sort_order", sharedPreferences.getString("sortChannelsPref", context.resources.getString(R.string.pref_default_channel_sort_order)))
-        editor.putBoolean("channel_name_enabled", sharedPreferences.getBoolean("showChannelNamePref", context.resources.getBoolean(R.bool.pref_default_channel_name_enabled)))
-        editor.putBoolean("program_progressbar_enabled", sharedPreferences.getBoolean("showProgramProgressbarPref", context.resources.getBoolean(R.bool.pref_default_program_progressbar_enabled)))
-        editor.putBoolean("program_subtitle_enabled", sharedPreferences.getBoolean("showProgramSubtitlePref", context.resources.getBoolean(R.bool.pref_default_program_subtitle_enabled)))
-        editor.putBoolean("next_program_title_enabled", sharedPreferences.getBoolean("showNextProgramPref", context.resources.getBoolean(R.bool.pref_default_next_program_title_enabled)))
-        editor.putBoolean("genre_colors_for_channels_enabled", sharedPreferences.getBoolean("showGenreColorsChannelsPref", context.resources.getBoolean(R.bool.pref_default_genre_colors_for_channels_enabled)))
-        editor.putBoolean("genre_colors_for_programs_enabled", sharedPreferences.getBoolean("showGenreColorsProgramsPref", context.resources.getBoolean(R.bool.pref_default_genre_colors_for_programs_enabled)))
-        editor.putBoolean("genre_colors_for_program_guide_enabled", sharedPreferences.getBoolean("showGenreColorsGuidePref", context.resources.getBoolean(R.bool.pref_default_genre_colors_for_program_guide_enabled)))
-        editor.putInt("genre_color_transparency", sharedPreferences.getInt("showGenreColorsVisibility", Integer.valueOf(context.resources.getString(R.string.pref_default_genre_color_transparency))))
-        editor.putString("hours_of_epg_data_per_screen", sharedPreferences.getString("epgHoursVisible", context.resources.getString(R.string.pref_default_channel_icon_action)))
-        editor.putString("days_of_epg_data", sharedPreferences.getString("epgMaxDays", context.resources.getString(R.string.pref_default_days_of_epg_data)))
-        editor.putBoolean("delete_all_recordings_menu_enabled", sharedPreferences.getBoolean("hideMenuDeleteAllRecordingsPref", context.resources.getBoolean(R.bool.pref_default_delete_all_recordings_menu_enabled)))
-        editor.putBoolean("channel_tag_menu_enabled", sharedPreferences.getBoolean("visibleMenuIconTagsPref", context.resources.getBoolean(R.bool.pref_default_channel_tag_menu_enabled)))
+            // UI preferences
+            putBoolean(
+                "light_theme_enabled",
+                sharedPreferences.getBoolean("lightThemePref", context.resources.getBoolean(R.bool.pref_default_light_theme_enabled))
+            )
+            putBoolean(
+                "localized_date_time_format_enabled",
+                sharedPreferences.getBoolean(
+                    "useLocalizedDateTimeFormatPref",
+                    context.resources.getBoolean(R.bool.pref_default_localized_date_time_format_enabled)
+                )
+            )
+            putString(
+                "channel_sort_order",
+                sharedPreferences.getString("sortChannelsPref", context.resources.getString(R.string.pref_default_channel_sort_order))
+            )
+            putBoolean(
+                "channel_name_enabled",
+                sharedPreferences.getBoolean("showChannelNamePref", context.resources.getBoolean(R.bool.pref_default_channel_name_enabled))
+            )
+            putBoolean(
+                "program_progressbar_enabled",
+                sharedPreferences.getBoolean("showProgramProgressbarPref", context.resources.getBoolean(R.bool.pref_default_program_progressbar_enabled))
+            )
+            putBoolean(
+                "program_subtitle_enabled",
+                sharedPreferences.getBoolean("showProgramSubtitlePref", context.resources.getBoolean(R.bool.pref_default_program_subtitle_enabled))
+            )
+            putBoolean(
+                "next_program_title_enabled",
+                sharedPreferences.getBoolean("showNextProgramPref", context.resources.getBoolean(R.bool.pref_default_next_program_title_enabled))
+            )
+            putBoolean(
+                "genre_colors_for_channels_enabled",
+                sharedPreferences.getBoolean("showGenreColorsChannelsPref", context.resources.getBoolean(R.bool.pref_default_genre_colors_for_channels_enabled))
+            )
+            putBoolean(
+                "genre_colors_for_programs_enabled",
+                sharedPreferences.getBoolean("showGenreColorsProgramsPref", context.resources.getBoolean(R.bool.pref_default_genre_colors_for_programs_enabled))
+            )
+            putBoolean(
+                "genre_colors_for_program_guide_enabled",
+                sharedPreferences.getBoolean(
+                    "showGenreColorsGuidePref",
+                    context.resources.getBoolean(R.bool.pref_default_genre_colors_for_program_guide_enabled)
+                )
+            )
+            putInt(
+                "genre_color_transparency",
+                sharedPreferences.getInt(
+                    "showGenreColorsVisibility",
+                    Integer.valueOf(context.resources.getString(R.string.pref_default_genre_color_transparency))
+                )
+            )
+            putString(
+                "hours_of_epg_data_per_screen",
+                sharedPreferences.getString("epgHoursVisible", context.resources.getString(R.string.pref_default_channel_icon_action))
+            )
+            putString("days_of_epg_data", sharedPreferences.getString("epgMaxDays", context.resources.getString(R.string.pref_default_days_of_epg_data)))
+            putBoolean(
+                "delete_all_recordings_menu_enabled",
+                sharedPreferences.getBoolean(
+                    "hideMenuDeleteAllRecordingsPref",
+                    context.resources.getBoolean(R.bool.pref_default_delete_all_recordings_menu_enabled)
+                )
+            )
+            putBoolean(
+                "channel_tag_menu_enabled",
+                sharedPreferences.getBoolean("visibleMenuIconTagsPref", context.resources.getBoolean(R.bool.pref_default_channel_tag_menu_enabled))
+            )
 
-        // Casting preferences
-        editor.putBoolean("casting_minicontroller_enabled", sharedPreferences.getBoolean("pref_show_cast_minicontroller", context.resources.getBoolean(R.bool.pref_default_casting_minicontroller_enabled)))
+            // Casting preferences
+            putBoolean(
+                "casting_minicontroller_enabled",
+                sharedPreferences.getBoolean("pref_show_cast_minicontroller", context.resources.getBoolean(R.bool.pref_default_casting_minicontroller_enabled))
+            )
 
-        // Notification preferences
-        editor.putBoolean("notifications_enabled", sharedPreferences.getBoolean("pref_show_notifications", context.resources.getBoolean(R.bool.pref_default_notifications_enabled)))
-        editor.putString("notification_lead_time", sharedPreferences.getString("pref_show_notification_offset", context.resources.getString(R.string.pref_default_notification_lead_time)))
+            // Notification preferences
+            putBoolean(
+                "notifications_enabled",
+                sharedPreferences.getBoolean("pref_show_notifications", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))
+            )
+            putString(
+                "notification_lead_time",
+                sharedPreferences.getString("pref_show_notification_offset", context.resources.getString(R.string.pref_default_notification_lead_time))
+            )
 
-        // Main preferences
-        editor.putString("download_directory", sharedPreferences.getString("pref_download_directory", Environment.DIRECTORY_DOWNLOADS))
+            // Main preferences
+            putString("download_directory", sharedPreferences.getString("pref_download_directory", Environment.DIRECTORY_DOWNLOADS))
 
-        editor.apply()
+        }
     }
 
     private fun updateRecordingProfiles() {

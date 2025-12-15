@@ -24,6 +24,7 @@ import timber.log.Timber
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import androidx.core.content.edit
 
 class ChangeLogFragment : Fragment(), BackPressedInterface, HideNavigationDrawerInterface {
 
@@ -126,9 +127,9 @@ class ChangeLogFragment : Fragment(), BackPressedInterface, HideNavigationDrawer
     override fun onBackPressed() {
         // Save the information that the changelog was shown
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val editor = sharedPreferences.edit()
-        editor.putString("versionNameForChangelog", BuildConfig.VERSION_NAME)
-        editor.apply()
+        sharedPreferences.edit {
+            putString("versionNameForChangelog", BuildConfig.VERSION_NAME)
+        }
 
         activity?.supportFragmentManager?.popBackStack()
     }

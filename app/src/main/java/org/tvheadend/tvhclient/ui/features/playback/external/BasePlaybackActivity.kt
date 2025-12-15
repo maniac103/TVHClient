@@ -13,6 +13,7 @@ import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.PlayActivityBinding
 import org.tvheadend.tvhclient.ui.common.onAttach
 import timber.log.Timber
+import androidx.core.net.toUri
 
 abstract class BasePlaybackActivity : AppCompatActivity() {
 
@@ -78,7 +79,7 @@ abstract class BasePlaybackActivity : AppCompatActivity() {
                         try {
                             Timber.d("Opening play store to download external players")
                             val installIntent = Intent(Intent.ACTION_VIEW)
-                            installIntent.data = Uri.parse("market://search?q=free%20video%20player&c=apps")
+                            installIntent.data = "market://search?q=free%20video%20player&c=apps".toUri()
                             startActivity(installIntent)
                         } catch (t2: Throwable) {
                             Timber.d("Could not startPlayback google play store")

@@ -13,6 +13,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.HideNavigationDrawerInterfac
 import org.tvheadend.tvhclient.ui.common.interfaces.BackPressedInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import timber.log.Timber
+import androidx.core.content.edit
 
 class StartupPrivacyPolicyFragment : WebViewFragment(), BackPressedInterface, HideNavigationDrawerInterface {
 
@@ -63,9 +64,9 @@ class StartupPrivacyPolicyFragment : WebViewFragment(), BackPressedInterface, Hi
         Timber.d("Privacy policy was accepted")
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("showPrivacyPolicy", false)
-        editor.apply()
+        sharedPreferences.edit {
+            putBoolean("showPrivacyPolicy", false)
+        }
 
         activity?.supportFragmentManager?.popBackStack()
     }

@@ -35,19 +35,14 @@ class NetworkStatusReceiver(private val viewModel: NetworkStatusInterface) : Bro
     @Suppress("DEPRECATION")
     private fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            val activeNetworkInfo = connectivityManager.activeNetworkInfo
-            (activeNetworkInfo != null && activeNetworkInfo.isConnected)
-        } else {
-            val activeNetwork = connectivityManager.activeNetwork
-            val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
-            (networkCapabilities != null
-                    && (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-                    || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH)
-                    || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-                    || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
-                    || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)))
-        }
+        val activeNetwork = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+        return (networkCapabilities != null
+                && (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH)
+                || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+                || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
+                || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)))
     }
 
     private fun isWifiApEnabled(context: Context): Boolean {

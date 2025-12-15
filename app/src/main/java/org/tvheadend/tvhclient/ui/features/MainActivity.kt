@@ -325,11 +325,10 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        castContext?.let {
-            return it.onDispatchVolumeKeyEventBeforeJellyBean(event) || super.dispatchKeyEvent(event)
-        } ?: run {
-            return super.dispatchKeyEvent(event)
+        if (castContext?.onDispatchVolumeKeyEventBeforeJellyBean(event) == true) {
+            return true
         }
+        return super.dispatchKeyEvent(event)
     }
 
     private fun showIntroductoryOverlay() {
@@ -378,7 +377,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             Timber.e(e, "Could not setup media route button")
         }
 
-        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
         searchMenuItem = menu.findItem(R.id.menu_search)
         searchView = searchMenuItem?.actionView as SearchView
 
@@ -573,7 +572,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
     }
 
     private fun connectToServer(status: NetworkStatus) {
-        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
         val runningAppProcessInfo = activityManager.runningAppProcesses?.get(0)
         val intent = Intent(this, ConnectionService::class.java)
 
