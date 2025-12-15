@@ -1,32 +1,19 @@
 package org.tvheadend.tvhclient.ui.features.settings
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.tvhclient.R
-import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 
 class SettingsEditConnectionFragment : SettingsConnectionBaseFragment() {
-    override fun onCreateRecyclerView(
-        inflater: LayoutInflater,
-        parent: ViewGroup,
-        savedInstanceState: Bundle?
-    ): RecyclerView {
-        val view = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
-        view.applyNavigationBarPadding()
-        return view
-    }
+    override val titleResId = R.string.edit_connection
+    override val subtitle get() = settingsViewModel.connectionToEdit.name
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        toolbarInterface.setTitle(getString(R.string.edit_connection))
 
         if (savedInstanceState == null) {
             settingsViewModel.loadConnectionById(settingsViewModel.connectionIdToBeEdited)
-            toolbarInterface.setSubtitle(settingsViewModel.connectionToEdit.name)
         }
     }
 

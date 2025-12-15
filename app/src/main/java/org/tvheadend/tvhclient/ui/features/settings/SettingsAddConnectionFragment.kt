@@ -1,31 +1,17 @@
 package org.tvheadend.tvhclient.ui.features.settings
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.Connection
 import org.tvheadend.tvhclient.R
-import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import timber.log.Timber
 
 class SettingsAddConnectionFragment : SettingsConnectionBaseFragment() {
-    override fun onCreateRecyclerView(
-        inflater: LayoutInflater,
-        parent: ViewGroup,
-        savedInstanceState: Bundle?
-    ): RecyclerView {
-        val view = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
-        view.applyNavigationBarPadding()
-        return view
-    }
+    override val titleResId = R.string.add_connection
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        toolbarInterface.setTitle(getString(R.string.add_connection))
-        toolbarInterface.setSubtitle(null)
 
         // When the fragment is created for the first time, create a new empty
         // connection which can be populated with the new information.

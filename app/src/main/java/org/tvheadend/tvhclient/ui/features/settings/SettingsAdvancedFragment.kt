@@ -7,13 +7,9 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.provider.SearchRecentSuggestions
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.content.FileProvider
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
-import androidx.recyclerview.widget.RecyclerView
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
@@ -26,9 +22,7 @@ import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionIntentService
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.common.SuggestionProvider
-import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.features.MainActivity
-import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import org.tvheadend.tvhclient.util.getIconUrl
 import org.tvheadend.tvhclient.util.logging.FileLoggingTree
@@ -39,32 +33,17 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class SettingsAdvancedFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener, SharedPreferences.OnSharedPreferenceChangeListener, MiscDataSource.DatabaseClearedCallback {
+class SettingsAdvancedFragment : BaseSettingsFragment(), Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener, MiscDataSource.DatabaseClearedCallback {
+    override val preferencesResId = R.xml.preferences_advanced
+    override val titleResId = R.string.pref_advanced_settings
 
-    private var notificationsEnabledPreference: SwitchPreference? = null
-    private var notifyRunningRecordingCountEnabledPreference: SwitchPreference? = null
-    private var notifyLowStorageSpaceEnabledPreference: SwitchPreference? = null
+    private var notificationsEnabledPreference: SwitchPreferenceCompat? = null
+    private var notifyRunningRecordingCountEnabledPreference: SwitchPreferenceCompat? = null
+    private var notifyLowStorageSpaceEnabledPreference: SwitchPreferenceCompat? = null
     private var connectionTimeoutPreference: EditTextPreference? = null
-    lateinit var sharedPreferences: SharedPreferences
-    lateinit var settingsViewModel: SettingsViewModel
-
-    override fun onCreateRecyclerView(
-        inflater: LayoutInflater,
-        parent: ViewGroup,
-        savedInstanceState: Bundle?
-    ): RecyclerView {
-        val view = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
-        view.applyNavigationBarPadding()
-        return view
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        settingsViewModel = ViewModelProvider(activity as SettingsActivity)[SettingsViewModel::class.java]
-
-        (activity as ToolbarInterface).setTitle(getString(R.string.pref_advanced_settings))
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
 
         findPreference<Preference>("debug_mode_enabled")?.onPreferenceClickListener = this
         findPreference<Preference>("send_debug_logfile_enabled")?.onPreferenceClickListener = this
@@ -84,20 +63,6 @@ class SettingsAdvancedFragment : PreferenceFragmentCompat(), Preference.OnPrefer
 
         connectionTimeoutPreference = findPreference("connection_timeout")
         connectionTimeoutPreference?.onPreferenceChangeListener = this
-    }
-
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.preferences_advanced, rootKey)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPreferenceClick(preference: Preference): Boolean {
@@ -245,7 +210,7 @@ class SettingsAdvancedFragment : PreferenceFragmentCompat(), Preference.OnPrefer
     }
 
     override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
-        Timber.d("Preference $key has changed")
+        super.onSharedPreferenceChanged(prefs, key)
         when (key) {
             "notify_running_recording_count_enabled" -> {
                 if (prefs != null) {

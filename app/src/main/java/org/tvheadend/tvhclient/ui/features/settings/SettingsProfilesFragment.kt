@@ -1,21 +1,16 @@
 package org.tvheadend.tvhclient.ui.features.settings
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.ListPreference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
-import org.tvheadend.tvhclient.util.applyNavigationBarPadding
-import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import timber.log.Timber
 
-class SettingsProfilesFragment : PreferenceFragmentCompat() {
+class SettingsProfilesFragment : BaseSettingsFragment() {
+    override val preferencesResId = R.xml.preferences_profiles
+    override val titleResId = R.string.pref_profiles
 
     private lateinit var recordingProfilesPreference: ListPreference
     private lateinit var seriesRecordingProfilesPreference: ListPreference
@@ -23,24 +18,9 @@ class SettingsProfilesFragment : PreferenceFragmentCompat() {
     private lateinit var htspPlaybackProfilesPreference: ListPreference
     private lateinit var httpPlaybackProfilesPreference: ListPreference
     private lateinit var castingProfilesPreference: ListPreference
-    lateinit var settingsViewModel: SettingsViewModel
-
-    override fun onCreateRecyclerView(
-        inflater: LayoutInflater,
-        parent: ViewGroup,
-        savedInstanceState: Bundle?
-    ): RecyclerView {
-        val view = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
-        view.applyNavigationBarPadding()
-        return view
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        settingsViewModel = ViewModelProvider(activity as SettingsActivity)[SettingsViewModel::class.java]
-
-        val toolbarInterface = (activity as ToolbarInterface)
-        toolbarInterface.setTitle(getString(R.string.pref_profiles))
 
         htspPlaybackProfilesPreference = findPreference("htsp_playback_profiles")!!
         htspPlaybackProfilesPreference.setOnPreferenceChangeListener { _, o ->
@@ -105,7 +85,7 @@ class SettingsProfilesFragment : PreferenceFragmentCompat() {
         addProfileValuesToListPreference(castingProfilesPreference, settingsViewModel.getHttpProfiles(), settingsViewModel.currentServerStatus.castingServerProfileId)
 
         settingsViewModel.activeConnectionLiveData.observe(viewLifecycleOwner) { connection ->
-            toolbarInterface.setSubtitle(connection?.name)
+            (activity as? ToolbarInterface)?.setSubtitle(connection?.name)
         }
 
         settingsViewModel.currentServerStatusLiveData.observe(viewLifecycleOwner) {

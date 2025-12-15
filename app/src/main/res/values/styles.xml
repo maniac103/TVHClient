@@ -45,6 +45,14 @@
         <item name="materialDrawerHeaderSelectionSubtext">?colorOnPrimaryContainer</item>
     </style>
 
+    <style name="ThemeOverlay.Custom.Preference" parent="PreferenceThemeOverlay">
+        <item name="switchPreferenceCompatStyle">@style/Custom.Preference.SwitchPreference</item>
+    </style>
+
+    <style name="Custom.Preference.SwitchPreference" parent="Preference.SwitchPreference.Material">
+        <item name="android:widgetLayout">@layout/preference_material_switch</item>
+    </style>
+
     <!-- Styles that will be used for the light holo theme -->
     <style name="CustomTheme" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
 
@@ -162,6 +170,7 @@
         <!--<editor-fold desc="Misc">-->
         <item name="rounded_corners">@drawable/rounded_corners_light</item>
         <item name="divider_color">@color/divider_color_light</item>
+        <item name="preferenceTheme">@style/ThemeOverlay.Custom.Preference</item>
         <!--</editor-fold>-->
     </style>
 

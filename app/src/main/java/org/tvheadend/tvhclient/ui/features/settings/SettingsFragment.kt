@@ -6,53 +6,26 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.*
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProvider
-import androidx.preference.ListPreference
 import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
-import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.files.folderChooser
 import org.tvheadend.tvhclient.R
-import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.features.MainActivity
-import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import timber.log.Timber
 
-class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener, SharedPreferences.OnSharedPreferenceChangeListener, ActivityCompat.OnRequestPermissionsResultCallback {
-
-    lateinit var sharedPreferences: SharedPreferences
-    lateinit var settingsViewModel: SettingsViewModel
-
-    override fun onCreateRecyclerView(
-        inflater: LayoutInflater,
-        parent: ViewGroup,
-        savedInstanceState: Bundle?
-    ): RecyclerView {
-        val view = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
-        view.applyNavigationBarPadding()
-        return view
-    }
+class SettingsFragment : BaseSettingsFragment(), Preference.OnPreferenceClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
+    override val preferencesResId = R.xml.preferences
+    override val titleResId = R.string.settings
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         PreferenceManager.setDefaultValues(requireActivity(), R.xml.preferences, false)
-        settingsViewModel = ViewModelProvider(activity as SettingsActivity)[SettingsViewModel::class.java]
-
-        (activity as ToolbarInterface).let {
-            it.setTitle(getString(R.string.settings))
-            it.setSubtitle(null)
-        }
-
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
 
         findPreference<Preference>("list_connections")?.onPreferenceClickListener = this
         findPreference<Preference>("user_interface")?.onPreferenceClickListener = this
@@ -68,30 +41,9 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
         findPreference<Preference>("download_directory")?.onPreferenceClickListener = this
     }
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.preferences, rootKey)
-    }
-
-    @Suppress("deprecation") // setTargetFragment is deprecated, but needed by super class
-    override fun onDisplayPreferenceDialog(preference: Preference) {
-        if (preference is ListPreference) {
-            val fragment = MaterialListPreferenceDialog.create(preference)
-            fragment.setTargetFragment(this, 0)
-            fragment.show(parentFragmentManager, "list_preference_dialog")
-        } else {
-            super.onDisplayPreferenceDialog(preference)
-        }
-    }
-
     override fun onResume() {
         super.onResume()
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
         updateDownloadDirSummary()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     private fun updateDownloadDirSummary() {
@@ -121,7 +73,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     }
 
     override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
-        Timber.d("Shared preference $key has changed")
+        super.onSharedPreferenceChanged(prefs, key)
         when (key) {
             "selected_theme" -> handlePreferenceThemeChanged()
             "language" -> {

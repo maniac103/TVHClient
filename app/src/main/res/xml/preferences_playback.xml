@@ -5,20 +5,17 @@
         <SwitchPreferenceCompat
             android:defaultValue="@bool/pref_default_internal_player_enabled"
             android:key="internal_player_for_channels_enabled"
-            android:widgetLayout="@layout/preference_material_switch"
             android:title="@string/pref_internal_player_for_channels_enabled" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/pref_default_internal_player_enabled"
             android:key="internal_player_for_recordings_enabled"
-            android:widgetLayout="@layout/preference_material_switch"
             android:title="@string/pref_internal_player_for_recordings_enabled" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_advanced_settings">
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/pref_default_force_aspect_ratio_for_sd_content_enabled"
             android:key="force_aspect_ratio_for_sd_content_enabled"
-            android:widgetLayout="@layout/preference_material_switch"
             android:title="@string/pref_force_aspect_ratio_for_sd_content_enabled" />
         <ListPreference
             android:defaultValue="@string/pref_default_buffer_playback_ms"
@@ -28,17 +25,15 @@
             android:key="buffer_playback_ms"
             android:summary="@string/pref_internal_player_buffer_duration_sum"
             android:title="@string/pref_internal_player_buffer_duration" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/pref_default_audio_tunneling_enabled"
             android:key="audio_tunneling_enabled"
             android:summary="@string/pref_internal_player_audio_tunneling_enabled_sum"
-            android:widgetLayout="@layout/preference_material_switch"
             android:title="@string/pref_internal_player_audio_tunneling_enabled" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:enabled="false"
             android:defaultValue="@bool/pref_default_timeshift_enabled"
             android:key="timeshift_enabled"
-            android:widgetLayout="@layout/preference_material_switch"
             android:title="@string/pref_internal_player_timeshift_enabled" />
         <EditTextPreference
             android:name="@string/pref_internal_player_timeshift_period"

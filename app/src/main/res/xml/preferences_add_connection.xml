@@ -29,17 +29,16 @@
             android:key="password"
             android:summary="@string/pref_pass_sum"
             android:title="@string/pref_pass" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/pref_default_active_enabled"
             android:key="active_enabled"
             android:summary="@string/pref_selected_sum"
             android:title="@string/pref_selected" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Wake On Lan">
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/pref_default_wol_enabled"
             android:key="wol_enabled"
-            android:widgetLayout="@layout/preference_material_switch"
             android:title="Enable Wake On Lan" />
         <EditTextPreference
             android:dependency="wol_enabled"
@@ -47,12 +46,11 @@
             android:key="wol_mac_address"
             android:summary="@string/pref_wol_address_sum"
             android:title="@string/pref_wol_address" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:defaultValue="@bool/pref_default_wol_broadcast_enabled"
             android:dependency="wol_enabled"
             android:key="wol_broadcast_enabled"
             android:summary="@string/pref_wol_broadcast_sum"
-            android:widgetLayout="@layout/preference_material_switch"
             android:title="@string/pref_wol_broadcast" />
         <EditTextPreference
             android:defaultValue="@string/pref_default_wol_port"

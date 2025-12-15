@@ -5,21 +5,17 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreference
+import androidx.preference.SwitchPreferenceCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.interfaces.BackPressedInterface
-import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 
-abstract class SettingsConnectionBaseFragment : PreferenceFragmentCompat(), BackPressedInterface, Preference.OnPreferenceChangeListener {
+abstract class SettingsConnectionBaseFragment : BaseSettingsFragment(), BackPressedInterface, Preference.OnPreferenceChangeListener {
+    override val preferencesResId = R.xml.preferences_add_connection
 
-    lateinit var toolbarInterface: ToolbarInterface
-    lateinit var settingsViewModel: SettingsViewModel
     val connectionValidator = ConnectionValidator()
 
     private lateinit var namePreference: EditTextPreference
@@ -27,20 +23,15 @@ abstract class SettingsConnectionBaseFragment : PreferenceFragmentCompat(), Back
     private lateinit var streamingUrlPreference: EditTextPreference
     private lateinit var usernamePreference: EditTextPreference
     private lateinit var passwordPreference: EditTextPreference
-    protected lateinit var activeEnabledPreference: SwitchPreference
+    protected lateinit var activeEnabledPreference: SwitchPreferenceCompat
     private lateinit var wolMacAddressPreference: EditTextPreference
     private lateinit var wolPortPreference: EditTextPreference
-    private lateinit var wolEnabledPreference: SwitchPreference
-    private lateinit var wolUseBroadcastEnabled: SwitchPreference
+    private lateinit var wolEnabledPreference: SwitchPreferenceCompat
+    private lateinit var wolUseBroadcastEnabled: SwitchPreferenceCompat
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (activity is ToolbarInterface) {
-            toolbarInterface = activity as ToolbarInterface
-        }
-
-        settingsViewModel = ViewModelProvider(activity as SettingsActivity)[SettingsViewModel::class.java]
         setHasOptionsMenu(true)
 
         // Get the connectivity preferences for later usage
@@ -65,10 +56,6 @@ abstract class SettingsConnectionBaseFragment : PreferenceFragmentCompat(), Back
         wolMacAddressPreference.onPreferenceChangeListener = this
         wolPortPreference.onPreferenceChangeListener = this
         wolUseBroadcastEnabled.onPreferenceChangeListener = this
-    }
-
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.preferences_add_connection, rootKey)
     }
 
     override fun onResume() {

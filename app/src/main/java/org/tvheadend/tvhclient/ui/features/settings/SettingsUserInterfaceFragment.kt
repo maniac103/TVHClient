@@ -1,49 +1,26 @@
 package org.tvheadend.tvhclient.ui.features.settings
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreference
-import androidx.recyclerview.widget.RecyclerView
+import androidx.preference.SwitchPreferenceCompat
 import org.tvheadend.tvhclient.R
-import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
-import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import timber.log.Timber
 
-class SettingsUserInterfaceFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
+class SettingsUserInterfaceFragment : BaseSettingsFragment(), Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
+    override val preferencesResId = R.xml.preferences_ui
+    override val titleResId = R.string.pref_user_interface
 
-    private var programArtworkEnabledPreference: SwitchPreference? = null
-    private var castMiniControllerPreference: SwitchPreference? = null
-    private var multipleChannelTagsPreference: SwitchPreference? = null
+    private var programArtworkEnabledPreference: SwitchPreferenceCompat? = null
+    private var castMiniControllerPreference: SwitchPreferenceCompat? = null
+    private var multipleChannelTagsPreference: SwitchPreferenceCompat? = null
     private var hoursOfEpgDataPreference: EditTextPreference? = null
     private var daysOfEpgDataPreference: EditTextPreference? = null
 
-    lateinit var settingsViewModel: SettingsViewModel
-
-    override fun onCreateRecyclerView(
-        inflater: LayoutInflater,
-        parent: ViewGroup,
-        savedInstanceState: Bundle?
-    ): RecyclerView {
-        val view = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
-        view.applyNavigationBarPadding()
-        return view
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        settingsViewModel = ViewModelProvider(activity as SettingsActivity)[SettingsViewModel::class.java]
-
-        (activity as ToolbarInterface).let {
-            it.setTitle(getString(R.string.pref_user_interface))
-            it.setSubtitle(null)
-        }
 
         programArtworkEnabledPreference = findPreference("program_artwork_enabled")
         programArtworkEnabledPreference?.onPreferenceClickListener = this
@@ -56,10 +33,6 @@ class SettingsUserInterfaceFragment : PreferenceFragmentCompat(), Preference.OnP
         hoursOfEpgDataPreference?.onPreferenceChangeListener = this
         daysOfEpgDataPreference = findPreference("days_of_epg_data")
         daysOfEpgDataPreference?.onPreferenceChangeListener = this
-    }
-
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.preferences_ui)
     }
 
     override fun onPreferenceClick(preference: Preference): Boolean {
