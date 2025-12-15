@@ -52,7 +52,10 @@ internal interface TimerRecordingDao {
 
     companion object {
 
-        const val RECORDING_BASE_QUERY = "SELECT DISTINCT rec.*, " +
+        const val RECORDING_BASE_QUERY = "SELECT DISTINCT " +
+                "rec.id, rec.title, rec.directory, rec.enabled, rec.name, rec.config_name, rec.channel_id, " +
+                "rec.days_of_week, rec.priority, rec.start, rec.stop, rec.retention, rec.owner, rec.creator, " +
+                "rec.removal, rec.connection_id, " +
                 "c.name AS channel_name, " +
                 "c.icon AS channel_icon " +
                 "FROM timer_recordings AS rec " +

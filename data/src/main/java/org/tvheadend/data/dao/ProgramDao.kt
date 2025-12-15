@@ -141,7 +141,14 @@ internal interface ProgramDao {
 
     companion object {
 
-        const val PROGRAM_BASE_QUERY = "SELECT p.*," +
+        const val PROGRAM_BASE_QUERY = "SELECT " +
+                "p.id, p.channel_id, p.start, p.stop, p.title, p.subtitle, p.summary, " +
+                "p.description, p.credits, p.category, p.keyword, p.series_link_id, " +
+                "p.episode_id, p.season_id, p.brand_id, p.content_type, p.age_rating, " +
+                "p.star_rating, p.copyright_year, p.first_aired, p.season_number, " +
+                "p.season_count, p.episode_number, p.episode_count, p.part_number, " +
+                "p.part_count, p.episode_on_screen, p.image, p.dvr_id, p.next_event_id, " +
+                "p.series_link_uri, p.episode_uri, p.modified_time, p.connection_id, " +
                 "c.name AS channel_name, " +
                 "c.icon AS channel_icon " +
                 "FROM programs AS p " +

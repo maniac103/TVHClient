@@ -89,7 +89,9 @@ internal interface ChannelDao {
 
     companion object {
 
-        const val CHANNEL_BASE_QUERY = "SELECT DISTINCT c.*, " +
+        const val CHANNEL_BASE_QUERY = "SELECT DISTINCT " +
+                "c.id, c.name, c.icon, c.number, c.number_minor, c.display_number, " +
+                "c.event_id, c.next_event_id, c.connection_id, c.server_order, " +
                 "program.id AS program_id, " +
                 "program.title AS program_title, " +
                 "program.subtitle AS program_subtitle, " +

@@ -52,7 +52,11 @@ internal interface SeriesRecordingDao {
 
     companion object {
 
-        const val RECORDING_BASE_QUERY = "SELECT DISTINCT rec.*, " +
+        const val RECORDING_BASE_QUERY = "SELECT DISTINCT " +
+                "rec.id, rec.enabled, rec.name, rec.min_duration, rec.max_duration, rec.retention, " +
+                "rec.days_of_week, rec.priority, rec.approx_time, rec.start, rec.start_window, " +
+                "rec.start_extra, rec.stop_extra, rec.title, rec.fulltext, rec.directory, rec.channel_id, " +
+                "rec.owner, rec.creator, rec.dup_detect, rec.removal, rec.max_count, rec.connection_id, " +
                 "c.name AS channel_name, " +
                 "c.icon AS channel_icon " +
                 "FROM series_recordings AS rec " +

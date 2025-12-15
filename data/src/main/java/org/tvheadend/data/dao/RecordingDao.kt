@@ -132,7 +132,14 @@ internal interface RecordingDao {
     fun deleteAll()
 
     companion object {
-        const val RECORDING_BASE_QUERY = "SELECT DISTINCT rec.*, " +
+        const val RECORDING_BASE_QUERY = "SELECT DISTINCT " +
+                "rec.id, rec.channel_id, rec.start, rec.stop, rec.start_extra, rec.stop_extra, " +
+                "rec.retention, rec.priority, rec.event_id, rec.autorec_id, rec.timerec_id, " +
+                "rec.content_type, rec.title, rec.subtitle, rec.summary, rec.description, " +
+                "rec.state, rec.error, rec.owner, rec.creator, rec.subscription_error, " +
+                "rec.stream_errors, rec.data_errors, rec.path, rec.data_size, rec.enabled, " +
+                "rec.duplicate, rec.episode, rec.comment, rec.image, rec.fanart_image, " +
+                "rec.copyright_year, rec.removal, rec.connection_id, rec.duration, " +
                 "c.name AS channel_name, " +
                 "c.icon AS channel_icon " +
                 "FROM recordings AS rec " +
