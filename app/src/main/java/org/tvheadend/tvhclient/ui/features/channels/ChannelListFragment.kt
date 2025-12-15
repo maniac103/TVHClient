@@ -9,6 +9,7 @@ import android.view.*
 import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -24,9 +25,6 @@ import org.tvheadend.tvhclient.ui.common.interfaces.*
 import org.tvheadend.tvhclient.ui.features.programs.ProgramListFragment
 import org.tvheadend.tvhclient.ui.features.programs.ProgramViewModel
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.visible
-import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import timber.log.Timber
 
 class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelTimeSelectedInterface, ChannelTagIdsSelectedInterface, SearchRequestInterface, Filter.FilterListener, ShowProgramListFragmentInterface {
@@ -67,9 +65,9 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
-        binding.recyclerView.gone()
+        binding.recyclerView.isVisible = false
         binding.recyclerView.setHasFixedSize(true)
-        binding.searchProgress.visibleOrGone(baseViewModel.isSearchActive)
+        binding.searchProgress.isVisible = baseViewModel.isSearchActive
 
         Timber.d("Observing selected time")
         channelViewModel.selectedTime.observe(viewLifecycleOwner) { time ->
@@ -96,7 +94,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
                 observeRecordings()
             }
 
-            binding.recyclerView.visible()
+            binding.recyclerView.isVisible = true
             showStatusInToolbar()
             activity?.invalidateOptionsMenu()
 
@@ -250,7 +248,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
     override fun onTimeSelected(which: Int) {
         dialogDismissRunnable?.let { dialogDismissHandler.removeCallbacks(it) }
         channelViewModel.selectedTimeOffset = which
-        binding.recyclerView.gone()
+        binding.recyclerView.isVisible = false
 
         // Add the selected list index as extra hours to the current time.
         // If the first index was selected then use the current time.
@@ -260,7 +258,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
     }
 
     override fun onChannelTagIdsSelected(ids: Set<Int>) {
-        binding.recyclerView.gone()
+        binding.recyclerView.isVisible = false
         channelViewModel.setSelectedChannelTagIds(ids)
     }
 
@@ -405,7 +403,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
     }
 
     override fun onFilterComplete(count: Int) {
-        binding.searchProgress.gone()
+        binding.searchProgress.isVisible = false
         showStatusInToolbar()
         // Show the first search result item in the details screen
         if (isDualPane) {

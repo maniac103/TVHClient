@@ -3,6 +3,7 @@ package org.tvheadend.tvhclient.ui.features.dvr.recordings
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.forEach
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.afollestad.materialdialogs.MaterialDialog
 import org.tvheadend.data.entity.Channel
@@ -15,9 +16,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.HideNavigationDrawerInterfac
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.features.dvr.*
 import org.tvheadend.tvhclient.util.extensions.afterTextChanged
-import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
-import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 
 class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, RecordingConfigSelectedListener, DatePickerFragment.Listener, TimePickerFragment.Listener, HideNavigationDrawerInterface {
 
@@ -59,20 +58,20 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
     private fun updateUI() {
         val ctx = context ?: return
 
-        binding.titleLabel.visibleOrGone(htspVersion >= 21)
-        binding.title.visibleOrGone(htspVersion >= 21)
+        binding.titleLabel.isVisible = htspVersion >= 21
+        binding.title.isVisible = htspVersion >= 21
         binding.title.setText(recordingViewModel.recording.title)
 
-        binding.subtitleLabel.visibleOrGone(htspVersion >= 21)
-        binding.subtitle.visibleOrGone(htspVersion >= 21)
+        binding.subtitleLabel.isVisible = htspVersion >= 21
+        binding.subtitle.isVisible = htspVersion >= 21
         binding.subtitle.setText(recordingViewModel.recording.subtitle)
 
-        binding.summaryLabel.visibleOrGone(htspVersion >= 21)
-        binding.summary.visibleOrGone(htspVersion >= 21)
+        binding.summaryLabel.isVisible = htspVersion >= 21
+        binding.summary.isVisible = htspVersion >= 21
         binding.summary.setText(recordingViewModel.recording.summary)
 
-        binding.descriptionLabel.visibleOrGone(htspVersion >= 21)
-        binding.description.visibleOrGone(htspVersion >= 21)
+        binding.descriptionLabel.isVisible = htspVersion >= 21
+        binding.description.isVisible = htspVersion >= 21
         binding.description.setText(recordingViewModel.recording.description)
 
         binding.stopTime.text = getTimeStringFromTimeInMillis(recordingViewModel.recording.stop)
@@ -83,8 +82,8 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
 
         binding.stopExtra.setText(recordingViewModel.recording.stopExtra.toString())
 
-        binding.channelNameLabel.visibleOrGone(!recordingViewModel.recording.isRecording)
-        binding.channelName.visibleOrGone(!recordingViewModel.recording.isRecording)
+        binding.channelNameLabel.isVisible = !recordingViewModel.recording.isRecording
+        binding.channelName.isVisible = !recordingViewModel.recording.isRecording
 
         if (!recordingViewModel.recording.isRecording) {
             binding.channelName.text = recordingViewModel.recording.channelName ?: getString(R.string.all_channels)
@@ -95,15 +94,15 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
             }
         }
 
-        binding.isEnabled.visibleOrGone(htspVersion >= 23 && !recordingViewModel.recording.isRecording)
+        binding.isEnabled.isVisible = htspVersion >= 23 && !recordingViewModel.recording.isRecording
         binding.isEnabled.isChecked = recordingViewModel.recording.isEnabled
 
-        binding.priority.visibleOrGone(!recordingViewModel.recording.isRecording)
+        binding.priority.isVisible = !recordingViewModel.recording.isRecording
         binding.priority.text = getPriorityName(ctx, recordingViewModel.recording.priority)
         binding.priority.setOnClickListener { handlePrioritySelection(ctx, recordingViewModel.recording.priority, this@RecordingAddEditFragment) }
 
-        binding.dvrConfig.visibleOrGone(!(recordingProfilesList.isEmpty() || recordingViewModel.recording.isRecording))
-        binding.dvrConfigLabel.visibleOrGone(!(recordingProfilesList.isEmpty() || recordingViewModel.recording.isRecording))
+        binding.dvrConfig.isVisible = !recordingProfilesList.isEmpty() && !recordingViewModel.recording.isRecording
+        binding.dvrConfigLabel.isVisible = !recordingProfilesList.isEmpty() && !recordingViewModel.recording.isRecording
 
         if (recordingProfilesList.isNotEmpty() && !recordingViewModel.recording.isRecording) {
             binding.dvrConfig.text = recordingProfilesList[recordingViewModel.recordingProfileNameId]
@@ -111,11 +110,11 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
         }
 
         if (recordingViewModel.recording.isRecording) {
-            binding.startTimeLabel.gone()
-            binding.startTime.gone()
-            binding.startDate.gone()
-            binding.startExtraLabel.gone()
-            binding.startExtra.gone()
+            binding.startTimeLabel.isVisible = false
+            binding.startTime.isVisible = false
+            binding.startDate.isVisible = false
+            binding.startExtraLabel.isVisible = false
+            binding.startExtra.isVisible = false
         } else {
             binding.startTime.text = getTimeStringFromTimeInMillis(recordingViewModel.recording.start)
             binding.startTime.setOnClickListener { handleTimeSelection(activity, recordingViewModel.recording.start, this@RecordingAddEditFragment, "startTime") }

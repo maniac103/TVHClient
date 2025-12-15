@@ -2,6 +2,7 @@ package org.tvheadend.tvhclient.ui.features.dvr.recordings
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.tvhclient.R
@@ -11,8 +12,6 @@ import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.ClearSearchResultsOrPopBackStackInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
 import org.tvheadend.tvhclient.ui.features.dvr.recordings.download.DownloadPermissionGrantedInterface
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.visible
 import timber.log.Timber
 
 class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, DownloadPermissionGrantedInterface, ClearSearchResultsOrPopBackStackInterface {
@@ -55,12 +54,12 @@ class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, Down
             binding.htspVersion = htspVersion
             // The toolbar is hidden as a default to prevent pressing any icons if no recording
             // has been loaded yet. The toolbar is shown here because a recording was loaded
-            binding.nestedToolbar.visible()
+            binding.nestedToolbar.isVisible = true
             activity?.invalidateOptionsMenu()
         } else {
-            binding.scrollview.gone()
+            binding.scrollview.isVisible = false
             binding.status.text = getString(R.string.error_loading_recording_details)
-            binding.status.visible()
+            binding.status.isVisible = true
         }
     }
 

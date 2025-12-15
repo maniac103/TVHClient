@@ -6,12 +6,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.afollestad.materialdialogs.MaterialDialog
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.PlayActivityBinding
 import org.tvheadend.tvhclient.ui.common.onAttach
-import org.tvheadend.tvhclient.util.extensions.gone
 import timber.log.Timber
 
 abstract class BasePlaybackActivity : AppCompatActivity() {
@@ -36,7 +36,7 @@ abstract class BasePlaybackActivity : AppCompatActivity() {
                 viewModel.requestTicketFromServer(intent.extras)
             } else {
                 Timber.d("Received live data, not connected to server")
-                binding.progressBar.gone()
+                binding.progressBar.isVisible = false
                 binding.status.setText(R.string.connection_failed)
             }
         }
@@ -44,7 +44,7 @@ abstract class BasePlaybackActivity : AppCompatActivity() {
         viewModel.isTicketReceived.observe(this) { isTicketReceived ->
             Timber.d("Received ticket $isTicketReceived")
             if (isTicketReceived) {
-                binding.progressBar.gone()
+                binding.progressBar.isVisible = false
                 binding.status.text = getString(R.string.connected_to_server)
                 onTicketReceived()
             }

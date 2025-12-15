@@ -5,13 +5,12 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.core.view.isVisible
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.MiscContentActivityBinding
 import org.tvheadend.tvhclient.ui.base.BaseActivity
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.onAttach
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.visible
 import timber.log.Timber
 
 class ProgramDetailsActivity : BaseActivity(), LayoutControlInterface {
@@ -51,7 +50,7 @@ class ProgramDetailsActivity : BaseActivity(), LayoutControlInterface {
         Timber.d("Dual pane is not active, hiding details layout")
         val mainFrameLayout: FrameLayout = findViewById(R.id.main)
         val detailsFrameLayout: FrameLayout? = findViewById(R.id.details)
-        detailsFrameLayout?.gone()
+        detailsFrameLayout?.isVisible = false
         mainFrameLayout.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -62,7 +61,7 @@ class ProgramDetailsActivity : BaseActivity(), LayoutControlInterface {
         Timber.d("Dual pane is active, showing details layout")
         val mainFrameLayout: FrameLayout = findViewById(R.id.main)
         val detailsFrameLayout: FrameLayout? = findViewById(R.id.details)
-        detailsFrameLayout?.visible()
+        detailsFrameLayout?.isVisible = true
         mainFrameLayout.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT,

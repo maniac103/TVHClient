@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -20,9 +21,6 @@ import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.getCastSession
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.visible
-import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import timber.log.Timber
 
 class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProgramVisibleListener, SearchRequestInterface, Filter.FilterListener, ClearSearchResultsOrPopBackStackInterface {
@@ -58,8 +56,8 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
-        binding.recyclerView.gone()
-        binding.searchProgress.visibleOrGone(baseViewModel.isSearchActive)
+        binding.recyclerView.isVisible = false
+        binding.searchProgress.isVisible = baseViewModel.isSearchActive
 
         Timber.d("Observing programs")
         programViewModel.programs.observe(viewLifecycleOwner) { progs ->
@@ -70,7 +68,7 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
                 observeRecordings()
             }
 
-            binding.recyclerView.visible()
+            binding.recyclerView.isVisible = true
             showStatusInToolbar()
             activity?.invalidateOptionsMenu()
         }
@@ -255,7 +253,7 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
 
     override fun onFilterComplete(count: Int) {
         showStatusInToolbar()
-        binding.searchProgress.gone()
+        binding.searchProgress.isVisible = false
     }
 
     private fun showStatusInToolbar() {

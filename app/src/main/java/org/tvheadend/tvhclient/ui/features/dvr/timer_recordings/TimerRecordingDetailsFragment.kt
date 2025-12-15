@@ -2,6 +2,7 @@ package org.tvheadend.tvhclient.ui.features.dvr.timer_recordings
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.TimerRecording
@@ -11,8 +12,6 @@ import org.tvheadend.tvhclient.ui.base.BaseFragment
 import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.ClearSearchResultsOrPopBackStackInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.visible
 
 class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, ClearSearchResultsOrPopBackStackInterface {
 
@@ -51,12 +50,12 @@ class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface,
             binding.isDualPane = isDualPane
             // The toolbar is hidden as a default to prevent pressing any icons if no recording
             // has been loaded yet. The toolbar is shown here because a recording was loaded
-            binding.nestedToolbar.visible()
+            binding.nestedToolbar.isVisible = true
             activity?.invalidateOptionsMenu()
         } else {
-            binding.scrollview.gone()
+            binding.scrollview.isVisible = false
             binding.status.text = getString(R.string.error_loading_recording_details)
-            binding.status.visible()
+            binding.status.isVisible = true
         }
     }
 

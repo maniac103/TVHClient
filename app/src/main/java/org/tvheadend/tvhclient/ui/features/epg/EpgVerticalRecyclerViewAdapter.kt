@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,9 +15,6 @@ import org.tvheadend.data.entity.EpgChannel
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgVerticalRecyclerviewAdapterBinding
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.invisible
-import org.tvheadend.tvhclient.util.extensions.visible
 import timber.log.Timber
 
 internal class EpgVerticalRecyclerViewAdapter(private val activity: FragmentActivity, private val epgViewModel: EpgViewModel, private val fragmentId: Int, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<EpgVerticalRecyclerViewAdapter.EpgViewPagerViewHolder>() {
@@ -69,19 +68,19 @@ internal class EpgVerticalRecyclerViewAdapter(private val activity: FragmentActi
 
         fun bindData(programs: List<EpgProgram>) {
 
-            binding.horizontalChildRecyclerView.gone()
-            binding.progressBar.visible()
-            binding.noPrograms.gone()
+            binding.horizontalChildRecyclerView.isVisible = false
+            binding.progressBar.isVisible = true
+            binding.noPrograms.isVisible = false
 
             if (programs.isNotEmpty()) {
                 recyclerViewAdapter.addItems(programs.toMutableList())
-                binding.horizontalChildRecyclerView.visible()
-                binding.progressBar.gone()
-                binding.noPrograms.invisible()
+                binding.horizontalChildRecyclerView.isVisible = true
+                binding.progressBar.isVisible = false
+                binding.noPrograms.isInvisible = true
             } else {
-                binding.horizontalChildRecyclerView.invisible()
-                binding.progressBar.gone()
-                binding.noPrograms.visible()
+                binding.horizontalChildRecyclerView.isInvisible = true
+                binding.progressBar.isVisible = false
+                binding.noPrograms.isVisible = true
             }
 
             epgViewModel.recordings.observe(activity) { recordings ->

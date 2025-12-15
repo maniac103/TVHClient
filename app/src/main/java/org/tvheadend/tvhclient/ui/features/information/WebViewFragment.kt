@@ -7,6 +7,7 @@ import android.view.*
 import android.webkit.WebView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.interfaces.FileContentsLoadedInterface
@@ -14,9 +15,6 @@ import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.features.settings.RemoveFragmentFromBackstackInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.visible
-import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import timber.log.Timber
 
 open class WebViewFragment : Fragment(), FileContentsLoadedInterface {
@@ -52,7 +50,7 @@ open class WebViewFragment : Fragment(), FileContentsLoadedInterface {
         // the default theme background color before the stylesheets are loaded.
         webView?.setBackgroundColor(Color.argb(0, 0, 0, 0))
         webView?.settings?.javaScriptEnabled = false
-        webView?.gone()
+        webView?.isVisible = false
 
         setHasOptionsMenu(true)
     }
@@ -95,12 +93,12 @@ open class WebViewFragment : Fragment(), FileContentsLoadedInterface {
 
     override fun onFileContentsLoaded(content: String) {
         Timber.d("File contents loaded")
-        loadingView?.gone()
-        errorTextView?.visibleOrGone(content.isEmpty())
+        loadingView?.isVisible = false
+        errorTextView?.isVisible = content.isEmpty()
 
         if (content.isNotEmpty()) {
             webView?.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null)
-            webView?.visible()
+            webView?.isVisible = true
         }
     }
 }

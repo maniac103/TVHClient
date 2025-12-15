@@ -3,6 +3,7 @@ package org.tvheadend.tvhclient.ui.features.dvr.series_recordings
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.forEach
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
@@ -17,7 +18,6 @@ import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.features.dvr.*
 import org.tvheadend.tvhclient.util.extensions.afterTextChanged
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
-import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import timber.log.Timber
 
 class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, RecordingConfigSelectedListener, DatePickerFragment.Listener, TimePickerFragment.Listener, HideNavigationDrawerInterface {
@@ -60,14 +60,14 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
     private fun updateUI() {
         val ctx = context ?: return
 
-        binding.isEnabled.visibleOrGone(htspVersion >= 19)
+        binding.isEnabled.isVisible = htspVersion >= 19
         binding.isEnabled.isChecked = seriesRecordingViewModel.recording.isEnabled
 
         binding.title.setText(seriesRecordingViewModel.recording.title)
         binding.name.setText(seriesRecordingViewModel.recording.name)
 
-        binding.directoryLabel.visibleOrGone(htspVersion >= 19)
-        binding.directory.visibleOrGone(htspVersion >= 19)
+        binding.directoryLabel.isVisible = htspVersion >= 19
+        binding.directory.isVisible = htspVersion >= 19
         binding.directory.setText(seriesRecordingViewModel.recording.directory)
 
         binding.channelName.text = seriesRecordingViewModel.recording.channelName
@@ -83,8 +83,8 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
             handlePrioritySelection(ctx, seriesRecordingViewModel.recording.priority, this@SeriesRecordingAddEditFragment)
         }
 
-        binding.dvrConfig.visibleOrGone(recordingProfilesList.isNotEmpty())
-        binding.dvrConfigLabel.visibleOrGone(recordingProfilesList.isNotEmpty())
+        binding.dvrConfig.isVisible = recordingProfilesList.isNotEmpty()
+        binding.dvrConfigLabel.isVisible = recordingProfilesList.isNotEmpty()
 
         if (recordingProfilesList.isNotEmpty()) {
             binding.dvrConfig.text = recordingProfilesList[seriesRecordingViewModel.recordingProfileNameId]
@@ -121,8 +121,8 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
             handleTimeEnabledClick(binding.timeEnabled.isChecked)
         }
 
-        binding.duplicateDetectionLabel.visibleOrGone(htspVersion >= 20)
-        binding.duplicateDetection.visibleOrGone(htspVersion >= 20)
+        binding.duplicateDetectionLabel.isVisible = htspVersion >= 20
+        binding.duplicateDetection.isVisible = htspVersion >= 20
         binding.duplicateDetection.text = seriesRecordingViewModel.duplicateDetectionList[seriesRecordingViewModel.recording.dupDetect]
 
         binding.duplicateDetection.setOnClickListener {
@@ -169,12 +169,12 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
         Timber.d("Setting time enabled ${binding.timeEnabled.isChecked}")
         seriesRecordingViewModel.isTimeEnabled = checked
 
-        binding.startTimeLabel.visibleOrGone(checked)
-        binding.startTime.visibleOrGone(checked)
+        binding.startTimeLabel.isVisible = checked
+        binding.startTime.isVisible = checked
         binding.startTime.isEnabled = checked
 
-        binding.startWindowTimeLabel.visibleOrGone(checked)
-        binding.startWindowTime.visibleOrGone(checked)
+        binding.startWindowTimeLabel.isVisible = checked
+        binding.startWindowTime.isVisible = checked
         binding.startWindowTime.isEnabled = checked
     }
 

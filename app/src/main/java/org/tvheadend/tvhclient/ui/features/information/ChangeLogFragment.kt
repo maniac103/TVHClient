@@ -8,6 +8,7 @@ import android.view.*
 import android.webkit.WebView
 import android.widget.ProgressBar
 import androidx.core.view.forEach
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
@@ -18,8 +19,6 @@ import org.tvheadend.tvhclient.ui.common.interfaces.BackPressedInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.io.BufferedReader
@@ -139,8 +138,8 @@ class ChangeLogFragment : Fragment(), BackPressedInterface, HideNavigationDrawer
         if (fileContent.isNotEmpty() && isAdded) {
             Timber.d("Changelog data is available, showing contents in webview")
             webView?.loadDataWithBaseURL("file:///android_asset/", fileContent, "text/html", "utf-8", null)
-            webView?.visible()
-            loadingView?.gone()
+            webView?.isVisible = true
+            loadingView?.isVisible = false
         }
     }
 

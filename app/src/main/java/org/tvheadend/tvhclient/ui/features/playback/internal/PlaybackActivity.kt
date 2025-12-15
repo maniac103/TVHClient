@@ -21,6 +21,8 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.afollestad.materialdialogs.MaterialDialog
@@ -158,16 +160,16 @@ class PlaybackActivity : AppCompatActivity() {
         }
 
         playerStatus.setText(R.string.connecting_to_server)
-        playerRewind.invisible()
-        playerPause.invisible()
-        playerPlay.invisible()
-        playerForward.invisible()
-        playNextChannel.invisible()
-        playPreviousChannel.invisible()
-        playerAspectRatio.invisible()
-        playerToggleFullscreen.invisible()
-        playerInformation.invisible()
-        playerSettings.invisible()
+        playerRewind.isInvisible = true
+        playerPause.isInvisible = true
+        playerPlay.isInvisible = true
+        playerForward.isInvisible = true
+        playNextChannel.isInvisible = true
+        playPreviousChannel.isInvisible = true
+        playerAspectRatio.isInvisible = true
+        playerToggleFullscreen.isInvisible = true
+        playerInformation.isInvisible = true
+        playerSettings.isInvisible = true
 
         playerPlay.setOnClickListener { onPlayButtonSelected() }
         playerPause.setOnClickListener { onPauseButtonSelected() }
@@ -214,24 +216,24 @@ class PlaybackActivity : AppCompatActivity() {
             Timber.d("Received player playback state $state")
             when (state) {
                 Player.STATE_IDLE -> {
-                    playerStatus.visible()
-                    exoPlayerSurfaceView.gone()
+                    playerStatus.isVisible = true
+                    exoPlayerSurfaceView.isVisible = false
                 }
 
                 Player.STATE_BUFFERING -> {
-                    playerStatus.visible()
-                    exoPlayerSurfaceView.gone()
+                    playerStatus.isVisible = true
+                    exoPlayerSurfaceView.isVisible = false
                     playerStatus.setText(R.string.player_is_loading_more_data)
                 }
 
                 Player.STATE_READY, Player.STATE_ENDED -> {
-                    playerStatus.gone()
-                    exoPlayerSurfaceView.visible()
+                    playerStatus.isVisible = false
+                    exoPlayerSurfaceView.isVisible = true
 
-                    playerAspectRatio.visible()
-                    playerToggleFullscreen.visible()
-                    playerInformation.visible()
-                    playerSettings.visible()
+                    playerAspectRatio.isVisible = true
+                    playerToggleFullscreen.isVisible = true
+                    playerInformation.isVisible = true
+                    playerSettings.isVisible = true
                 }
             }
         }
@@ -239,17 +241,17 @@ class PlaybackActivity : AppCompatActivity() {
         Timber.d("Observing player is playing state")
         viewModel.playerIsPlaying.observe(this) { isPlaying ->
             Timber.d("Received player is playing $isPlaying")
-            playerPlay.visibleOrInvisible(!isPlaying)
-            playerPause.visibleOrInvisible(isPlaying)
-            playerForward.visibleOrInvisible(isPlaying && timeshiftSupported)
-            playerRewind.visibleOrInvisible(isPlaying && timeshiftSupported)
+            playerPlay.isInvisible = isPlaying
+            playerPause.isInvisible = !isPlaying
+            playerForward.isInvisible = !isPlaying || !timeshiftSupported
+            playerRewind.isInvisible = !isPlaying || !timeshiftSupported
         }
 
         Timber.d("Observing live TV playing")
         viewModel.liveTvIsPlaying.observe(this) { isPlaying ->
             Timber.d("Received live TV is playing $isPlaying")
-            playPreviousChannel.visibleOrGone(isPlaying)
-            playNextChannel.visibleOrGone(isPlaying)
+            playPreviousChannel.isVisible = isPlaying
+            playNextChannel.isVisible = isPlaying
         }
 
         Timber.d("Observing playback information")
@@ -259,13 +261,13 @@ class PlaybackActivity : AppCompatActivity() {
                 .load(getIconUrl(this, icon))
                 .into(channelIcon, object : Callback {
                     override fun onSuccess() {
-                        channelName.gone()
-                        channelIcon.visible()
+                        channelName.isVisible = false
+                        channelIcon.isVisible = true
                     }
 
                     override fun onError(e: Exception) {
-                        channelName.visible()
-                        channelIcon.gone()
+                        channelName.isVisible = true
+                        channelIcon.isVisible = false
                     }
                 })
         }
@@ -281,12 +283,12 @@ class PlaybackActivity : AppCompatActivity() {
         viewModel.subtitle.observe(this) { subtitle ->
             Timber.d("Received subtitle $subtitle")
             setOptionalDescriptionText(programSubtitle, subtitle)
-            programSubtitle.visibleOrGone(subtitle.isNotEmpty())
+            programSubtitle.isVisible = subtitle.isNotEmpty()
         }
         viewModel.nextTitle.observe(this) { nextTitle ->
             Timber.d("Received next title $nextTitle")
             setOptionalDescriptionText(nextProgramTitle, nextTitle)
-            nextProgramTitle.visibleOrGone(nextTitle.isNotEmpty())
+            nextProgramTitle.isVisible = nextTitle.isNotEmpty()
         }
         viewModel.elapsedTime.observe(this) { time ->
             elapsedTime.text = time

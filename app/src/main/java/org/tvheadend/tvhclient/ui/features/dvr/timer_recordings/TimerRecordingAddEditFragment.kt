@@ -3,6 +3,7 @@ package org.tvheadend.tvhclient.ui.features.dvr.timer_recordings
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.forEach
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.afollestad.materialdialogs.MaterialDialog
 import org.tvheadend.data.entity.Channel
@@ -16,7 +17,6 @@ import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.features.dvr.*
 import org.tvheadend.tvhclient.util.extensions.afterTextChanged
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
-import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import timber.log.Timber
 
 class TimerRecordingAddEditFragment : BaseFragment(), BackPressedInterface, RecordingConfigSelectedListener, DatePickerFragment.Listener, TimePickerFragment.Listener, HideNavigationDrawerInterface {
@@ -60,14 +60,14 @@ class TimerRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Reco
     private fun updateUI() {
         val ctx = context ?: return
 
-        binding.isEnabled.visibleOrGone(htspVersion >= 19)
+        binding.isEnabled.isVisible = htspVersion >= 19
         binding.isEnabled.isChecked = timerRecordingViewModel.recording.isEnabled
 
         binding.title.setText(timerRecordingViewModel.recording.title)
         binding.name.setText(timerRecordingViewModel.recording.name)
 
-        binding.directoryLabel.visibleOrGone(htspVersion >= 19)
-        binding.directory.visibleOrGone(htspVersion >= 19)
+        binding.directoryLabel.isVisible = htspVersion >= 19
+        binding.directory.isVisible = htspVersion >= 19
         binding.directory.setText(timerRecordingViewModel.recording.directory)
 
         binding.channelName.text = timerRecordingViewModel.recording.channelName ?: getString(R.string.all_channels)
@@ -82,8 +82,8 @@ class TimerRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Reco
             handlePrioritySelection(ctx, timerRecordingViewModel.recording.priority, this@TimerRecordingAddEditFragment)
         }
 
-        binding.dvrConfig.visibleOrGone(recordingProfilesList.isNotEmpty())
-        binding.dvrConfigLabel.visibleOrGone(recordingProfilesList.isNotEmpty())
+        binding.dvrConfig.isVisible = recordingProfilesList.isNotEmpty()
+        binding.dvrConfigLabel.isVisible = recordingProfilesList.isNotEmpty()
 
         if (recordingProfilesList.isNotEmpty()) {
             binding.dvrConfig.text = recordingProfilesList[timerRecordingViewModel.recordingProfileNameId]
@@ -126,12 +126,12 @@ class TimerRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Reco
         Timber.d("Setting time enabled ${binding.timeEnabled.isChecked}")
         timerRecordingViewModel.isTimeEnabled = checked
 
-        binding.startTimeLabel.visibleOrGone(checked)
-        binding.startTime.visibleOrGone(checked)
+        binding.startTimeLabel.isVisible = checked
+        binding.startTime.isVisible = checked
         binding.startTime.isEnabled = checked
 
-        binding.stopTimeLabel.visibleOrGone(checked)
-        binding.stopTime.visibleOrGone(checked)
+        binding.stopTimeLabel.isVisible = checked
+        binding.stopTime.isVisible = checked
         binding.stopTime.isEnabled = checked
     }
 

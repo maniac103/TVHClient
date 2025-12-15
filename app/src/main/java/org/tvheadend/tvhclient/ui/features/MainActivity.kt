@@ -23,6 +23,8 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -74,10 +76,8 @@ import org.tvheadend.tvhclient.ui.features.programs.ProgramListFragment
 import org.tvheadend.tvhclient.ui.features.startup.StartupFragment
 import org.tvheadend.tvhclient.util.extensions.getCastContext
 import org.tvheadend.tvhclient.util.extensions.getCastSession
-import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import org.tvheadend.tvhclient.util.extensions.showSnackbarMessage
-import org.tvheadend.tvhclient.util.extensions.visible
 import timber.log.Timber
 
 
@@ -554,17 +554,17 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
                 when (result.state) {
                     is SyncState.Started -> {
                         Timber.d("Sync started, showing progress bar")
-                        syncProgress.visible()
+                        syncProgress.isVisible = true
                         sendSnackbarMessage(getString(R.string.loading_data))
                     }
                     is SyncState.InProgress -> {
                         Timber.d("Sync in progress, updating progress bar")
-                        syncProgress.visible()
+                        syncProgress.isVisible = true
                         //sendSnackbarMessage(getString(R.string.saving_data))
                     }
                     is SyncState.Done -> {
                         Timber.d("Sync done, hiding progress bar")
-                        syncProgress.gone()
+                        syncProgress.isVisible = false
                         sendSnackbarMessage(getString(R.string.loading_data_done))
                     }
                 }
@@ -670,7 +670,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
         Timber.d("Dual pane is not active, hiding details layout")
         val mainFrameLayout: FrameLayout = findViewById(R.id.main)
         val detailsFrameLayout: FrameLayout? = findViewById(R.id.details)
-        detailsFrameLayout?.gone()
+        detailsFrameLayout?.isGone = true
         mainFrameLayout.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -681,7 +681,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
         Timber.d("Dual pane is active, showing details layout")
         val mainFrameLayout: FrameLayout = findViewById(R.id.main)
         val detailsFrameLayout: FrameLayout? = findViewById(R.id.details)
-        detailsFrameLayout?.visible()
+        detailsFrameLayout?.isVisible = true
         mainFrameLayout.layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT,

@@ -7,6 +7,7 @@ import android.util.DisplayMetrics
 import android.view.*
 import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,8 +23,6 @@ import org.tvheadend.tvhclient.databinding.EpgFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
 import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.*
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.visible
 import timber.log.Timber
 
 class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterface, ChannelTimeSelectedInterface, ChannelTagIdsSelectedInterface, Filter.FilterListener, SearchRequestInterface, ShowProgramListFragmentInterface {
@@ -113,9 +112,9 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
         Timber.d("Observing epg channels")
         epgViewModel.epgChannels.observe(viewLifecycleOwner) { channels ->
 
-            binding.progressBar.gone()
-            binding.channelListRecyclerView.visible()
-            binding.programListViewpager.visible()
+            binding.progressBar.isVisible = false
+            binding.channelListRecyclerView.isVisible = true
+            binding.programListViewpager.isVisible = true
 
             if (channels != null) {
                 Timber.d("View model returned ${channels.size} epg channels")
@@ -232,9 +231,9 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
     }
 
     override fun onChannelTagIdsSelected(ids: Set<Int>) {
-        binding.channelListRecyclerView.gone()
-        binding.programListViewpager.gone()
-        binding.progressBar.visible()
+        binding.channelListRecyclerView.isVisible = false
+        binding.programListViewpager.isVisible = false
+        binding.progressBar.isVisible = true
         epgViewModel.setSelectedChannelTagIds(ids)
     }
 

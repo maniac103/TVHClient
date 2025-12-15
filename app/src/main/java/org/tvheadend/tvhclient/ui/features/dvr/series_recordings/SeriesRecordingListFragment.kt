@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -16,9 +17,6 @@ import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
-import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.extensions.visible
-import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import timber.log.Timber
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -45,15 +43,15 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, 
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
-        binding.recyclerView.gone()
-        binding.searchProgress.visibleOrGone(baseViewModel.isSearchActive)
+        binding.recyclerView.isVisible = false
+        binding.searchProgress.isVisible = baseViewModel.isSearchActive
 
         seriesRecordingViewModel.recordings.observe(viewLifecycleOwner) { recordings ->
             if (recordings != null) {
                 recyclerViewAdapter.addItems(recordings)
                 observeSearchQuery()
             }
-            binding.recyclerView.visible()
+            binding.recyclerView.isVisible = true
             showStatusInToolbar()
             activity?.invalidateOptionsMenu()
 
@@ -205,7 +203,7 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, 
     }
 
     override fun onFilterComplete(i: Int) {
-        binding.searchProgress.gone()
+        binding.searchProgress.isVisible = false
         showStatusInToolbar()
         // Preselect the first result item in the details screen
         if (isDualPane) {

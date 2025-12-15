@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -15,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgViewpagerFragmentBinding
-import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import timber.log.Timber
 import java.util.*
 
@@ -123,7 +123,7 @@ class EpgViewPagerFragment : Fragment(), EpgScrollInterface {
             }
         }
 
-        binding.currentTime.visibleOrGone(showTimeIndication)
+        binding.currentTime.isVisible = showTimeIndication
 
         if (showTimeIndication) {
             // Create the handler and the timer task that will update the
