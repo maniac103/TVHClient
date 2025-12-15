@@ -12,7 +12,6 @@ import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.PlayActivityBinding
 import org.tvheadend.tvhclient.ui.common.onAttach
 import org.tvheadend.tvhclient.util.extensions.gone
-import org.tvheadend.tvhclient.util.getThemeId
 import timber.log.Timber
 
 abstract class BasePlaybackActivity : AppCompatActivity() {
@@ -21,7 +20,6 @@ abstract class BasePlaybackActivity : AppCompatActivity() {
     lateinit var viewModel: ExternalPlayerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(getThemeId(this))
         super.onCreate(savedInstanceState)
         binding = PlayActivityBinding.inflate(layoutInflater)
         val view = binding.root

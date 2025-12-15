@@ -47,16 +47,6 @@ fun getIconUrl(context: Context, url: String?): String {
     return "file://" + context.cacheDir + "/" + convertUrlToHashString(urlEncoded) + ".png"
 }
 
-/**
- * Returns the id of the theme that is currently set in the settings.
- *
- * @param context Context
- * @return Id of the light or dark theme
- */
-fun getThemeId(context: Context): Int {
-    return R.style.CustomTheme
-}
-
 fun Context.isInDarkMode() =
     (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 

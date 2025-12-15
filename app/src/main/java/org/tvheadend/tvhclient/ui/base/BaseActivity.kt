@@ -13,7 +13,6 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.internal.EdgeToEdgeUtils
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
-import org.tvheadend.tvhclient.util.getThemeId
 
 abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
     private lateinit var toolbar: Toolbar
@@ -22,7 +21,6 @@ abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
     protected lateinit var baseViewModel: BaseViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(getThemeId(this))
         super.onCreate(savedInstanceState)
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)

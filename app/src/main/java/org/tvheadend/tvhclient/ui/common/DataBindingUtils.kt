@@ -31,7 +31,6 @@ import org.tvheadend.tvhclient.util.extensions.invisible
 import org.tvheadend.tvhclient.util.extensions.visible
 import org.tvheadend.tvhclient.util.extensions.visibleOrGone
 import org.tvheadend.tvhclient.util.getIconUrl
-import org.tvheadend.tvhclient.util.getThemeId
 import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.text.SimpleDateFormat

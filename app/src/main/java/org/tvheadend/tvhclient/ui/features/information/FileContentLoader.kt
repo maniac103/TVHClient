@@ -4,10 +4,8 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
 import org.tvheadend.tvhclient.BuildConfig
-import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.getLocale
 import org.tvheadend.tvhclient.ui.common.interfaces.FileContentsLoadedInterface
-import org.tvheadend.tvhclient.util.getThemeId
 import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.io.InputStream

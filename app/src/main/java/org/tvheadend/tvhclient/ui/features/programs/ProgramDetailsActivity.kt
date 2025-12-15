@@ -3,21 +3,15 @@ package org.tvheadend.tvhclient.ui.features.programs
 import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import com.google.android.material.appbar.AppBarLayout
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.MiscContentActivityBinding
 import org.tvheadend.tvhclient.ui.base.BaseActivity
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
-import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.common.onAttach
 import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.visible
-import org.tvheadend.tvhclient.util.getThemeId
 import timber.log.Timber
 
 class ProgramDetailsActivity : BaseActivity(), LayoutControlInterface {

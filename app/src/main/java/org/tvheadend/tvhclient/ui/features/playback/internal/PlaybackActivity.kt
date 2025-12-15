@@ -38,7 +38,6 @@ import org.tvheadend.tvhclient.ui.features.playback.internal.utils.TrackSelectio
 import org.tvheadend.tvhclient.ui.features.playback.internal.utils.VideoAspect
 import org.tvheadend.tvhclient.util.extensions.*
 import org.tvheadend.tvhclient.util.getIconUrl
-import org.tvheadend.tvhclient.util.getThemeId
 import timber.log.Timber
 
 class PlaybackActivity : AppCompatActivity() {
@@ -81,7 +80,6 @@ class PlaybackActivity : AppCompatActivity() {
     private var value1 = -10000f
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(getThemeId(this))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.player_overlay_view)
         Timber.d("Creating")

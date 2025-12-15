@@ -20,7 +20,6 @@ import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.gone
 import org.tvheadend.tvhclient.util.extensions.visible
-import org.tvheadend.tvhclient.util.getThemeId
 import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.io.BufferedReader
