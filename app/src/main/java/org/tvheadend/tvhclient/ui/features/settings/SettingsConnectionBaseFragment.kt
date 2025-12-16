@@ -8,7 +8,7 @@ import android.view.View
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
-import com.afollestad.materialdialogs.MaterialDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.interfaces.BackPressedInterface
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
@@ -143,17 +143,15 @@ abstract class SettingsConnectionBaseFragment : BaseSettingsFragment(), BackPres
      */
     private fun cancel() {
         activity?.let { activity ->
-            MaterialDialog(activity).show {
-                message(R.string.confirm_discard_connection)
-                positiveButton(R.string.discard) {
+            MaterialAlertDialogBuilder(activity)
+                .setMessage(R.string.confirm_discard_connection)
+                .setPositiveButton(R.string.discard) { _, _ ->
                     if (activity is RemoveFragmentFromBackstackInterface) {
                         activity.removeFragmentFromBackstack()
                     }
                 }
-                negativeButton(R.string.cancel) {
-                    dismiss()
-                }
-            }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
         }
     }
 

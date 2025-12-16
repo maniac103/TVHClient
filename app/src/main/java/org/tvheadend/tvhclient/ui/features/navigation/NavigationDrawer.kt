@@ -11,7 +11,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.preference.PreferenceManager
-import com.afollestad.materialdialogs.MaterialDialog
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.shape.ShapeAppearanceModel
@@ -44,6 +43,7 @@ import org.tvheadend.tvhclient.ui.features.information.WebViewFragment
 import org.tvheadend.tvhclient.ui.features.settings.SettingsActivity
 import timber.log.Timber
 import androidx.core.graphics.drawable.toDrawable
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class NavigationDrawer(private val activity: AppCompatActivity,
                        private val drawer: MaterialDrawerSliderView,
@@ -106,20 +106,19 @@ class NavigationDrawer(private val activity: AppCompatActivity,
                 if (current) {
                     true
                 } else {
-                    MaterialDialog(activity).show {
-                        title(R.string.connect_to_new_server)
-                        negativeButton(R.string.cancel) {
+                    MaterialAlertDialogBuilder(activity)
+                        .setTitle(R.string.connect_to_new_server)
+                        .setNegativeButton(R.string.cancel) { _, _ ->
                             setActiveProfile(navigationViewModel.connection.id.toLong())
                         }
-                        positiveButton(R.string.connect) {
+                        .setPositiveButton(R.string.connect) { _, _ ->
                             setActiveProfile(profile.identifier)
                             if (navigationViewModel.setSelectedConnectionAsActive(profile.identifier.toInt())) {
                                 navigationViewModel.updateConnectionAndRestartApplication(activity)
                             }
                         }
-                        cancelable(false)
-                        cancelOnTouchOutside(false)
-                    }
+                        .setCancelable(false)
+                        .show()
                     false
                 }
             }

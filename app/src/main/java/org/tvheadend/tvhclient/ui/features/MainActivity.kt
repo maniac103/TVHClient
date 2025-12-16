@@ -118,7 +118,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
                     .detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
                     .penaltyLog()
-                    .penaltyDeath()
+                    //.penaltyDeath()
                     .build())
         }
         super.onCreate(savedInstanceState)

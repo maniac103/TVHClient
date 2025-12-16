@@ -1,22 +1,20 @@
 package org.tvheadend.tvhclient.ui.features.dvr
 
 import android.content.Context
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.ArrayAdapter
+import androidx.core.view.isInvisible
 import com.squareup.picasso.Picasso
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.tvhclient.R
+import org.tvheadend.tvhclient.databinding.ChannelListSelectionDialogAdapterBinding
 import org.tvheadend.tvhclient.util.getIconUrl
-import java.lang.ref.WeakReference
 
-class ChannelListSelectionAdapter internal constructor(context: Context, private val channelList: List<Channel>) : RecyclerView.Adapter<ChannelListSelectionAdapter.ViewHolder>() {
+class ChannelListSelectionAdapter internal constructor(context: Context, channelList: List<Channel>) :
+    ArrayAdapter<Channel>(context, R.layout.channel_list_selection_dialog_adapter, channelList.toTypedArray()) {
 
-    private val context: WeakReference<Context> = WeakReference(context)
     private var callback: Callback? = null
 
     interface Callback {
@@ -27,43 +25,24 @@ class ChannelListSelectionAdapter internal constructor(context: Context, private
         this.callback = callback
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.channel_list_selection_dialog_adapter, parent, false)
-        return ViewHolder(view, this)
-    }
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val binding = if (convertView == null) {
+            ChannelListSelectionDialogAdapterBinding.inflate(LayoutInflater.from((context)))
+        } else {
+            convertView.tag as ChannelListSelectionDialogAdapterBinding
+        }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val channel = channelList[position]
-        holder.itemView.tag = channel
-        val context = this.context.get()
-        if (context != null && holder.iconImageView != null && !TextUtils.isEmpty(channel.icon)) {
-            Picasso.get()
+        binding.root.tag = binding
+        getItem(position)?.let { channel ->
+            binding.root.setOnClickListener { callback?.onItemClicked(channel) }
+            if (!channel.icon.isNullOrEmpty()) {
+                Picasso.get()
                     .load(getIconUrl(context, channel.icon))
-                    .into(holder.iconImageView)
-        }
-        if (holder.titleTextView != null) {
-            holder.titleTextView.text = channel.name
-            holder.titleTextView.tag = position
-        }
-    }
-
-    override fun getItemCount(): Int {
-        return channelList.size
-    }
-
-    class ViewHolder internal constructor(view: View, private val channelListAdapter: ChannelListSelectionAdapter?) : RecyclerView.ViewHolder(view), View.OnClickListener {
-        internal val iconImageView: ImageView? = view.findViewById(R.id.icon)
-        internal val titleTextView: TextView? = view.findViewById(R.id.title)
-
-        init {
-            view.setOnClickListener(this)
-        }
-
-        override fun onClick(view: View) {
-            if (channelListAdapter?.callback != null) {
-                val channel = channelListAdapter.channelList[adapterPosition]
-                channelListAdapter.callback?.onItemClicked(channel)
+                    .into(binding.icon)
             }
+            binding.icon.isInvisible = channel.icon.isNullOrEmpty()
+            binding.title.text = channel.name
         }
+        return binding.root
     }
 }

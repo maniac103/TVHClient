@@ -1,5 +1,6 @@
 package org.tvheadend.tvhclient.ui.features.epg
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.afollestad.materialdialogs.MaterialDialog
 import org.tvheadend.data.entity.ChannelTag
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.tvhclient.R
@@ -210,11 +210,9 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
         }
     }
 
-    private fun startDialogDismissTimer(dialog: MaterialDialog) {
+    private fun startDialogDismissTimer(dialog: DialogInterface) {
         dialogDismissRunnable = Runnable {
-            if (dialog.isShowing) {
-                dialog.dismiss()
-            }
+            dialog.dismiss()
         }.also { dialogDismissHandler.postDelayed(it, 60000) }
     }
 

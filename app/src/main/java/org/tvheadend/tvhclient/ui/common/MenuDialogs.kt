@@ -1,18 +1,13 @@
 package org.tvheadend.tvhclient.ui.common
 
 import android.content.Context
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.collection.mutableIntSetOf
-import androidx.databinding.DataBindingUtil
+import android.widget.ArrayAdapter
 import androidx.databinding.ViewDataBinding
 import androidx.preference.PreferenceManager
-import androidx.recyclerview.widget.RecyclerView
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.callbacks.onDismiss
-import com.afollestad.materialdialogs.list.customListAdapter
-import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import org.tvheadend.data.entity.ChannelTag
 import org.tvheadend.tvhclient.BR
 import org.tvheadend.tvhclient.R
@@ -23,6 +18,9 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.core.content.edit
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.tvheadend.tvhclient.databinding.ChanneltagListMultipleChoiceAdapterBinding
+import org.tvheadend.tvhclient.databinding.ChanneltagListSingleChoiceAdapterBinding
 
 
 fun showChannelTagSelectionDialog(context: Context, channelTags: MutableList<ChannelTag>, channelCount: Int, callback: ChannelTagIdsSelectedInterface): Boolean {
@@ -46,65 +44,66 @@ fun showChannelTagSelectionDialog(context: Context, channelTags: MutableList<Cha
         channelTags.add(0, tag)
     }
 
-    val adapter = ChannelTagSelectionAdapter(channelTags, isMultipleChoice)
+    val adapter = ChannelTagSelectionAdapter(context, channelTags, isMultipleChoice)
 
     // Show the dialog that shows all available channel tags. When the
     // user has selected a tag, restart the loader to loadRecordingById the updated channel list
-    val dialog: MaterialDialog = MaterialDialog(context)
-            .title(R.string.filter_channel_list)
-            .customListAdapter(adapter)
-
+    val dialogBuilder = MaterialAlertDialogBuilder(context)
+        .setSingleChoiceItems(adapter, -1, null)
     if (isMultipleChoice) {
-        dialog.title(R.string.select_multiple_channel_tags)
-                .positiveButton(R.string.save) { callback.onChannelTagIdsSelected(adapter.selectedTagIds) }
+        dialogBuilder
+            .setTitle(R.string.select_multiple_channel_tags)
+            .setPositiveButton(R.string.save) { _, _ -> callback.onChannelTagIdsSelected(adapter.selectedTagIds) }
     } else {
-        dialog.onDismiss { callback.onChannelTagIdsSelected(adapter.selectedTagIds) }
+         dialogBuilder
+             .setTitle(R.string.filter_channel_list)
+             .setOnDismissListener { callback.onChannelTagIdsSelected(adapter.selectedTagIds) }
     }
 
+    val dialog = dialogBuilder.show()
     adapter.setCallback(dialog)
-    dialog.show()
+
     return true
 }
 
-class ChannelTagSelectionAdapter(private val channelTagList: List<ChannelTag>, private val isMultiChoice: Boolean) : RecyclerView.Adapter<ChannelTagSelectionAdapter.ViewHolder>() {
+class ChannelTagSelectionAdapter(context: Context, private val channelTagList: List<ChannelTag>, private val isMultiChoice: Boolean) :
+    ArrayAdapter<ChannelTag>(context, 0, channelTagList) {
 
     private val selectedChannelTagIds = mutableSetOf<Int>()
-    private lateinit var dialog: MaterialDialog
+    private lateinit var dialog: DialogInterface
 
     internal val selectedTagIds: Set<Int>
         get() = selectedChannelTagIds
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val binding = DataBindingUtil.inflate<ViewDataBinding>(layoutInflater, viewType, parent, false)
-
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(parent.context)
-        val showChannelTagIcons = sharedPreferences.getBoolean("channel_tag_icons_enabled",
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val binding = if (convertView == null) {
+            val inflater = LayoutInflater.from(context)
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(parent.context)
+            val showChannelTagIcons = sharedPreferences.getBoolean("channel_tag_icons_enabled",
                 parent.context.resources.getBoolean(R.bool.pref_default_channel_tag_icons_enabled))
 
-        return ViewHolder(binding, showChannelTagIcons, this)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (channelTagList.size > position) {
-            val channelTag = channelTagList[position]
-            holder.bind(channelTag, position)
-
-            if (channelTag.isSelected) {
-                selectedChannelTagIds.add(channelTag.tagId)
+            val binding = if (isMultiChoice) {
+                ChanneltagListMultipleChoiceAdapterBinding.inflate(inflater, parent, false)
+            } else {
+                ChanneltagListSingleChoiceAdapterBinding.inflate(inflater, parent, false)
             }
+            binding.setVariable(BR.callback, this)
+            binding.setVariable(BR.showChannelTagIcons, showChannelTagIcons)
+            binding
+        } else {
+            convertView.tag as ViewDataBinding
         }
+        binding.root.tag = binding
+        val channelTag = getItem(position)
+        binding.setVariable(BR.channelTag, channelTag)
+        binding.setVariable(BR.position, position)
+        if (channelTag?.isSelected == true) {
+            selectedChannelTagIds.add(channelTag.tagId)
+        }
+        return binding.root
     }
 
-    override fun getItemCount(): Int {
-        return channelTagList.size
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return if (isMultiChoice) R.layout.channeltag_list_multiple_choice_adapter else R.layout.channeltag_list_single_choice_adapter
-    }
-
-    fun setCallback(dialog: MaterialDialog) {
+    fun setCallback(dialog: DialogInterface) {
         this.dialog = dialog
     }
 
@@ -125,18 +124,7 @@ class ChannelTagSelectionAdapter(private val channelTagList: List<ChannelTag>, p
         }
         dialog.dismiss()
     }
-
-    class ViewHolder(private val binding: ViewDataBinding, private val showChannelTagIcons: Boolean, private val callback: ChannelTagSelectionAdapter) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(channelTag: ChannelTag, position: Int) {
-            binding.setVariable(BR.channelTag, channelTag)
-            binding.setVariable(BR.position, position)
-            binding.setVariable(BR.callback, callback)
-            binding.setVariable(BR.showChannelTagIcons, showChannelTagIcons)
-        }
-    }
 }
-
 
 /**
  * Prepares a dialog that shows the available genre colors and the names. In
@@ -144,46 +132,33 @@ class ChannelTagSelectionAdapter(private val channelTagList: List<ChannelTag>, p
  * can be shown later.
  */
 fun showGenreColorDialog(context: Context): Boolean {
-    val adapter = GenreColorListAdapter(context.resources.getStringArray(R.array.pr_content_type0))
-    MaterialDialog(context).show {
-        title(R.string.genre_color_list)
-        customListAdapter(adapter)
-    }
+    val adapter = GenreColorListAdapter(context, context.resources.getStringArray(R.array.pr_content_type0))
+    MaterialAlertDialogBuilder(context)
+        .setTitle(R.string.genre_color_list)
+        .setSingleChoiceItems(adapter, -1) { _, _ -> }
+        .show()
     return true
 }
 
-class GenreColorListAdapter internal constructor(private val contentInfo: Array<String>) : RecyclerView.Adapter<GenreColorListAdapter.ViewHolder>() {
+class GenreColorListAdapter internal constructor(context: Context, private val contentInfo: Array<String>) :
+    ArrayAdapter<String>(context, R.layout.genre_color_list_adapter, R.id.genre, contentInfo) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val itemBinding = GenreColorListAdapterBinding.inflate(layoutInflater, parent, false)
-        return ViewHolder(itemBinding)
-    }
-
-    override fun getItemCount(): Int {
-        return contentInfo.size
-    }
-
-    /**
-     * Applies the values to the available layout items
-     */
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind((position + 1) * 16, contentInfo[position])
-    }
-
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
-    class ViewHolder(private val binding: GenreColorListAdapterBinding) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(contentType: Int, contentName: String) {
-            binding.contentType = contentType
-            binding.contentName = contentName
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val binding = if (convertView == null) {
+            GenreColorListAdapterBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        } else {
+            convertView.tag as GenreColorListAdapterBinding
         }
+        binding.root.tag = binding
+        getItem(position)?.let { contentInfo ->
+            binding.contentType = (position + 1) * 16
+            binding.contentName = contentInfo
+        }
+        return binding.root
     }
 }
 
-fun showProgramTimeframeSelectionDialog(context: Context, currentSelection: Int, intervalInHours: Int, maxIntervalsToShow: Int, callback: ChannelTimeSelectedInterface?): MaterialDialog {
+fun showProgramTimeframeSelectionDialog(context: Context, currentSelection: Int, intervalInHours: Int, maxIntervalsToShow: Int, callback: ChannelTimeSelectedInterface?): DialogInterface {
 
     val startDateFormat = SimpleDateFormat("dd.MM.yyyy - HH:00", Locale.US)
     val endDateFormat = SimpleDateFormat("HH:00", Locale.US)
@@ -204,42 +179,38 @@ fun showProgramTimeframeSelectionDialog(context: Context, currentSelection: Int,
         times.add("$startTime - $endTime")
     }
 
-    val dialog = MaterialDialog(context)
-    dialog.show {
-        title(R.string.select_time)
-        listItemsSingleChoice(items = times, initialSelection = currentSelection) { _, index, _ ->
+    return MaterialAlertDialogBuilder(context)
+        .setTitle(R.string.select_time)
+        .setSingleChoiceItems(times.toTypedArray(), currentSelection) { _, index ->
             callback?.onTimeSelected(index)
         }
-    }
-    return dialog
+        .show()
 }
 
 fun showChannelSortOrderSelectionDialog(context: Context): Boolean {
-
     val channelSortOrder = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("channel_sort_order", context.resources.getString(R.string.pref_default_channel_sort_order))!!)
-    MaterialDialog(context).show {
-        title(R.string.pref_sort_channels)
-        listItemsSingleChoice(R.array.pref_sort_channels_names, initialSelection = channelSortOrder) { _, index, _ ->
+    MaterialAlertDialogBuilder(context)
+        .setTitle(R.string.pref_sort_channels)
+        .setSingleChoiceItems(R.array.pref_sort_channels_names, channelSortOrder) { _, index ->
             Timber.d("New selected channel sort order changed from $channelSortOrder to $index")
             PreferenceManager.getDefaultSharedPreferences(context).edit {
                 putString("channel_sort_order", index.toString())
             }
         }
-    }
+        .show()
     return false
 }
 
 fun showCompletedRecordingSortOrderSelectionDialog(context: Context): Boolean {
-
     val sortOrder = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("completed_recording_sort_order", context.resources.getString(R.string.pref_default_completed_recording_sort_order))!!)
-    MaterialDialog(context).show {
-        title(R.string.pref_sort_completed_recordings)
-        listItemsSingleChoice(R.array.pref_sort_completed_recordings_names, initialSelection = sortOrder) { _, index, _ ->
+    MaterialAlertDialogBuilder(context)
+        .setTitle(R.string.pref_sort_completed_recordings)
+        .setSingleChoiceItems(R.array.pref_sort_completed_recordings_names, sortOrder) { _, index ->
             Timber.d("New selected completed recording sort order changed from $sortOrder to $index")
             PreferenceManager.getDefaultSharedPreferences(context).edit {
                 putString("completed_recording_sort_order", index.toString())
             }
         }
-    }
+        .show()
     return false
 }

@@ -2,6 +2,7 @@ package org.tvheadend.tvhclient.ui.features.channels
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,10 +15,10 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.input.input
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvheadend.data.entity.ChannelTag
 import org.tvheadend.tvhclient.R
+import org.tvheadend.tvhclient.databinding.InputDialogBinding
 import org.tvheadend.tvhclient.databinding.RecyclerviewFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
 import org.tvheadend.tvhclient.ui.common.*
@@ -25,6 +26,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.*
 import org.tvheadend.tvhclient.ui.features.programs.ProgramListFragment
 import org.tvheadend.tvhclient.ui.features.programs.ProgramViewModel
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
+import org.tvheadend.tvhclient.util.extensions.afterTextChanged
 import timber.log.Timber
 
 class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelTimeSelectedInterface, ChannelTagIdsSelectedInterface, SearchRequestInterface, Filter.FilterListener, ShowProgramListFragmentInterface {
@@ -225,23 +227,32 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
         }
     }
 
-    private fun startDialogDismissTimer(dialog: MaterialDialog) {
+    private fun startDialogDismissTimer(dialog: DialogInterface) {
         dialogDismissRunnable = Runnable {
-            if (dialog.isShowing) {
-                dialog.dismiss()
-            }
+            dialog.dismiss()
         }.also { dialogDismissHandler.postDelayed(it, 60000) }
     }
 
     @SuppressLint("CheckResult")
     private fun showSearchForChannelsDialog(context: Context): Boolean {
-        MaterialDialog(context).show {
-            title(res = R.string.search_for_channels)
-            input(hintRes = R.string.enter_channel_name) { _, text ->
-                baseViewModel.startSearchQuery(text.toString())
+        val binding = InputDialogBinding.inflate(layoutInflater)
+        binding.inputlayout.hint = getString(R.string.enter_channel_name)
+
+        val dialog = MaterialAlertDialogBuilder(context)
+            .setTitle(R.string.search_for_channels)
+            .setView(binding.root)
+            .setPositiveButton(R.string.search) { _, _ ->
+                baseViewModel.startSearchQuery(binding.edit.toString())
             }
-            positiveButton(R.string.search)
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+
+        val searchButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+        searchButton?.isEnabled = false
+        binding.edit.afterTextChanged { text ->
+            searchButton?.isEnabled = text.isNotEmpty()
         }
+
         return true
     }
 

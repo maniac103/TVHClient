@@ -5,8 +5,7 @@ import android.view.*
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
@@ -252,11 +251,11 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
      */
     private fun cancel() {
         context?.let {
-            MaterialDialog(it).show {
-                message(R.string.cancel_add_recording)
-                positiveButton(R.string.discard) { activity?.supportFragmentManager?.popBackStack() }
-                negativeButton(R.string.cancel) { dismiss() }
-            }
+            MaterialAlertDialogBuilder(it)
+                .setMessage(R.string.cancel_add_recording)
+                .setPositiveButton(R.string.discard) { _, _ -> activity?.supportFragmentManager?.popBackStack() }
+                .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+                .show()
         }
     }
 
@@ -314,12 +313,12 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
 
     private fun handleDuplicateDetectionSelection(duplicateDetectionList: Array<String>, duplicateDetectionId: Int) {
         context?.let {
-            MaterialDialog(it).show {
-                title(R.string.select_duplicate_detection)
-                listItemsSingleChoice(items = duplicateDetectionList.toList(), initialSelection = duplicateDetectionId) { _, index, _ ->
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.select_duplicate_detection)
+                .setSingleChoiceItems(duplicateDetectionList, duplicateDetectionId) { _, index ->
                     onDuplicateDetectionValueSelected(index)
                 }
-            }
+                .show()
         }
     }
 

@@ -7,7 +7,7 @@ import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.afollestad.materialdialogs.MaterialDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.StartupFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
@@ -115,17 +115,15 @@ class StartupFragment : Fragment(), HideNavigationDrawerInterface {
                 true
             }
             R.id.menu_reconnect_to_server -> {
-                activity?.let { activity ->
-                    MaterialDialog(activity).show {
-                        title(R.string.reconnect_to_server)
-                        message(R.string.restart_and_sync)
-                        positiveButton(R.string.reconnect) {
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(R.string.reconnect_to_server)
+                    .setMessage(R.string.restart_and_sync)
+                    .setPositiveButton(R.string.reconnect) { _, _ ->
                             Timber.d("Reconnect requested, stopping service and updating active connection to require a full sync")
                             baseViewModel.updateConnectionAndRestartApplication(context)
                         }
-                        negativeButton(R.string.cancel)
-                    }
-                }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
                 true
             }
             else -> super.onOptionsItemSelected(item)

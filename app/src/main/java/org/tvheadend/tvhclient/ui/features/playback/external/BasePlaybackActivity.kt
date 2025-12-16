@@ -3,17 +3,16 @@ package org.tvheadend.tvhclient.ui.features.playback.external
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import com.afollestad.materialdialogs.MaterialDialog
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.PlayActivityBinding
 import org.tvheadend.tvhclient.ui.common.onAttach
 import timber.log.Timber
 import androidx.core.net.toUri
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 abstract class BasePlaybackActivity : AppCompatActivity() {
 
@@ -72,10 +71,10 @@ abstract class BasePlaybackActivity : AppCompatActivity() {
                 binding.status.setText(R.string.no_media_player)
 
                 // Show a confirmation dialog before deleting the recording
-                MaterialDialog(this@BasePlaybackActivity).show {
-                    title(R.string.no_media_player)
-                    message(R.string.show_play_store)
-                    positiveButton(android.R.string.ok) {
+                MaterialAlertDialogBuilder(this@BasePlaybackActivity)
+                    .setTitle(R.string.no_media_player)
+                    .setMessage(R.string.show_play_store)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
                         try {
                             Timber.d("Opening play store to download external players")
                             val installIntent = Intent(Intent.ACTION_VIEW)
@@ -87,8 +86,8 @@ abstract class BasePlaybackActivity : AppCompatActivity() {
                             finish()
                         }
                     }
-                    negativeButton(android.R.string.cancel) { finish() }
-                }
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> finish() }
+                    .show()
             }
         }
     }

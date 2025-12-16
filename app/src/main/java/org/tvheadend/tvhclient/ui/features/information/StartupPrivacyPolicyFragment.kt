@@ -7,13 +7,13 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.view.forEach
 import androidx.preference.PreferenceManager
-import com.afollestad.materialdialogs.MaterialDialog
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.interfaces.HideNavigationDrawerInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.BackPressedInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import timber.log.Timber
 import androidx.core.content.edit
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class StartupPrivacyPolicyFragment : WebViewFragment(), BackPressedInterface, HideNavigationDrawerInterface {
 
@@ -73,15 +73,15 @@ class StartupPrivacyPolicyFragment : WebViewFragment(), BackPressedInterface, Hi
 
     override fun onBackPressed() {
         context?.let {
-            MaterialDialog(it).show {
-                message(text = "Do you accept the privacy policy")
-                positiveButton(text = "Accept") {
+            MaterialAlertDialogBuilder(it)
+                .setMessage("Do you accept the privacy policy")
+                .setPositiveButton("Accept") { _, _ ->
                     acceptPrivacyPolicy()
                 }
-                negativeButton(text = "Reject") {
+                .setNegativeButton("Reject") { _, _ ->
                     rejectPrivacyPolicy()
                 }
-            }
+                .show()
         }
     }
 }

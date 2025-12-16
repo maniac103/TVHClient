@@ -13,8 +13,7 @@ import androidx.preference.*
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.squareup.picasso.Picasso
 import org.tvheadend.data.source.MiscDataSource
 import org.tvheadend.tvhclient.BuildConfig
@@ -31,7 +30,6 @@ import timber.log.Timber
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class SettingsAdvancedFragment : BaseSettingsFragment(), Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener, MiscDataSource.DatabaseClearedCallback {
     override val preferencesResId = R.xml.preferences_advanced
@@ -89,17 +87,16 @@ class SettingsAdvancedFragment : BaseSettingsFragment(), Preference.OnPreference
 
     private fun handlePreferenceClearDatabaseSelected() {
         context?.let {
-            MaterialDialog(it).show {
-                title(R.string.clear_database_contents)
-                message(R.string.restart_and_sync)
-                positiveButton(R.string.clear) {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.clear_database_contents)
+                .setMessage(R.string.restart_and_sync)
+                .setPositiveButton(R.string.clear) { _, _ ->
                     Timber.d("Clear database requested")
-                    context.sendSnackbarMessage("Database contents cleared, reconnecting to server")
+                    it.sendSnackbarMessage("Database contents cleared, reconnecting to server")
                     settingsViewModel.clearDatabase(this@SettingsAdvancedFragment)
-                    dismiss()
                 }
-                negativeButton(R.string.cancel) { dismiss() }
-            }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
         }
     }
 
@@ -126,24 +123,16 @@ class SettingsAdvancedFragment : BaseSettingsFragment(), Preference.OnPreference
         context?.let {
             val logPath = File(it.cacheDir, "logs")
             val files = logPath.listFiles()
-            if (files == null) {
-                MaterialDialog(it).show {
-                    title(R.string.select_log_file)
-                    positiveButton(android.R.string.ok) { dismiss() }
-                }
-            } else {
+            if (!files.isNullOrEmpty()) {
                 // Fill the items for the dialog
-                val logfileList = ArrayList<String>()
-                for (i in files.indices) {
-                    logfileList.add(files[i].name)
-                }
+                val logFiles = files.map { it.name }.toTypedArray()
                 // Show the dialog with the list of log files
-                MaterialDialog(it).show {
-                    title(R.string.select_log_file)
-                    listItemsSingleChoice(items = logfileList, initialSelection = -1) { _, index, _ ->
-                        mailLogfile(logfileList[index])
+                MaterialAlertDialogBuilder(it)
+                    .setTitle(R.string.select_log_file)
+                    .setSingleChoiceItems(logFiles, -1) { _, index ->
+                        mailLogfile(logFiles[index])
                     }
-                }
+                    .show()
             }
         }
     }
@@ -243,33 +232,34 @@ class SettingsAdvancedFragment : BaseSettingsFragment(), Preference.OnPreference
 
     private fun handlePreferenceClearSearchHistorySelected() {
         context?.let {
-            MaterialDialog(it).show {
-                title(R.string.clear_search_history)
-                message(R.string.clear_search_history_sum)
-                positiveButton(R.string.delete) {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.clear_search_history)
+                .setMessage(R.string.clear_search_history_sum)
+                .setPositiveButton(R.string.delete) { _, _ ->
                     val suggestions = SearchRecentSuggestions(activity, SuggestionProvider.AUTHORITY, SuggestionProvider.MODE)
                     suggestions.clearHistory()
-                    context.sendSnackbarMessage(R.string.clear_search_history_done)
+                    it.sendSnackbarMessage(R.string.clear_search_history_done)
                 }
-                negativeButton(R.string.cancel)
-            }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
         }
     }
 
     private fun handlePreferenceClearIconCacheSelected() {
         context?.let {
-            MaterialDialog(it).show {
-                title(R.string.clear_icon_cache).message(R.string.clear_icon_cache_sum)
-                positiveButton(R.string.delete) { _ ->
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.clear_icon_cache)
+                .setMessage(R.string.clear_icon_cache_sum)
+                .setPositiveButton(R.string.delete) { _, _ ->
                     Timber.d("Deleting channel icons, invalidating cache and reloading icons via a background worker")
                     clearIconsFromCache(it)
                     it.sendSnackbarMessage(R.string.clear_icon_cache_done)
 
                     val loadChannelIcons = OneTimeWorkRequest.Builder(LoadChannelIconWorker::class.java).build()
-                    WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(LoadChannelIconWorker.WORK_NAME, ExistingWorkPolicy.APPEND, loadChannelIcons)
+                    WorkManager.getInstance(it.applicationContext).enqueueUniqueWork(LoadChannelIconWorker.WORK_NAME, ExistingWorkPolicy.APPEND, loadChannelIcons)
                 }
-                negativeButton(R.string.cancel)
-            }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
         }
     }
 

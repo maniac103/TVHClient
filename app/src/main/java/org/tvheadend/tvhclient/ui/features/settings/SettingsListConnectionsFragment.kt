@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.afollestad.materialdialogs.MaterialDialog
 import org.tvheadend.data.entity.Connection
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecyclerviewFragmentBinding
@@ -21,6 +20,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.features.MainActivity
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import androidx.core.view.get
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, ActionMode.Callback, RecyclerViewClickInterface {
 
@@ -132,15 +132,13 @@ class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, Action
     }
 
     private fun deleteConnection(context: Context, connection: Connection, mode: ActionMode): Boolean {
-        MaterialDialog(context).show {
-            message(text = getString(R.string.delete_connection, connection.name))
-            positiveButton(R.string.delete) {
+        MaterialAlertDialogBuilder(context)
+            .setMessage(getString(R.string.delete_connection, connection.name))
+            .setPositiveButton(R.string.delete) { _, _ ->
                 settingsViewModel.removeConnection(connection)
             }
-            negativeButton(R.string.cancel) {
-                cancel()
-            }
-        }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
         mode.finish()
         return true
     }
@@ -173,22 +171,22 @@ class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, Action
     override fun onBackPressed() {
         when {
             activeConnectionId < 0 -> context?.let {
-                MaterialDialog(it).show {
-                    title(R.string.disconnect_from_server)
-                    message(R.string.no_active_connection)
-                    positiveButton(R.string.disconnect) {
+                MaterialAlertDialogBuilder(it)
+                    .setTitle(R.string.disconnect_from_server)
+                    .setMessage(R.string.no_active_connection)
+                    .setPositiveButton(R.string.disconnect) { _, _ ->
                         updateConnectionAndRestartApplication()
                     }
-                }
+                    .show()
             }
             connectionHasChanged -> context?.let {
-                MaterialDialog(it).show {
-                    title(R.string.connect_to_new_server)
-                    message(R.string.connection_changed)
-                    positiveButton(R.string.connect) {
+                MaterialAlertDialogBuilder(it)
+                    .setTitle(R.string.connect_to_new_server)
+                    .setMessage(R.string.connection_changed)
+                    .setPositiveButton(R.string.connect) { _, _ ->
                         updateConnectionAndRestartApplication()
                     }
-                }
+                    .show()
             }
             else -> {
                 (activity as RemoveFragmentFromBackstackInterface).removeFragmentFromBackstack()
