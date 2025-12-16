@@ -6,6 +6,7 @@ import androidx.core.os.bundleOf
 import androidx.preference.EditTextPreference
 import androidx.preference.EditTextPreferenceDialogFragmentCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.tvheadend.tvhclient.databinding.InputDialogBinding
 
 class MaterialEditTextPreferenceDialog : EditTextPreferenceDialogFragmentCompat() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -15,13 +16,10 @@ class MaterialEditTextPreferenceDialog : EditTextPreferenceDialogFragmentCompat(
             .setIcon(preference.dialogIcon)
             .setPositiveButton(preference.positiveButtonText, this)
             .setNegativeButton(preference.negativeButtonText, this)
-        val contentView = onCreateDialogView(activity)
-        if (contentView != null) {
-            onBindDialogView(contentView)
-            builder.setView(contentView)
-        } else {
-            builder.setMessage(preference.dialogMessage)
-        }
+
+        val contentBinding = InputDialogBinding.inflate(layoutInflater)
+        onBindDialogView(contentBinding.root)
+        builder.setView(contentBinding.root)
         onPrepareDialogBuilder(builder)
 
         return builder.create()
