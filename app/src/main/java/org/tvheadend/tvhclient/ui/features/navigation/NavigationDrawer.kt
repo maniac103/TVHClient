@@ -140,58 +140,58 @@ class NavigationDrawer(private val activity: AppCompatActivity,
         val channelItem = PrimaryDrawerItem().apply {
             identifier = MENU_CHANNELS
             nameRes = R.string.channels
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_channels)
+            iconRes = R.drawable.ic_menu_channels
         }
         val programGuideItem = PrimaryDrawerItem().apply {
             identifier = MENU_PROGRAM_GUIDE
             nameRes = R.string.pref_program_guide
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_program_guide)
+            iconRes = R.drawable.ic_menu_program_guide
         }
         val completedRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_COMPLETED_RECORDINGS
             nameRes = R.string.completed_recordings
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_completed_recordings)
+            iconRes = R.drawable.ic_menu_completed_recordings
         }
         val scheduledRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_SCHEDULED_RECORDINGS
             nameRes = R.string.scheduled_recordings
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_scheduled_recordings)
+            iconRes = R.drawable.ic_menu_scheduled_recordings
         }
         val seriesRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_SERIES_RECORDINGS
             nameRes = R.string.series_recordings
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_scheduled_recordings)
+            iconRes = R.drawable.ic_menu_scheduled_recordings
         }
         val timerRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_TIMER_RECORDINGS
             nameRes = R.string.timer_recordings
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_scheduled_recordings)
+            iconRes = R.drawable.ic_menu_scheduled_recordings
         }
         val failedRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_FAILED_RECORDINGS
             nameRes = R.string.failed_recordings
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_failed_recordings)
+            iconRes = R.drawable.ic_menu_failed_recordings
         }
         val removedRecordingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_REMOVED_RECORDINGS
             nameRes = R.string.removed_recordings
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_removed_recordings)
+            iconRes = R.drawable.ic_menu_removed_recordings
         }
         val statusItem = PrimaryDrawerItem().apply {
             identifier = MENU_STATUS
             nameRes = R.string.status
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_status)
+            iconRes = R.drawable.ic_menu_status
         }
         val settingsItem = PrimaryDrawerItem().apply {
             identifier = MENU_SETTINGS
             nameRes = R.string.settings
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_settings)
+            iconRes = R.drawable.ic_menu_settings
             isSelectable = false
         }
         val helpItem = PrimaryDrawerItem().apply {
             identifier = MENU_HELP
             nameRes = R.string.help_and_support
-            iconRes = getResourceIdFromAttr(R.attr.ic_menu_help)
+            iconRes = R.drawable.ic_menu_help
         }
 
         drawer.addItems(

@@ -2,32 +2,32 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_play"
-        android:icon="?attr/ic_menu_play"
+        android:icon="@drawable/ic_menu_play"
         android:title="@string/play"
         android:visible="false" />
     <item
         android:id="@+id/menu_cast"
-        android:icon="?attr/ic_menu_cast"
+        android:icon="@drawable/ic_menu_cast"
         android:title="@string/cast"
         android:visible="false" />
     <item
         android:id="@+id/menu_edit_recording"
-        android:icon="?attr/ic_menu_edit"
+        android:icon="@drawable/ic_menu_edit"
         android:title="@string/edit"
         android:visible="false" />
     <item
         android:id="@+id/menu_remove_recording"
-        android:icon="?attr/ic_menu_record_remove"
+        android:icon="@drawable/ic_menu_delete"
         android:title="@string/remove"
         android:visible="false" />
     <item
         android:id="@+id/menu_stop_recording"
-        android:icon="?attr/ic_menu_stop"
+        android:icon="@drawable/ic_menu_stop"
         android:title="@string/stop"
         android:visible="false" />
     <item
         android:id="@+id/menu_cancel_recording"
-        android:icon="?attr/ic_menu_cancel"
+        android:icon="@drawable/ic_menu_cancel"
         android:title="@string/cancel"
         android:visible="false" />
     <item
@@ -38,11 +38,11 @@
         android:title="@string/disable" />
     <item
         android:id="@+id/menu_download_recording"
-        android:icon="?attr/ic_menu_download"
+        android:icon="@drawable/ic_menu_download"
         android:title="@string/download"
         android:visible="false" />
     <item
         android:id="@+id/menu_share_recording"
-        android:icon="?attr/ic_menu_share"
+        android:icon="@drawable/ic_menu_share"
         android:title="@string/pref_share" />
 </menu>

@@ -639,10 +639,6 @@ fun setGenreColor(view: TextView, contentType: Int, showGenreColors: Boolean, of
 
 @BindingAdapter("activeIcon")
 fun setConnectionActiveIcon(view: ImageView, isActive: Boolean) {
-    // Set the active / inactive icon depending on the theme and selection status
-    if (view.context.isInDarkMode()) {
-        view.setImageResource(if (isActive) R.drawable.item_active_dark else R.drawable.item_not_active_dark)
-    } else {
-        view.setImageResource(if (isActive) R.drawable.item_active_light else R.drawable.item_not_active_light)
-    }
+    // Set the active / inactive icon depending on the selection status
+    view.setImageResource(if (isActive) R.drawable.item_active else R.drawable.item_not_active)
 }

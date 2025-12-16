@@ -165,7 +165,7 @@ fun showOrCancelNotificationProgramIsCurrentlyBeingRecorded(context: Context, co
         val builder = getNotificationBuilder(context)
         builder.setContentTitle(context.getString(R.string.currently_recording))
                 .setContentText(context.resources.getQuantityString(R.plurals.running_recordings, count, count))
-                .setSmallIcon(R.drawable.ic_menu_record_dark)
+                .setSmallIcon(R.drawable.ic_menu_record)
                 .setOngoing(false)
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_PROGRAM_CURRENTLY_BEING_RECORDED, builder.build())
     } else {
@@ -187,7 +187,7 @@ fun showOrCancelNotificationDiskSpaceIsLow(context: Context, gigabytes: Int, sho
         val builder = getNotificationBuilder(context)
         builder.setContentTitle(context.getString(R.string.disc_space))
                 .setContentText(context.getString(R.string.disc_space_low, gigabytes))
-                .setSmallIcon(R.drawable.ic_menu_info_dark)
+                .setSmallIcon(R.drawable.ic_menu_info)
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_DISK_SPACE_LOW, builder.build())
     } else {
         notificationManager.cancel(NOTIFICATION_ID_DISK_SPACE_LOW)

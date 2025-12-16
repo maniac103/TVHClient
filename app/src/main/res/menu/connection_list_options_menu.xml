@@ -4,27 +4,27 @@
 
     <item
         android:id="@+id/menu_send_wol"
-        android:icon="?attr/ic_menu_wol"
+        android:icon="@drawable/ic_menu_send_wol"
         android:title="@string/send_wol"
         app:showAsAction="ifRoom|withText"/>
     <item
         android:id="@+id/menu_set_connection_active"
-        android:icon="?attr/ic_item_active"
+        android:icon="@drawable/item_active"
         android:title="@string/set_active"
         app:showAsAction="ifRoom|withText"/>
     <item
         android:id="@+id/menu_set_connection_not_active"
-        android:icon="?attr/ic_item_not_active"
+        android:icon="@drawable/item_not_active"
         android:title="@string/set_not_active"
         app:showAsAction="ifRoom|withText"/>
     <item
         android:id="@+id/menu_edit_connection"
-        android:icon="?attr/ic_menu_edit"
+        android:icon="@drawable/ic_menu_edit"
         android:title="@string/edit"
         app:showAsAction="ifRoom|withText"/>
     <item
         android:id="@+id/menu_delete_connection"
-        android:icon="?attr/ic_menu_delete"
+        android:icon="@drawable/ic_menu_delete"
         android:title="@string/delete"/>
 
 </menu>

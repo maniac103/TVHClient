@@ -354,7 +354,7 @@ class PlaybackActivity : AppCompatActivity() {
             }
             Configuration.ORIENTATION_LANDSCAPE -> {
                 Timber.d("Player is in landscape mode")
-                playerToggleFullscreen.setImageResource(R.drawable.ic_player_fullscreen_exit)
+                playerToggleFullscreen.setImageResource(R.drawable. ic_player_fullscreen_exit)
             }
             Configuration.ORIENTATION_SQUARE -> {
                 Timber.d("Player is in square mode")

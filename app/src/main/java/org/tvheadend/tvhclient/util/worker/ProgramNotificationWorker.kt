@@ -60,7 +60,7 @@ class ProgramNotificationWorker(val context: Context, workerParams: WorkerParame
         builder.setContentTitle(title)
                 .setContentText(eventTitle)
                 .setContentIntent(detailsPendingIntent)
-                .addAction(R.attr.ic_menu_record_once, context.getString(R.string.record_once), recordPendingIntent)
+                .addAction(R.drawable.ic_menu_record, context.getString(R.string.record_once), recordPendingIntent)
 
         NotificationManagerCompat.from(context).notify(eventId, builder.build())
 

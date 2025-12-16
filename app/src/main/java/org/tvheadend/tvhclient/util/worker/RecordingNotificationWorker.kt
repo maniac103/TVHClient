@@ -40,7 +40,7 @@ class RecordingNotificationWorker(val context: Context, workerParams: WorkerPara
         val builder = getNotificationBuilder(context)
         builder.setContentTitle(title)
                 .setContentText(dvrTitle)
-                .addAction(R.attr.ic_menu_record_cancel, context.getString(R.string.record_cancel), cancelRecordingPendingIntent)
+                .addAction(R.drawable.ic_menu_cancel, context.getString(R.string.record_cancel), cancelRecordingPendingIntent)
 
         NotificationManagerCompat.from(context).notify(dvrId, builder.build())
 
