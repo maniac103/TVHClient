@@ -13,19 +13,19 @@ class NavigationViewModel(application: Application) : BaseViewModel(application)
 
     val connections = appRepository.connectionData.getItems()
     val connectionLiveData = appRepository.connectionData.liveDataActiveItem
-    private val navigationMenuId = MutableLiveData<Event<Int>>()
-    var currentNavigationMenuId: Int
+    private val navigationMenuId = MutableLiveData<Event<Long>>()
+    var currentNavigationMenuId: Long
     private val defaultStartScreen = application.applicationContext.resources.getString(R.string.pref_default_start_screen)
 
     init {
         Timber.d("Initializing")
-        currentNavigationMenuId = Integer.parseInt(sharedPreferences.getString("start_screen", defaultStartScreen)!!)
+        currentNavigationMenuId = sharedPreferences.getString("start_screen", defaultStartScreen)?.toLong() ?: 0L
         navigationMenuId.value = Event(currentNavigationMenuId)
     }
 
-    fun getNavigationMenuId(): LiveData<Event<Int>> = navigationMenuId
+    fun getNavigationMenuId(): LiveData<Event<Long>> = navigationMenuId
 
-    fun setNavigationMenuId(id: Int) {
+    fun setNavigationMenuId(id: Long) {
         Timber.d("Received new navigation id $id, previous navigation id is ${navigationMenuId.value?.peekContent()}")
         if (currentNavigationMenuId != id || id == MENU_SETTINGS) {
             Timber.d("Setting navigation id to $id")
@@ -48,7 +48,7 @@ class NavigationViewModel(application: Application) : BaseViewModel(application)
         return false
     }
 
-    fun setSelectedMenuItemId(id: Int) {
+    fun setSelectedMenuItemId(id: Long) {
         Timber.d("Back button was pressed, setting current navigation id ${navigationMenuId.value} to id $id")
         currentNavigationMenuId = id
     }

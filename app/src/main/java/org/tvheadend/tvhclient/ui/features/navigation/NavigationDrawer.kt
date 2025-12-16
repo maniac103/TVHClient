@@ -46,6 +46,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.commit
 import androidx.fragment.app.transaction
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.mikepenz.fastadapter.select.getSelectExtension
 
 class NavigationDrawer(private val activity: AppCompatActivity,
                        private val drawer: MaterialDrawerSliderView,
@@ -129,66 +130,66 @@ class NavigationDrawer(private val activity: AppCompatActivity,
         }
     }
 
-    private fun observeCount(countLiveData: LiveData<Int>, menuIdentifier: Int) {
+    private fun observeCount(countLiveData: LiveData<Int>, menuIdentifier: Long) {
         countLiveData.observe(activity) { count ->
-            drawer.updateBadge(menuIdentifier.toLong(), StringHolder(count.toString()))
+            drawer.updateBadge(menuIdentifier, StringHolder(count.toString()))
         }
     }
 
     private fun createMenu() {
         val channelItem = PrimaryDrawerItem().apply {
-            identifier = MENU_CHANNELS.toLong()
+            identifier = MENU_CHANNELS
             nameRes = R.string.channels
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_channels)
         }
         val programGuideItem = PrimaryDrawerItem().apply {
-            identifier = MENU_PROGRAM_GUIDE.toLong()
+            identifier = MENU_PROGRAM_GUIDE
             nameRes = R.string.pref_program_guide
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_program_guide)
         }
         val completedRecordingsItem = PrimaryDrawerItem().apply {
-            identifier = MENU_COMPLETED_RECORDINGS.toLong()
+            identifier = MENU_COMPLETED_RECORDINGS
             nameRes = R.string.completed_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_completed_recordings)
         }
         val scheduledRecordingsItem = PrimaryDrawerItem().apply {
-            identifier = MENU_SCHEDULED_RECORDINGS.toLong()
+            identifier = MENU_SCHEDULED_RECORDINGS
             nameRes = R.string.scheduled_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_scheduled_recordings)
         }
         val seriesRecordingsItem = PrimaryDrawerItem().apply {
-            identifier = MENU_SERIES_RECORDINGS.toLong()
+            identifier = MENU_SERIES_RECORDINGS
             nameRes = R.string.series_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_scheduled_recordings)
         }
         val timerRecordingsItem = PrimaryDrawerItem().apply {
-            identifier = MENU_TIMER_RECORDINGS.toLong()
+            identifier = MENU_TIMER_RECORDINGS
             nameRes = R.string.timer_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_scheduled_recordings)
         }
         val failedRecordingsItem = PrimaryDrawerItem().apply {
-            identifier = MENU_FAILED_RECORDINGS.toLong()
+            identifier = MENU_FAILED_RECORDINGS
             nameRes = R.string.failed_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_failed_recordings)
         }
         val removedRecordingsItem = PrimaryDrawerItem().apply {
-            identifier = MENU_REMOVED_RECORDINGS.toLong()
+            identifier = MENU_REMOVED_RECORDINGS
             nameRes = R.string.removed_recordings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_removed_recordings)
         }
         val statusItem = PrimaryDrawerItem().apply {
-            identifier = MENU_STATUS.toLong()
+            identifier = MENU_STATUS
             nameRes = R.string.status
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_status)
         }
         val settingsItem = PrimaryDrawerItem().apply {
-            identifier = MENU_SETTINGS.toLong()
+            identifier = MENU_SETTINGS
             nameRes = R.string.settings
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_settings)
             isSelectable = false
         }
         val helpItem = PrimaryDrawerItem().apply {
-            identifier = MENU_HELP.toLong()
+            identifier = MENU_HELP
             nameRes = R.string.help_and_support
             iconRes = getResourceIdFromAttr(R.attr.ic_menu_help)
         }
@@ -209,9 +210,8 @@ class NavigationDrawer(private val activity: AppCompatActivity,
             statusItem
         )
         drawer.onDrawerItemClickListener = { _, item, _ ->
-            drawerLayout.closeDrawers()
-            navigationViewModel.setNavigationMenuId(item.identifier.toInt())
-            true
+            navigationViewModel.setNavigationMenuId(item.identifier)
+            false
         }
     }
 
@@ -246,30 +246,31 @@ class NavigationDrawer(private val activity: AppCompatActivity,
         }
     }
 
-    fun getSelectedMenu(): Int {
-        return drawer.selectedItemIdentifier.toInt()
+    fun getSelectedMenu(): Long {
+        return drawer.selectedItemIdentifier
     }
 
     fun setSelectedNavigationDrawerMenuFromFragmentType(fragment: Fragment?) {
+        drawer.selectExtension.deselect()
         when (fragment) {
-            is ChannelListFragment -> drawer.setSelection(MENU_CHANNELS.toLong(), false)
-            is EpgFragment -> drawer.setSelection(MENU_PROGRAM_GUIDE.toLong(), false)
-            is CompletedRecordingListFragment -> drawer.setSelection(MENU_COMPLETED_RECORDINGS.toLong(), false)
-            is ScheduledRecordingListFragment -> drawer.setSelection(MENU_SCHEDULED_RECORDINGS.toLong(), false)
-            is SeriesRecordingListFragment -> drawer.setSelection(MENU_SERIES_RECORDINGS.toLong(), false)
-            is TimerRecordingListFragment -> drawer.setSelection(MENU_TIMER_RECORDINGS.toLong(), false)
-            is FailedRecordingListFragment -> drawer.setSelection(MENU_FAILED_RECORDINGS.toLong(), false)
-            is RemovedRecordingListFragment -> drawer.setSelection(MENU_REMOVED_RECORDINGS.toLong(), false)
-            is StatusFragment -> drawer.setSelection(MENU_STATUS.toLong(), false)
-            is WebViewFragment -> drawer.setSelection(MENU_HELP.toLong(), false)
+            is ChannelListFragment -> drawer.setSelection(MENU_CHANNELS, false)
+            is EpgFragment -> drawer.setSelection(MENU_PROGRAM_GUIDE, false)
+            is CompletedRecordingListFragment -> drawer.setSelection(MENU_COMPLETED_RECORDINGS, false)
+            is ScheduledRecordingListFragment -> drawer.setSelection(MENU_SCHEDULED_RECORDINGS, false)
+            is SeriesRecordingListFragment -> drawer.setSelection(MENU_SERIES_RECORDINGS, false)
+            is TimerRecordingListFragment -> drawer.setSelection(MENU_TIMER_RECORDINGS, false)
+            is FailedRecordingListFragment -> drawer.setSelection(MENU_FAILED_RECORDINGS, false)
+            is RemovedRecordingListFragment -> drawer.setSelection(MENU_REMOVED_RECORDINGS, false)
+            is StatusFragment -> drawer.setSelection(MENU_STATUS, false)
+            is WebViewFragment -> drawer.setSelection(MENU_HELP, false)
         }
     }
 
     /**
      * Creates and returns a new fragment that is associated with the given menu
      */
-    private fun getFragmentFromSelectedNavigationDrawerMenu(position: Int): Fragment? {
-        return when (position) {
+    private fun getFragmentFromSelectedNavigationDrawerMenu(id: Long): Fragment? {
+        return when (id) {
             MENU_CHANNELS -> ChannelListFragment()
             MENU_PROGRAM_GUIDE -> EpgFragment()
             MENU_COMPLETED_RECORDINGS -> CompletedRecordingListFragment()
@@ -291,7 +292,7 @@ class NavigationDrawer(private val activity: AppCompatActivity,
      *
      * @param id Selected position within the menu array
      */
-    fun handleDrawerItemSelected(id: Int) {
+    fun handleDrawerItemSelected(id: Long) {
         Timber.d("Handling new navigation menu id $id")
 
         if (id == MENU_SETTINGS) {
@@ -327,16 +328,16 @@ class NavigationDrawer(private val activity: AppCompatActivity,
     companion object {
 
         // The index for the navigation drawer menus
-        const val MENU_CHANNELS = 0
-        const val MENU_PROGRAM_GUIDE = 1
-        const val MENU_COMPLETED_RECORDINGS = 2
-        const val MENU_SCHEDULED_RECORDINGS = 3
-        const val MENU_SERIES_RECORDINGS = 4
-        const val MENU_TIMER_RECORDINGS = 5
-        const val MENU_FAILED_RECORDINGS = 6
-        const val MENU_REMOVED_RECORDINGS = 7
-        const val MENU_STATUS = 8
-        const val MENU_SETTINGS = 9
-        const val MENU_HELP = 10
+        const val MENU_CHANNELS = 0L
+        const val MENU_PROGRAM_GUIDE = 1L
+        const val MENU_COMPLETED_RECORDINGS = 2L
+        const val MENU_SCHEDULED_RECORDINGS = 3L
+        const val MENU_SERIES_RECORDINGS = 4L
+        const val MENU_TIMER_RECORDINGS = 5L
+        const val MENU_FAILED_RECORDINGS = 6L
+        const val MENU_REMOVED_RECORDINGS = 7L
+        const val MENU_STATUS = 8L
+        const val MENU_SETTINGS = 9L
+        const val MENU_HELP = 10L
     }
 }
