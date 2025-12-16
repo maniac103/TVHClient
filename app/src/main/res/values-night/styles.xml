@@ -3,8 +3,6 @@
     <!-- Styles that will be used for the dark holo theme -->
     <style name="CustomTheme" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
-        <item name="android:actionModeBackground">@android:color/background_dark</item>
-        <item name="actionModeBackground">@android:color/background_dark</item>
 
         <!--<editor-fold desc="Icons">-->
         <item name="ic_menu_search">@drawable/ic_menu_search_dark</item>

@@ -75,9 +75,9 @@ class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, Action
         setHasOptionsMenu(true)
     }
 
-    private fun startActionMode() {
-        actionMode = activity?.startActionMode(this)
-        actionMode?.invalidate()
+    override fun onStop() {
+        actionMode?.finish()
+        super.onStop()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -203,10 +203,8 @@ class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, Action
 
     override fun onClick(view: View, position: Int) {
         actionMode?.finish()
-        if (actionMode == null) {
-            recyclerViewAdapter.setPosition(position)
-            startActionMode()
-        }
+        recyclerViewAdapter.setPosition(position)
+        actionMode = activity?.startActionMode(this, ActionMode.TYPE_PRIMARY)
     }
 
     override fun onLongClick(view: View, position: Int): Boolean {

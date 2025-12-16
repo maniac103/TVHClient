@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!--<editor-fold desc="Toolbar main color">-->
     <color name="toolbarPrimaryDarkColor">#363636</color>
@@ -373,4 +373,7 @@
     <color name="md_theme_surfaceContainer_highContrast">#EAE1D4</color>
     <color name="md_theme_surfaceContainerHigh_highContrast">#DCD3C6</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#CEC5B8</color>
+
+    <color name="abc_decor_view_status_guard" tools:override="true">@android:color/transparent</color>
+    <color name="abc_decor_view_status_guard_light" tools:override="true">@android:color/transparent</color>
 </resources>

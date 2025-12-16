@@ -55,10 +55,7 @@
 
     <!-- Styles that will be used for the light holo theme -->
     <style name="CustomTheme" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
-
         <item name="windowActionModeOverlay">true</item>
-        <item name="android:actionModeBackground">@android:color/background_light</item>
-        <item name="actionModeBackground">@android:color/background_light</item>
 
         <!--<editor-fold desc="Icons">-->
         <item name="ic_menu_search">@drawable/ic_menu_search_light</item>
