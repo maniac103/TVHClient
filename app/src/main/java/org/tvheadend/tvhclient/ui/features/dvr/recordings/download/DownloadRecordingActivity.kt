@@ -53,29 +53,19 @@ class DownloadRecordingActivity : BasePlaybackActivity() {
 
         Timber.d("State of external storage is ${Environment.getExternalStorageState()}")
 
-        val downloadDirectory: String = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            Timber.d("Android API version is ${Build.VERSION.SDK_INT}, loading download folder from preference")
-            val path = PreferenceManager.getDefaultSharedPreferences(this).getString("download_directory", Environment.DIRECTORY_DOWNLOADS)
-                ?: Environment.DIRECTORY_DOWNLOADS
-            Environment.getExternalStorageDirectory().absolutePath + path
-        } else {
-            Timber.d("Android API version is ${Build.VERSION.SDK_INT}, using default folder")
-
-            val state = Environment.getExternalStorageState()
-            if (Environment.MEDIA_MOUNTED == state) {
-                Timber.d("External storage state is mounted")
-                val baseDirFile: File? = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                if (baseDirFile == null) {
-                    Timber.d("Download directory is null, using path '${filesDir.absolutePath}'")
-                    filesDir.absolutePath
-                } else {
-                    Timber.d("Download directory is not null, path is '${baseDirFile.absolutePath}'")
-                    baseDirFile.absolutePath
-                }
-            } else {
-                Timber.d("External storage is not mounted, using path '${filesDir.absolutePath}'")
+        val downloadDirectory = if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()) {
+            Timber.d("External storage state is mounted")
+            val baseDirFile: File? = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            if (baseDirFile == null) {
+                Timber.d("Download directory is null, using path '${filesDir.absolutePath}'")
                 filesDir.absolutePath
+            } else {
+                Timber.d("Download directory is not null, path is '${baseDirFile.absolutePath}'")
+                baseDirFile.absolutePath
             }
+        } else {
+            Timber.d("External storage is not mounted, using path '${filesDir.absolutePath}'")
+            filesDir.absolutePath
         }
 
         Timber.d("Download recording from serverUrl '$downloadUrl' to $downloadDirectory/$recordingTitle")

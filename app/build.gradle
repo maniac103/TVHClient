@@ -83,7 +83,6 @@ dependencies {
 
     def fragmentVersion = '1.8.9'
     def lifecycleVersion = '2.10.0'
-    def materialDialogsVersion = '3.3.0'
 
     // AndroidX libraries
     implementation "androidx.core:core-ktx:$coreKtxVersion"
@@ -114,13 +113,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3-native-mt'
 
-    // Material navigation drawer and dialogs
-    implementation "com.afollestad.material-dialogs:core:$materialDialogsVersion"
-    implementation "com.afollestad.material-dialogs:input:$materialDialogsVersion"
-    implementation "com.afollestad.material-dialogs:files:$materialDialogsVersion"
-    implementation "com.afollestad.material-dialogs:datetime:$materialDialogsVersion"
-    implementation "com.afollestad.material-dialogs:lifecycle:${materialDialogsVersion}"
-    //noinspection GradleDependency
+    // Material navigation drawer
     implementation 'com.mikepenz:materialdrawer:9.0.2'
 
     // Dependency injection

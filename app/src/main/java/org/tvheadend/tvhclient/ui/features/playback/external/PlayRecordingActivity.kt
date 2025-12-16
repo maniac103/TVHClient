@@ -18,9 +18,7 @@ class PlayRecordingActivity : BasePlaybackActivity() {
         intent.putExtra("title",title)
 
         // Check if the recording exists in the download folder, if not stream it from the server
-        val downloadDirectory = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("download_directory", Environment.DIRECTORY_DOWNLOADS)
-        val file = File(downloadDirectory, "$title.mkv")
+        val file = File(Environment.DIRECTORY_DOWNLOADS, "$title.mkv")
 
         if (file.exists()) {
             Timber.d("Playing recording from local file ${file.absolutePath}")

@@ -40,10 +40,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_misc">
-        <Preference
-            android:key="download_directory"
-            android:summary="@string/pref_download_directory_sum"
-            android:title="@string/pref_download_directory" />
         <PreferenceScreen
             android:key="advanced"
             android:title="@string/pref_advanced_settings" />
