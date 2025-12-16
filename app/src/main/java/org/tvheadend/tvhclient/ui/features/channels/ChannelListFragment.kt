@@ -12,6 +12,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -291,11 +292,10 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
 
         // Show the fragment to display the program list of the selected channel.
         val fragment = ProgramListFragment.newInstance(channel.name ?: "", channel.id, selectedTime)
-        activity?.supportFragmentManager?.beginTransaction()?.also {
-            it.replace(R.id.main, fragment)
-            it.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            it.addToBackStack(null)
-            it.commit()
+        activity?.supportFragmentManager?.commit {
+            replace(R.id.main, fragment)
+            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+            addToBackStack(null)
         }
     }
 
@@ -322,10 +322,9 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
             // after the onSaveInstance method was already called which would
             // trigger an illegal state exception.
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                fm?.beginTransaction()?.also {
-                    it.replace(R.id.details, fragment)
-                    it.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    it.commit()
+                fm?.commit {
+                    replace(R.id.details, fragment)
+                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 }
             }
         } else {

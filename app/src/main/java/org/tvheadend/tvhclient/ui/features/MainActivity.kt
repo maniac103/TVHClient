@@ -26,6 +26,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -148,18 +149,18 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             baseViewModel.removeFragmentWhenSearchIsDone = false
 
             Timber.d("Showing startup fragment")
-            supportFragmentManager.beginTransaction()
-                    .replace(R.id.main, StartupFragment())
-                    .addToBackStack(null)
-                    .commit()
+            supportFragmentManager.commit {
+                replace(R.id.main, StartupFragment())
+                addToBackStack(null)
+            }
 
             val showPrivacyPolicyRequired = sharedPreferences.getBoolean("showPrivacyPolicy", true)
             Timber.d("Privacy policy needs to be displayed $showPrivacyPolicyRequired")
             if (showPrivacyPolicyRequired) {
-                supportFragmentManager.beginTransaction()
-                        .replace(R.id.main, StartupPrivacyPolicyFragment())
-                        .addToBackStack(null)
-                        .commit()
+                supportFragmentManager.commit {
+                    replace(R.id.main, StartupPrivacyPolicyFragment())
+                    addToBackStack(null)
+                }
                 supportActionBar?.setDisplayHomeAsUpEnabled(false)
             }
 
@@ -173,10 +174,10 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             if (showChangeLogRequired) {
                 Timber.d("Showing changelog")
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)
-                supportFragmentManager.beginTransaction()
-                        .replace(R.id.main, ChangeLogFragment.newInstance(versionName, false))
-                        .addToBackStack(null)
-                        .commit()
+                supportFragmentManager.commit {
+                    replace(R.id.main, ChangeLogFragment.newInstance(versionName, false))
+                    addToBackStack(null)
+                }
             }
         }
 
@@ -433,10 +434,10 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             R.id.menu_privacy_policy -> {
                 Timber.d("Showing privacy policy fragment")
                 val fragment: Fragment = PrivacyPolicyFragment()
-                supportFragmentManager.beginTransaction()
-                        .replace(R.id.main, fragment)
-                        .addToBackStack(null)
-                        .commit()
+                supportFragmentManager.commit {
+                    replace(R.id.main, fragment)
+                    addToBackStack(null)
+                }
                 true
             }
             R.id.menu_reconnect_to_server -> showConfirmationToReconnectToServer(this, baseViewModel)
@@ -463,9 +464,9 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
         if (fragment is ShowProgramListFragmentInterface) {
             Timber.d("Adding program list fragment where the search will be done")
             val newFragment: Fragment = ProgramListFragment.newInstance()
-            supportFragmentManager.beginTransaction().replace(R.id.main, newFragment).let {
-                it.addToBackStack(null)
-                it.commit()
+            supportFragmentManager.commit {
+                replace(R.id.main, newFragment)
+                addToBackStack(null)
             }
             baseViewModel.removeFragmentWhenSearchIsDone = true
         }

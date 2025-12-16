@@ -3,6 +3,7 @@ package org.tvheadend.tvhclient.ui.features.dvr.recordings
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.isVisible
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.tvhclient.R
@@ -105,11 +106,9 @@ class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, Down
         if (!isDualPane) {
             activity?.onBackPressed()
         } else {
-            val detailsFragment = activity?.supportFragmentManager?.findFragmentById(R.id.details)
-            if (detailsFragment != null) {
-                activity?.supportFragmentManager?.beginTransaction()?.also {
-                    it.remove(detailsFragment)
-                    it.commit()
+            activity?.supportFragmentManager?.findFragmentById(R.id.details)?.let {
+                activity?.supportFragmentManager?.commit {
+                    remove(it)
                 }
             }
         }

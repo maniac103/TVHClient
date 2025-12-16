@@ -6,6 +6,7 @@ import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -109,11 +110,10 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         val fm = activity?.supportFragmentManager
         if (!isDualPane) {
             val fragment = RecordingDetailsFragment.newInstance(recording.id)
-            fm?.beginTransaction()?.also {
-                it.replace(R.id.main, fragment)
-                it.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                it.addToBackStack(null)
-                it.commit()
+            fm?.commit {
+                replace(R.id.main, fragment)
+                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                addToBackStack(null)
             }
         } else {
             var fragment = activity?.supportFragmentManager?.findFragmentById(R.id.details)
@@ -124,10 +124,9 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
                 // after the onSaveInstance method was already called which would
                 // trigger an illegal state exception.
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    fm?.beginTransaction()?.also {
-                        it.replace(R.id.details, fragment)
-                        it.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        it.commit()
+                    fm?.commit {
+                        replace(R.id.details, fragment)
+                        setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     }
                 }
             } else if (recordingViewModel.currentIdLiveData.value != recording.id) {

@@ -6,6 +6,7 @@ import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -127,11 +128,10 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, S
         val fm = activity?.supportFragmentManager
         if (!isDualPane) {
             val fragment = TimerRecordingDetailsFragment.newInstance(recording.id)
-            fm?.beginTransaction()?.also {
-                it.replace(R.id.main, fragment)
-                it.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                it.addToBackStack(null)
-                it.commit()
+            fm?.commit {
+                replace(R.id.main, fragment)
+                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                addToBackStack(null)
             }
         } else {
             var fragment = activity?.supportFragmentManager?.findFragmentById(R.id.details)
@@ -142,10 +142,9 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, S
                 // after the onSaveInstance method was already called which would
                 // trigger an illegal state exception.
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    fm?.beginTransaction()?.also {
-                        it.replace(R.id.details, fragment)
-                        it.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        it.commit()
+                    fm?.commit {
+                        replace(R.id.details, fragment)
+                        setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     }
                 }
             } else if (timerRecordingViewModel.currentIdLiveData.value != recording.id) {

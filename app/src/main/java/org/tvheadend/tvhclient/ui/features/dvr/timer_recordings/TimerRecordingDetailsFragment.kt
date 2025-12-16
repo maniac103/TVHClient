@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.TimerRecording
 import org.tvheadend.tvhclient.R
@@ -97,9 +98,8 @@ class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface,
         } else {
             val detailsFragment = activity?.supportFragmentManager?.findFragmentById(R.id.details)
             if (detailsFragment != null) {
-                activity?.supportFragmentManager?.beginTransaction()?.also {
-                    it.remove(detailsFragment)
-                    it.commit()
+                activity?.supportFragmentManager?.commit {
+                    remove(detailsFragment)
                 }
             }
         }

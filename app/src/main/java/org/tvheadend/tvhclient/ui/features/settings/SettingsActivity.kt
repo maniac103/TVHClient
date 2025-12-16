@@ -6,6 +6,7 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.tvheadend.tvhclient.MainApplication
@@ -49,10 +50,10 @@ class SettingsActivity : BaseActivity(), RemoveFragmentFromBackstackInterface {
         settingsViewModel.getNavigationMenuId().observe(this) { event ->
             event.getContentIfNotHandled()?.let {
                 Timber.d("New preference selected with id $it, replacing settings fragment")
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.main, getSettingsFragment(it))
-                    .addToBackStack(null)
-                    .commit()
+                supportFragmentManager.commit {
+                    replace(R.id.main, getSettingsFragment(it))
+                    addToBackStack(null)
+                }
             }
         }
 

@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.view.isVisible
+import androidx.fragment.app.commit
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.MiscContentActivityBinding
 import org.tvheadend.tvhclient.ui.base.BaseActivity
@@ -28,7 +29,9 @@ class ProgramDetailsActivity : BaseActivity(), LayoutControlInterface {
             val fragment = ProgramDetailsFragment.newInstance(
                     intent.getIntExtra("eventId", 0),
                     intent.getIntExtra("channelId", 0))
-            supportFragmentManager.beginTransaction().add(R.id.main, fragment).commit()
+            supportFragmentManager.commit {
+                add(R.id.main, fragment)
+            }
         }
     }
 

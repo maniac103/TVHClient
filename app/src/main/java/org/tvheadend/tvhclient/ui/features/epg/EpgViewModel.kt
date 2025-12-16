@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.commit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -283,11 +284,11 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
         Timber.d("Clicked on program ${program.title}")
         val activity = getActivity(view) ?: return
         val fragment = ProgramDetailsFragment.newInstance(program.eventId, program.channelId)
-        val ft = activity.supportFragmentManager.beginTransaction()
-        ft.replace(R.id.main, fragment)
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-        ft.addToBackStack(null)
-        ft.commit()
+        activity.supportFragmentManager.commit {
+            replace(R.id.main, fragment)
+            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+            addToBackStack(null)
+        }
     }
 
     fun onLongClick(view: View, program: EpgProgram): Boolean {

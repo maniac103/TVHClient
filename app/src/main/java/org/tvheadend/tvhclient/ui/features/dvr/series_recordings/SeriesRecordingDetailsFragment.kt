@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.SeriesRecording
 import org.tvheadend.tvhclient.R
@@ -100,11 +101,9 @@ class SeriesRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface
         if (!isDualPane) {
             activity?.onBackPressed()
         } else {
-            val detailsFragment = activity?.supportFragmentManager?.findFragmentById(R.id.details)
-            if (detailsFragment != null) {
-                activity?.supportFragmentManager?.beginTransaction()?.also {
-                    it.remove(detailsFragment)
-                    it.commit()
+            activity?.supportFragmentManager?.findFragmentById(R.id.details)?.let {
+                activity?.supportFragmentManager?.commit {
+                    remove(it)
                 }
             }
         }

@@ -43,6 +43,8 @@ import org.tvheadend.tvhclient.ui.features.information.WebViewFragment
 import org.tvheadend.tvhclient.ui.features.settings.SettingsActivity
 import timber.log.Timber
 import androidx.core.graphics.drawable.toDrawable
+import androidx.fragment.app.commit
+import androidx.fragment.app.transaction
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class NavigationDrawer(private val activity: AppCompatActivity,
@@ -305,17 +307,19 @@ class NavigationDrawer(private val activity: AppCompatActivity,
         val fragment = getFragmentFromSelectedNavigationDrawerMenu(id)
         if (fragment != null) {
             if (isDualPane) {
-                val detailsFragment = activity.supportFragmentManager.findFragmentById(R.id.details)
-                if (detailsFragment != null) {
-                    activity.supportFragmentManager.beginTransaction().remove(detailsFragment).commit()
+                activity.supportFragmentManager.findFragmentById(R.id.details)?.let {
+                    activity.supportFragmentManager.commit {
+                        remove(it)
+                    }
                 }
             }
-            activity.supportFragmentManager.beginTransaction().replace(R.id.main, fragment).let {
+            activity.supportFragmentManager.commit {
+                replace(R.id.main, fragment)
+
                 val addFragmentToBackStack = PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("navigation_history_enabled", activity.resources.getBoolean(R.bool.pref_default_navigation_history_enabled))
                 if (addFragmentToBackStack) {
-                    it.addToBackStack(null)
+                    addToBackStack(null)
                 }
-                it.commit()
             }
         }
     }

@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import org.tvheadend.data.AppRepository
@@ -76,12 +77,10 @@ abstract class BaseFragment : Fragment() {
     }
 
     fun removeDetailsFragment() {
-        val fragment = activity?.supportFragmentManager?.findFragmentById(R.id.details)
-        if (fragment != null) {
-            activity?.supportFragmentManager?.beginTransaction()?.also {
-                it.remove(fragment)
-                it.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                it.commit()
+        activity?.supportFragmentManager?.findFragmentById(R.id.details)?.let {
+            activity?.supportFragmentManager?.commit {
+                remove(it)
+                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
             }
         }
     }

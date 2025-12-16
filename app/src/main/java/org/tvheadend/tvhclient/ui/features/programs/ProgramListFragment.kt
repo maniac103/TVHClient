@@ -7,6 +7,7 @@ import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -165,11 +166,10 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
         }
 
         val fragment = ProgramDetailsFragment.newInstance(program.eventId, program.channelId)
-        activity?.supportFragmentManager?.beginTransaction()?.also {
-            it.replace(R.id.main, fragment)
-            it.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            it.addToBackStack(null)
-            it.commit()
+        activity?.supportFragmentManager?.commit {
+            replace(R.id.main, fragment)
+            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+            addToBackStack(null)
         }
     }
 

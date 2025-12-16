@@ -27,6 +27,7 @@ import timber.log.Timber
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
 import androidx.core.net.toUri
+import androidx.fragment.app.commit
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 fun preparePopupOrToolbarRecordingMenu(context: Context,
@@ -236,61 +237,55 @@ private fun cancelSelectedRecording(context: Context, recording: Recording, call
 
 fun editSelectedRecording(activity: FragmentActivity, id: Int): Boolean {
     val fragment = RecordingAddEditFragment.newInstance(id)
-    activity.supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.main, fragment)
-            .addToBackStack(null)
-            .commit()
+    activity.supportFragmentManager.commit {
+        replace(R.id.main, fragment)
+        addToBackStack(null)
+    }
     return true
 }
 
 fun editSelectedSeriesRecording(activity: FragmentActivity, id: String): Boolean {
     val fragment = SeriesRecordingAddEditFragment.newInstance(id)
-    activity.supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.main, fragment)
-            .addToBackStack(null)
-            .commit()
+    activity.supportFragmentManager.commit {
+        replace(R.id.main, fragment)
+        addToBackStack(null)
+    }
     return true
 }
 
 fun editSelectedTimerRecording(activity: FragmentActivity, id: String): Boolean {
     val fragment = TimerRecordingAddEditFragment.newInstance(id)
-    activity.supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.main, fragment)
-            .addToBackStack(null)
-            .commit()
+    activity.supportFragmentManager.commit {
+        replace(R.id.main, fragment)
+        addToBackStack(null)
+    }
     return true
 }
 
 fun addNewRecording(activity: FragmentActivity): Boolean {
     val fragment = RecordingAddEditFragment.newInstance()
-    activity.supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.main, fragment)
-            .addToBackStack(null)
-            .commit()
+    activity.supportFragmentManager.commit {
+        replace(R.id.main, fragment)
+        addToBackStack(null)
+    }
     return true
 }
 
 fun addNewSeriesRecording(activity: FragmentActivity): Boolean {
     val fragment = SeriesRecordingAddEditFragment.newInstance()
-    activity.supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.main, fragment)
-            .addToBackStack(null)
-            .commit()
+    activity.supportFragmentManager.commit {
+        replace(R.id.main, fragment)
+        addToBackStack(null)
+    }
     return true
 }
 
 fun addNewTimerRecording(activity: FragmentActivity): Boolean {
     val fragment = TimerRecordingAddEditFragment.newInstance()
-    activity.supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.main, fragment)
-            .addToBackStack(null)
-            .commit()
+    activity.supportFragmentManager.commit {
+        replace(R.id.main, fragment)
+        addToBackStack(null)
+    }
     return true
 }
 
@@ -622,9 +617,9 @@ fun searchTitleOnFileAffinityWebsite(context: Context, title: String?): Boolean 
 fun searchTitleInTheLocalDatabase(activity: FragmentActivity, viewModel: BaseViewModel, title: String?, channelId: Int = 0): Boolean {
     if (!title.isNullOrEmpty()) {
         val newFragment: Fragment = ProgramListFragment.newInstance(channelId = channelId)
-        activity.supportFragmentManager.beginTransaction().replace(R.id.main, newFragment).let {
-            it.addToBackStack(null)
-            it.commit()
+        activity.supportFragmentManager.commit {
+            replace(R.id.main, newFragment)
+            addToBackStack(null)
         }
         viewModel.removeFragmentWhenSearchIsDone = true
         viewModel.startSearchQuery(title)
