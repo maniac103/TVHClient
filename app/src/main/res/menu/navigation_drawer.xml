@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group
+        android:id="@+id/program"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/channels"
+            android:title="@string/channels"
+            android:icon="@drawable/ic_menu_channels"
+            app:actionLayout="@layout/nav_drawer_count_badge" />
+        <item
+            android:id="@+id/epg"
+            android:title="@string/pref_program_guide"
+            android:icon="@drawable/ic_menu_program_guide" />
+    </group>
+
+    <group
+        android:id="@+id/recordings"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/completed_recordings"
+            android:title="@string/completed_recordings"
+            android:icon="@drawable/ic_menu_completed_recordings"
+            app:actionLayout="@layout/nav_drawer_count_badge" />
+        <item
+            android:id="@+id/scheduled_recordings"
+            android:title="@string/scheduled_recordings"
+            android:icon="@drawable/ic_menu_scheduled_recordings"
+            app:actionLayout="@layout/nav_drawer_count_badge" />
+        <item
+            android:id="@+id/series_recordings"
+            android:title="@string/series_recordings"
+            android:icon="@drawable/ic_menu_scheduled_recordings"
+            app:actionLayout="@layout/nav_drawer_count_badge" />
+        <item
+            android:id="@+id/timer_recordings"
+            android:title="@string/timer_recordings"
+            android:icon="@drawable/ic_menu_scheduled_recordings"
+            app:actionLayout="@layout/nav_drawer_count_badge" />
+        <item
+            android:id="@+id/failed_recordings"
+            android:title="@string/failed_recordings"
+            android:icon="@drawable/ic_menu_failed_recordings"
+            app:actionLayout="@layout/nav_drawer_count_badge" />
+        <item
+            android:id="@+id/removed_recordings"
+            android:title="@string/removed_recordings"
+            android:icon="@drawable/ic_menu_removed_recordings"
+            app:actionLayout="@layout/nav_drawer_count_badge" />
+    </group>
+
+    <group
+        android:id="@+id/misc"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/settings"
+            android:title="@string/settings"
+            android:checkable="false"
+            android:icon="@drawable/ic_menu_settings" />
+        <item
+            android:id="@+id/help"
+            android:title="@string/help_and_support"
+            android:icon="@drawable/ic_menu_help" />
+        <item
+            android:id="@+id/status"
+            android:title="@string/status"
+            android:icon="@drawable/ic_menu_status" />
+    </group>
+
+    <group
+        android:id="@+id/server_connections"
+        android:checkableBehavior="none"
+        android:visible="false" />
+</menu>

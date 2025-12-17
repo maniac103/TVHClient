@@ -71,11 +71,12 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <com.mikepenz.materialdrawer.widget.MaterialDrawerSliderView
+    <com.google.android.material.navigation.NavigationView
         android:id="@+id/drawer"
-        android:layout_width="wrap_content"
+        android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true" />
+        android:fitsSystemWindows="true"
+        app:menu="@menu/navigation_drawer" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

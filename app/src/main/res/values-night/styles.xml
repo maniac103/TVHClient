@@ -57,10 +57,6 @@
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
         <!--</editor-fold>-->
 
-        <!--<editor-fold desc="Material drawer styles">-->
-        <item name="materialDrawerHeaderStyle">@style/CustomMaterialDrawerHeaderStyle</item>
-        <!--</editor-fold>-->
-
         <!--<editor-fold desc="Fast scrollbar styles">-->
         <item name="fast_scroll_track">@drawable/fast_scroll_track_dark</item>
         <item name="fast_scroll_thumb">@drawable/fast_scroll_thumb_dark</item>

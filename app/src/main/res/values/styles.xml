@@ -39,12 +39,6 @@
         <item name="windowNoTitle">false</item>
     </style>
 
-    <style name="CustomMaterialDrawerHeaderStyle" parent="Widget.MaterialDrawerHeaderStyle">
-        <item name="materialDrawerCompactStyle">true</item>
-        <item name="materialDrawerHeaderSelectionText">?colorOnPrimaryContainer</item>
-        <item name="materialDrawerHeaderSelectionSubtext">?colorOnPrimaryContainer</item>
-    </style>
-
     <style name="ThemeOverlay.Custom.Preference" parent="PreferenceThemeOverlay">
         <item name="switchPreferenceCompatStyle">@style/Custom.Preference.SwitchPreference</item>
     </style>
@@ -108,10 +102,6 @@
         <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
-        <!--</editor-fold>-->
-
-        <!--<editor-fold desc="Material drawer styles">-->
-        <item name="materialDrawerHeaderStyle">@style/CustomMaterialDrawerHeaderStyle</item>
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Fast scrollbar styles">-->
