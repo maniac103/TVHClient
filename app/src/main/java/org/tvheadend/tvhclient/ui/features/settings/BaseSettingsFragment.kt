@@ -13,6 +13,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
+import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
 abstract class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -20,7 +21,6 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferen
     protected abstract val titleResId: Int
     protected open val subtitle: String? = null
 
-    lateinit var sharedPreferences: SharedPreferences
     lateinit var settingsViewModel: SettingsViewModel
 
     override fun onCreateRecyclerView(
@@ -40,7 +40,6 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
         settingsViewModel = ViewModelProvider(activity as SettingsActivity)[SettingsViewModel::class.java]
     }
 
@@ -55,12 +54,12 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferen
 
     override fun onResume() {
         super.onResume()
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        requireActivity().prefs.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        requireActivity().prefs.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {

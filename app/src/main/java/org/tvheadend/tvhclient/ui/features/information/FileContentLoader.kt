@@ -1,11 +1,11 @@
 package org.tvheadend.tvhclient.ui.features.information
 
 import android.content.Context
-import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
 import org.tvheadend.tvhclient.BuildConfig
 import org.tvheadend.tvhclient.ui.common.getLocale
 import org.tvheadend.tvhclient.ui.common.interfaces.FileContentsLoadedInterface
+import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.io.InputStream
@@ -31,7 +31,7 @@ class FileContentLoader(val context: Context, private val defaultLocale: String,
     private suspend fun loadFileContents(filename: String) {
 
         val deferredLoader = scope.async {
-            val languageCode = PreferenceManager.getDefaultSharedPreferences(context).getString("language", getLocale(context).language)!!.substring(0, 2)
+            val languageCode = context.prefs.getString("language", getLocale(context).language)!!.substring(0, 2)
             val htmlFile = "html/" + filename + "_" + languageCode.substring(0, 2) + ".html"
             val defaultHtmlFile = "html/" + filename + "_" + defaultLocale + ".html"
 

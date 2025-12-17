@@ -9,7 +9,6 @@ import android.view.Menu
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.preference.PreferenceManager
 import org.tvheadend.data.entity.*
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionService
@@ -29,6 +28,7 @@ import java.net.URLEncoder
 import androidx.core.net.toUri
 import androidx.fragment.app.commit
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.tvheadend.tvhclient.util.extensions.prefs
 
 fun preparePopupOrToolbarRecordingMenu(context: Context,
                                        menu: Menu,
@@ -112,7 +112,7 @@ fun preparePopupOrToolbarMiscMenu(context: Context,
     }
     // Show the add reminder menu only for programs and
     // recordings where the start time is in the future.
-    if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
+    if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
         val currentTime = System.currentTimeMillis()
         var startTime = currentTime
         if (program != null && program.start > 0) {
@@ -459,8 +459,7 @@ fun recordSelectedProgramWithCustomProfile(context: Context, eventId: Int, chann
 }
 
 fun playSelectedChannel(context: Context, channelId: Int): Boolean {
-    if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("internal_player_for_channels_enabled",
-                    context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))) {
+    if (context.prefs.getBoolean("internal_player_for_channels_enabled", context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))) {
         val intent = Intent(context, PlaybackActivity::class.java)
         intent.putExtra("channelId", channelId)
         context.startActivity(intent)
@@ -473,8 +472,7 @@ fun playSelectedChannel(context: Context, channelId: Int): Boolean {
 }
 
 fun playSelectedRecording(context: Context, dvrId: Int): Boolean {
-    if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("internal_player_for_recordings_enabled",
-                    context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))) {
+    if (context.prefs.getBoolean("internal_player_for_recordings_enabled", context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))) {
         val intent = Intent(context, PlaybackActivity::class.java)
         intent.putExtra("dvrId", dvrId)
         context.startActivity(intent)
@@ -515,8 +513,7 @@ fun castSelectedRecording(context: Context, id: Int): Boolean {
 }
 
 fun playOrCastChannel(context: Context, channelId: Int): Boolean {
-    val channelIconAction = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("channel_icon_action",
-            context.resources.getString(R.string.pref_default_channel_icon_action))!!)
+    val channelIconAction = context.prefs.getString("channel_icon_action", context.resources.getString(R.string.pref_default_channel_icon_action))!!.toInt()
 
     if (channelIconAction == 1) {
         playSelectedChannel(context, channelId)
@@ -531,8 +528,7 @@ fun playOrCastChannel(context: Context, channelId: Int): Boolean {
 }
 
 fun playOrCastRecording(context: Context, recordingId: Int): Boolean {
-    val channelIconAction = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("channel_icon_action",
-            context.resources.getString(R.string.pref_default_channel_icon_action))!!)
+    val channelIconAction = context.prefs.getString("channel_icon_action", context.resources.getString(R.string.pref_default_channel_icon_action))!!.toInt()
 
     if (channelIconAction == 1) {
         playSelectedRecording(context, recordingId)

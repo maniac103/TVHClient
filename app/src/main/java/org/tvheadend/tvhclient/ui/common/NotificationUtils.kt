@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.preference.PreferenceManager
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
@@ -15,6 +14,7 @@ import org.tvheadend.data.entity.ProgramInterface
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
+import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import org.tvheadend.tvhclient.util.worker.ProgramNotificationWorker
 import org.tvheadend.tvhclient.util.worker.RecordingNotificationWorker
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit
  */
 fun getNotificationTime(context: Context, startTime: Long): Long {
 
-    val offset = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("notification_lead_time", context.resources.getString(R.string.pref_default_notification_lead_time))!!)
+    val offset = context.prefs.getString("notification_lead_time", context.resources.getString(R.string.pref_default_notification_lead_time))!!.toInt()
     val notificationTime = startTime - (offset * 1000 * 60)
     val currentTime = Calendar.getInstance().timeInMillis
     val sdf = SimpleDateFormat("HH:mm", Locale.US)
@@ -75,9 +75,7 @@ fun getNotificationBuilder(context: Context): NotificationCompat.Builder {
  * @param recording The recording for which the notification shall be created
  */
 fun addNotificationScheduledRecordingStarts(context: Context, recording: Recording) {
-
-    val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-    if (preferences.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))
+    if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))
             && recording.isScheduled
             && recording.start > System.currentTimeMillis()
             && !recording.title.isNullOrEmpty()) {
@@ -106,7 +104,7 @@ fun addNotificationScheduledRecordingStarts(context: Context, recording: Recordi
  * @param id      The id of the program or recording
  */
 fun removeNotificationById(context: Context, id: Int) {
-    if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
+    if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
         Timber.d("Removing notification for id $id")
 
         val uniqueWorkName = "${RecordingNotificationWorker.WORK_NAME}_Notification_$id"
@@ -127,8 +125,7 @@ fun removeNotificationById(context: Context, id: Int) {
 fun addNotificationProgramIsAboutToStart(context: Context, program: ProgramInterface?, profile: ServerProfile?): Boolean {
     if (program == null) return false
 
-    val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-    if (preferences.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
+    if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
         val data = Data.Builder()
                 .putString("eventTitle", program.title)
                 .putInt("eventId", program.eventId)

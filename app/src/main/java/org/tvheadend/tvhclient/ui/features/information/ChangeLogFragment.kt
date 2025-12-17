@@ -10,7 +10,6 @@ import android.widget.ProgressBar
 import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
 import org.tvheadend.tvhclient.BuildConfig
 import org.tvheadend.tvhclient.R
@@ -25,6 +24,7 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import androidx.core.content.edit
+import org.tvheadend.tvhclient.util.extensions.prefs
 
 class ChangeLogFragment : Fragment(), BackPressedInterface, HideNavigationDrawerInterface {
 
@@ -126,8 +126,7 @@ class ChangeLogFragment : Fragment(), BackPressedInterface, HideNavigationDrawer
 
     override fun onBackPressed() {
         // Save the information that the changelog was shown
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        sharedPreferences.edit {
+        requireContext().prefs.edit {
             putString("versionNameForChangelog", BuildConfig.VERSION_NAME)
         }
 

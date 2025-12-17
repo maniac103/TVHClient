@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
@@ -17,14 +16,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.databinding.BindingAdapter
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Transformation
 import org.tvheadend.data.entity.ProgramInterface
 import org.tvheadend.data.entity.Recording
-import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.util.getIconUrl
 import org.tvheadend.tvhclient.util.isInDarkMode
@@ -32,6 +29,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.core.graphics.scale
+import org.tvheadend.tvhclient.util.extensions.prefs
 
 // Constants required for the date calculation
 private const val ONE_DAY = 1000 * 3600 * 24
@@ -169,8 +167,7 @@ fun setPriorityText(view: TextView, priority: Int) {
 @BindingAdapter("dataSizeText")
 fun setDataSizeText(view: TextView, recording: Recording?) {
     val context = view.context
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    val showRecordingFileStatus = sharedPreferences.getBoolean("show_recording_file_status_enabled", view.context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
+    val showRecordingFileStatus = context.prefs.getBoolean("show_recording_file_status_enabled", view.context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
 
     if (showRecordingFileStatus
             && recording != null
@@ -189,8 +186,7 @@ fun setDataSizeText(view: TextView, recording: Recording?) {
 @BindingAdapter("dataErrorText")
 fun setDataErrorText(view: TextView, recording: Recording?) {
     val context = view.context
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    val showRecordingFileStatus = sharedPreferences.getBoolean("show_recording_file_status_enabled", view.context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
+    val showRecordingFileStatus = context.prefs.getBoolean("show_recording_file_status_enabled", view.context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
 
     if (showRecordingFileStatus
             && recording != null
@@ -206,8 +202,7 @@ fun setDataErrorText(view: TextView, recording: Recording?) {
 @BindingAdapter("subscriptionErrorText")
 fun setSubscriptionErrorText(view: TextView, recording: Recording?) {
     val context = view.context
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    val showRecordingFileStatus = sharedPreferences.getBoolean("show_recording_file_status_enabled", view.context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
+    val showRecordingFileStatus = context.prefs.getBoolean("show_recording_file_status_enabled", context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
 
     if (showRecordingFileStatus
             && recording != null
@@ -223,8 +218,7 @@ fun setSubscriptionErrorText(view: TextView, recording: Recording?) {
 @BindingAdapter("streamErrorText")
 fun setStreamErrorText(view: TextView, recording: Recording?) {
     val context = view.context
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    val showRecordingFileStatus = sharedPreferences.getBoolean("show_recording_file_status_enabled", view.context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
+    val showRecordingFileStatus = context.prefs.getBoolean("show_recording_file_status_enabled", context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
 
     if (showRecordingFileStatus
             && recording != null
@@ -240,8 +234,7 @@ fun setStreamErrorText(view: TextView, recording: Recording?) {
 @BindingAdapter("statusLabelVisibility")
 fun setStatusLabelVisibility(view: TextView, recording: Recording?) {
     val context = view.context
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    val showRecordingFileStatus = sharedPreferences.getBoolean("show_recording_file_status_enabled", context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
+    val showRecordingFileStatus = context.prefs.getBoolean("show_recording_file_status_enabled", context.resources.getBoolean(R.bool.pref_default_show_recording_file_status_enabled))
 
     view.isVisible = showRecordingFileStatus && recording != null && !recording.isScheduled
 }
@@ -532,8 +525,7 @@ fun setLocalizedTime(view: TextView, time: Long) {
         return
     }
 
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(view.context)
-    val localizedTime = if (sharedPreferences.getBoolean("localized_date_time_format_enabled", view.context.resources.getBoolean(R.bool.pref_default_localized_date_time_format_enabled))) {
+    val localizedTime = if (view.context.prefs.getBoolean("localized_date_time_format_enabled", view.context.resources.getBoolean(R.bool.pref_default_localized_date_time_format_enabled))) {
         // Show the date as defined with the currently active locale.
         // For the date display the short version will be used
         val df = java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, getLocale(view.context))
@@ -567,8 +559,7 @@ fun setLocalizedDate(view: TextView, date: Long) {
             localizedDate = sdf.format(date)
         }
         else -> {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(view.context)
-            localizedDate = if (prefs.getBoolean("localized_date_time_format_enabled", false)) {
+            localizedDate = if (view.context.prefs.getBoolean("localized_date_time_format_enabled", false)) {
                 // Show the date as defined with the currently active locale.
                 // For the date display the short version will be used
                 val df = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT, getLocale(view.context))
@@ -596,7 +587,6 @@ fun setLocalizedDate(view: TextView, date: Long) {
 @BindingAdapter("genreColor", "showGenreColor", "genreColorAlphaOffset", "genreColorItemName")
 fun setGenreColor(view: TextView, contentType: Int, showGenreColors: Boolean, offset: Int, itemName: String?) {
     val context = view.context
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     if (showGenreColors) {
         var color = ContextCompat.getColor(view.context, android.R.color.transparent)
@@ -622,7 +612,7 @@ fun setGenreColor(view: TextView, contentType: Int, showGenreColors: Boolean, of
             }
 
             // Get the color with the desired alpha value
-            val transparencyValue = sharedPreferences.getInt("genre_color_transparency", Integer.valueOf(view.context.resources.getString(R.string.pref_default_genre_color_transparency)))
+            val transparencyValue = context.prefs.getInt("genre_color_transparency", Integer.valueOf(view.context.resources.getString(R.string.pref_default_genre_color_transparency)))
             var alpha = ((transparencyValue - offset).toFloat() / 100.0f * 255.0f).toInt()
             if (alpha < 0) {
                 alpha = 0

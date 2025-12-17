@@ -8,7 +8,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.preference.PreferenceManager
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
@@ -28,6 +27,7 @@ import org.tvheadend.tvhclient.util.extensions.channelTagDataSource
 import org.tvheadend.tvhclient.util.extensions.connectionDataSource
 import org.tvheadend.tvhclient.util.extensions.inputDataSource
 import org.tvheadend.tvhclient.util.extensions.isEqualTo
+import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.programDataSource
 import org.tvheadend.tvhclient.util.extensions.recordingDataSource
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
@@ -53,15 +53,13 @@ import kotlin.math.floor
 import kotlin.math.max
 
 class HtspServiceHandler(val context: Context, val connection: Connection) : ConnectionService.ServiceInterface, ServerConnectionStateListener, ServerMessageListener<HtspMessage> {
-
-    private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private var htspConnectionData: HtspConnectionData = HtspConnectionData(
             connection.username,
             connection.password,
             connection.serverUrl,
             BuildConfig.VERSION_NAME,
             BuildConfig.VERSION_CODE,
-            Integer.valueOf(sharedPreferences.getString("connection_timeout", context.resources.getString(R.string.pref_default_connection_timeout))!!) * 1000
+            context.prefs.getString("connection_timeout", context.resources.getString(R.string.pref_default_connection_timeout))!!.toInt() * 1000
     )
     private var htspVersion: Int = 13
     private var htspConnection: HtspConnection? = null
@@ -222,7 +220,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
         val enableAsyncMetadataRequest = HtspMessage()
         enableAsyncMetadataRequest.method = "enableAsyncMetadata"
 
-        val epgMaxTime = java.lang.Long.parseLong(sharedPreferences.getString("epg_max_time", context.resources.getString(R.string.pref_default_epg_max_time))!!)
+        val epgMaxTime = context.prefs.getString("epg_max_time", context.resources.getString(R.string.pref_default_epg_max_time))!!.toLong()
         val currentTimeInSeconds = System.currentTimeMillis() / 1000L
         val lastUpdateTime = connection.lastUpdate
 
@@ -655,7 +653,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
         context.recordingDataSource.updateItem(updatedRecording)
 
         removeNotificationById(context, recording.id)
-        if (sharedPreferences.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
+        if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
             if (!recording.isScheduled && !recording.isRecording) {
                 Timber.d("Removing notification for recording ${recording.title}")
                 (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(recording.id)

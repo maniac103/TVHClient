@@ -6,7 +6,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.forEach
-import androidx.preference.PreferenceManager
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.interfaces.HideNavigationDrawerInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.BackPressedInterface
@@ -14,6 +13,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import timber.log.Timber
 import androidx.core.content.edit
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.tvheadend.tvhclient.util.extensions.prefs
 
 class StartupPrivacyPolicyFragment : WebViewFragment(), BackPressedInterface, HideNavigationDrawerInterface {
 
@@ -63,8 +63,7 @@ class StartupPrivacyPolicyFragment : WebViewFragment(), BackPressedInterface, Hi
     private fun acceptPrivacyPolicy() {
         Timber.d("Privacy policy was accepted")
 
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        sharedPreferences.edit {
+        requireContext().prefs.edit {
             putBoolean("showPrivacyPolicy", false)
         }
 

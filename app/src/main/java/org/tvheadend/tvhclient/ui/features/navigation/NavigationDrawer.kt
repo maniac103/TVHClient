@@ -10,7 +10,6 @@ import androidx.core.view.iterator
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
-import androidx.preference.PreferenceManager
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.features.channels.ChannelListFragment
 import org.tvheadend.tvhclient.ui.features.dvr.recordings.CompletedRecordingListFragment
@@ -31,6 +30,7 @@ import com.google.android.material.navigation.NavigationView
 import org.tvheadend.data.entity.Connection
 import org.tvheadend.tvhclient.databinding.NavDrawerHeaderBinding
 import org.tvheadend.tvhclient.ui.features.information.WebViewFragment
+import org.tvheadend.tvhclient.util.extensions.prefs
 
 class NavigationDrawer(private val activity: AppCompatActivity,
                        private val drawer: NavigationView,
@@ -196,8 +196,7 @@ class NavigationDrawer(private val activity: AppCompatActivity,
             activity.supportFragmentManager.commit {
                 replace(R.id.main, fragment)
 
-                val addFragmentToBackStack = PreferenceManager.getDefaultSharedPreferences(activity)
-                    .getBoolean("navigation_history_enabled", activity.resources.getBoolean(R.bool.pref_default_navigation_history_enabled))
+                val addFragmentToBackStack = activity.prefs.getBoolean("navigation_history_enabled", activity.resources.getBoolean(R.bool.pref_default_navigation_history_enabled))
                 if (addFragmentToBackStack) {
                     addToBackStack(null)
                 }

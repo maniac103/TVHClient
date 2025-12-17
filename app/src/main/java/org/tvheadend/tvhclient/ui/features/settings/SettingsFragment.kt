@@ -11,7 +11,6 @@ import androidx.preference.PreferenceManager
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.features.MainActivity
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
-import timber.log.Timber
 
 class SettingsFragment : BaseSettingsFragment(), Preference.OnPreferenceClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
     override val preferencesResId = R.xml.preferences
@@ -32,24 +31,6 @@ class SettingsFragment : BaseSettingsFragment(), Preference.OnPreferenceClickLis
         findPreference<Preference>("selected_theme")?.onPreferenceClickListener = this
         findPreference<Preference>("information")?.onPreferenceClickListener = this
         findPreference<Preference>("privacy_policy")?.onPreferenceClickListener = this
-    }
-
-    override fun onResume() {
-        super.onResume()
-        updateDownloadDirSummary()
-    }
-
-    private fun updateDownloadDirSummary() {
-        Timber.d("Updating download directory summary")
-        val path = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            Timber.d("Android API version is ${Build.VERSION.SDK_INT}, loading download folder from preference")
-            sharedPreferences.getString("download_directory", Environment.DIRECTORY_DOWNLOADS)
-        } else {
-            Timber.d("Android API version is ${Build.VERSION.SDK_INT}, using default folder")
-            Environment.DIRECTORY_DOWNLOADS
-        }
-        Timber.d("Setting download directory summary to $path")
-        findPreference<Preference>("download_directory")?.summary = getString(R.string.pref_download_directory_sum, path)
     }
 
     override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {

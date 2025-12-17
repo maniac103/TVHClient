@@ -27,6 +27,7 @@ import org.tvheadend.tvhclient.service.SyncStateResult
 import org.tvheadend.tvhclient.util.convertUrlToHashString
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.channelTagDataSource
+import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.programDataSource
 import org.tvheadend.tvhclient.util.extensions.sendSyncStateMessage
 import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
@@ -40,8 +41,6 @@ import kotlin.math.floor
 import kotlin.math.max
 
 class HtspIntentServiceHandler(val context: Context, val connection: Connection) : ConnectionIntentService.ServiceInterface, ServerConnectionStateListener {
-
-    private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private val execService: ScheduledExecutorService = Executors.newScheduledThreadPool(10)
     private val htspConnection: HtspConnection
     private val serverStatus: ServerStatus = context.serverStatusDataSource.activeItem
@@ -60,7 +59,7 @@ class HtspIntentServiceHandler(val context: Context, val connection: Connection)
                 connection.serverUrl,
                 BuildConfig.VERSION_NAME,
                 BuildConfig.VERSION_CODE,
-                Integer.valueOf(sharedPreferences.getString("connection_timeout", context.resources.getString(R.string.pref_default_connection_timeout))!!) * 1000
+                context.prefs.getString("connection_timeout", context.resources.getString(R.string.pref_default_connection_timeout))!!.toInt() * 1000
         )
         htspConnection = HtspConnection(htspConnectionData, this, null)
 

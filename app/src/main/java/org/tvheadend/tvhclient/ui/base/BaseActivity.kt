@@ -1,6 +1,5 @@
 package org.tvheadend.tvhclient.ui.base
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -8,21 +7,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.ViewModelProvider
-import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.internal.EdgeToEdgeUtils
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 
 abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
     private lateinit var toolbar: Toolbar
-
-    protected lateinit var sharedPreferences: SharedPreferences
     protected lateinit var baseViewModel: BaseViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         baseViewModel = ViewModelProvider(this)[BaseViewModel::class.java]
     }
 

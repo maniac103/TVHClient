@@ -22,6 +22,7 @@ import org.tvheadend.tvhclient.service.ConnectionIntentService
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.common.SuggestionProvider
 import org.tvheadend.tvhclient.ui.features.MainActivity
+import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import org.tvheadend.tvhclient.util.getIconUrl
 import org.tvheadend.tvhclient.util.logging.FileLoggingTree
@@ -101,7 +102,7 @@ class SettingsAdvancedFragment : BaseSettingsFragment(), Preference.OnPreference
     }
 
     private fun handlePreferenceDebugModeSelected() {
-        if (sharedPreferences.getBoolean("debug_mode_enabled", resources.getBoolean(R.bool.pref_default_debug_mode_enabled))) {
+        if (requireContext().prefs.getBoolean("debug_mode_enabled", resources.getBoolean(R.bool.pref_default_debug_mode_enabled))) {
             Timber.d("Debug mode is enabled")
             for (tree in Timber.forest()) {
                 if (tree.javaClass.name == FileLoggingTree::class.java.name) {

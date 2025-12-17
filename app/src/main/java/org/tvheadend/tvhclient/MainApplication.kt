@@ -85,10 +85,6 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
         updateDefaultNightMode()
     }
 
-    override fun attachBaseContext(context: Context) {
-        super.attachBaseContext(onAttach(context))
-    }
-
     /**
      * Provides CastOptions, which affects discovery and session management of a Cast device
      *

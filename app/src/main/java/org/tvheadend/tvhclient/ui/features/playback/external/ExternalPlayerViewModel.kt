@@ -3,7 +3,6 @@ package org.tvheadend.tvhclient.ui.features.playback.external
 import android.app.Application
 import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.tvheadend.api.AuthenticationStateResult
@@ -27,6 +26,7 @@ import java.util.concurrent.ScheduledExecutorService
 import androidx.core.net.toUri
 import androidx.lifecycle.application
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.recordingDataSource
 import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
 import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
@@ -48,7 +48,7 @@ class ExternalPlayerViewModel(application: Application) : BaseViewModel(applicat
 
     init {
         Timber.d("Initializing")
-        val connectionTimeout = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(application).getString("connection_timeout", application.resources.getString(R.string.pref_default_connection_timeout))!!) * 1000
+        val connectionTimeout = application.prefs.getString("connection_timeout", application.resources.getString(R.string.pref_default_connection_timeout))!!.toInt() * 1000
         val htspConnectionData = HtspConnectionData(
                 connection.username,
                 connection.password,
