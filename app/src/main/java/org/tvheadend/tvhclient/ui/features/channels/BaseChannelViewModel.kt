@@ -11,31 +11,38 @@ import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.channelTagDataSource
+import org.tvheadend.tvhclient.util.extensions.prefs
+import org.tvheadend.tvhclient.util.extensions.programDataSource
+import org.tvheadend.tvhclient.util.extensions.recordingDataSource
+import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import timber.log.Timber
 import java.util.*
 
-open class BaseChannelViewModel(application: Application) : BaseViewModel(application) {
+open class BaseChannelViewModel(private val application: Application) : BaseViewModel(application) {
 
     var showAllChannelTags = MutableLiveData<Boolean>()
     val channelTags = MediatorLiveData<List<ChannelTag>>()
-    val recordings: LiveData<List<Recording>> = appRepository.recordingData.getLiveDataItems()
-    val selectedChannelTagIds: LiveData<List<Int>?> = appRepository.channelTagData.liveDataSelectedItemIds
-    val channelCount: LiveData<Int> = appRepository.channelData.getLiveDataItemCount()
+    val recordings: LiveData<List<Recording>> = application.recordingDataSource.getLiveDataItems()
+    val selectedChannelTagIds: LiveData<List<Int>?> = application.channelTagDataSource.liveDataSelectedItemIds
+    val channelCount: LiveData<Int> = application.channelDataSource.getLiveDataItemCount()
     val selectedTime = MutableLiveData(Date().time)
 
     val defaultChannelSortOrder: String = application.applicationContext.resources.getString(R.string.pref_default_channel_sort_order)
     private val defaultShowEmptyChannelTags = application.applicationContext.resources.getBoolean(R.bool.pref_default_empty_channel_tags_enabled)
 
     init {
-        showAllChannelTags.value = sharedPreferences.getBoolean("empty_channel_tags_enabled", defaultShowEmptyChannelTags)
+        showAllChannelTags.value = application.prefs.getBoolean("empty_channel_tags_enabled", defaultShowEmptyChannelTags)
         // Reload the channel tag list depending on the preference
         channelTags.addSource(showAllChannelTags) { allTags ->
-            channelTags.value = appRepository.channelTagData.getNonEmptyItems(allTags)
+            channelTags.value = application.channelTagDataSource.getNonEmptyItems(allTags)
         }
         // Reload the channel tag list when the tags have changed to
         // get the updated selection status which is saved for each tag
-        channelTags.addSource(appRepository.channelTagData.getLiveDataItems()) {
-            channelTags.value = appRepository.channelTagData.getNonEmptyItems(showAllChannelTags.value!!)
+        channelTags.addSource(application.channelTagDataSource.getLiveDataItems()) {
+            channelTags.value = application.channelTagDataSource.getNonEmptyItems(showAllChannelTags.value!!)
         }
     }
 
@@ -49,7 +56,7 @@ open class BaseChannelViewModel(application: Application) : BaseViewModel(applic
         val tagValues = channelTags.value ?: HashSet<Int>()
         if (!tagValues.toTypedArray().contentEquals(ids.toTypedArray())) {
             Timber.d("Updating database with newly selected channel tag ids")
-            appRepository.channelTagData.updateSelectedChannelTags(ids)
+            application.channelTagDataSource.updateSelectedChannelTags(ids)
         }
     }
 
@@ -76,18 +83,20 @@ open class BaseChannelViewModel(application: Application) : BaseViewModel(applic
     }
 
     fun getRecordingById(id: Int): Recording? {
-        return appRepository.recordingData.getItemByEventId(id)
+        return application.recordingDataSource.getItemByEventId(id)
     }
 
     fun getRecordingProfile(): ServerProfile? {
-        return appRepository.serverProfileData.getItemById(appRepository.serverStatusData.activeItem.recordingServerProfileId)
+        return application.serverProfileDataSource.getItemById(
+            application.serverStatusDataSource.activeItem.recordingServerProfileId
+        )
     }
 
     fun getRecordingProfileNames(): Array<String> {
-        return appRepository.serverProfileData.recordingProfileNames
+        return application.serverProfileDataSource.recordingProfileNames
     }
 
     fun getProgramById(id: Int): Program? {
-        return appRepository.programData.getItemById(id)
+        return application.programDataSource.getItemById(id)
     }
 }

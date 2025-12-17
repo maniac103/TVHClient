@@ -48,7 +48,7 @@ abstract class AppRoomDatabase : RoomDatabase() {
 
         private var instance: AppRoomDatabase? = null
 
-        fun getInstance(context: Context): AppRoomDatabase? {
+        fun getInstance(context: Context): AppRoomDatabase {
             if (instance == null) {
                 synchronized(AppRoomDatabase::class.java) {
                     instance = Room.databaseBuilder(context, AppRoomDatabase::class.java, "tvhclient")
@@ -68,7 +68,7 @@ abstract class AppRoomDatabase : RoomDatabase() {
                             .build()
                 }
             }
-            return instance
+            return instance!!
         }
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {

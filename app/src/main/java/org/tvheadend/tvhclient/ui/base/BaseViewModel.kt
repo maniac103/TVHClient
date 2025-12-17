@@ -3,28 +3,19 @@ package org.tvheadend.tvhclient.ui.base
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
-import org.tvheadend.data.AppRepository
 import org.tvheadend.data.entity.Connection
-import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.common.NetworkStatus
 import org.tvheadend.tvhclient.ui.common.interfaces.NetworkStatusInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SnackbarMessageInterface
 import org.tvheadend.tvhclient.ui.features.MainActivity
+import org.tvheadend.tvhclient.util.extensions.connectionDataSource
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import org.tvheadend.tvhclient.util.livedata.Event
-import javax.inject.Inject
 
 open class BaseViewModel(application: Application) : AndroidViewModel(application), SnackbarMessageInterface, NetworkStatusInterface {
-
-    @Inject
-    lateinit var appRepository: AppRepository
-
-    var sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
-
     var startupCompleteLiveData = MutableLiveData<Event<Boolean>>()
         private set
 
@@ -57,25 +48,20 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
         get() = !searchQueryLiveData.value.isNullOrEmpty()
 
     init {
-        inject()
         startupCompleteLiveData.value = Event(false)
 
-        connection = appRepository.connectionData.activeItem
-        htspVersion = appRepository.serverStatusData.activeItem.htspVersion
+        connection = application.connectionDataSource.activeItem
+        htspVersion = application.serverStatusDataSource.activeItem.htspVersion
 
         connectionToServerAvailableLiveData.value = false
 
         networkStatusLiveData.value = Event(NetworkStatus.NETWORK_UNKNOWN)
     }
 
-    private fun inject() {
-        MainApplication.component.inject(this)
-    }
-
     fun updateConnectionAndRestartApplication(context: Context?, isSyncRequired: Boolean = true) {
         context?.let {
             if (isSyncRequired) {
-                appRepository.connectionData.setSyncRequiredForActiveConnection()
+                context.connectionDataSource.setSyncRequiredForActiveConnection()
             }
             context.stopService(Intent(context, ConnectionService::class.java))
             val intent = Intent(context, MainActivity::class.java)

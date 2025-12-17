@@ -13,12 +13,16 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.application
 import androidx.lifecycle.switchMap
 import org.tvheadend.data.entity.EpgChannel
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.features.channels.BaseChannelViewModel
 import org.tvheadend.tvhclient.ui.features.programs.ProgramDetailsFragment
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.prefs
+import org.tvheadend.tvhclient.util.extensions.programDataSource
 import org.tvheadend.tvhclient.util.livedata.LiveEvent
 import timber.log.Timber
 import java.util.*
@@ -95,8 +99,8 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
     init {
         Timber.d("Initializing")
 
-        daysToShow = Integer.parseInt(sharedPreferences.getString("days_of_epg_data", defaultDaysOfEpgData)!!)
-        hoursToShow = Integer.parseInt(sharedPreferences.getString("hours_of_epg_data_per_screen", defaultHoursOfEpgDataPerScreen)!!)
+        daysToShow = Integer.parseInt(application.prefs.getString("days_of_epg_data", defaultDaysOfEpgData)!!)
+        hoursToShow = Integer.parseInt(application.prefs.getString("hours_of_epg_data_per_screen", defaultHoursOfEpgDataPerScreen)!!)
 
         daysOfEpgData.value = daysToShow
         hoursOfEpgDataPerScreen.value = hoursToShow
@@ -114,7 +118,7 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
                 return@switchMap null
             }
             Timber.d("Loading epg channels because either the channel sort order or channel tag ids have changed")
-            return@switchMap appRepository.channelData.getAllEpgChannels(sortOrder, tagIds)
+            return@switchMap application.channelDataSource.getAllEpgChannels(sortOrder, tagIds)
         }
 
         // In case the live data hours to show has changed due to a shared preference change
@@ -151,15 +155,15 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
         // view properties and create an empty cache
         updateViewProperties()
 
-        onSharedPreferenceChanged(sharedPreferences, "channel_sort_order")
-        onSharedPreferenceChanged(sharedPreferences, "channel_number_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "program_subtitle_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "genre_colors_for_program_guide_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "hours_of_epg_data_per_screen")
-        onSharedPreferenceChanged(sharedPreferences, "days_of_epg_data")
-        onSharedPreferenceChanged(sharedPreferences, "empty_channel_tags_enabled")
+        onSharedPreferenceChanged(application.prefs, "channel_sort_order")
+        onSharedPreferenceChanged(application.prefs, "channel_number_enabled")
+        onSharedPreferenceChanged(application.prefs, "program_subtitle_enabled")
+        onSharedPreferenceChanged(application.prefs, "genre_colors_for_program_guide_enabled")
+        onSharedPreferenceChanged(application.prefs, "hours_of_epg_data_per_screen")
+        onSharedPreferenceChanged(application.prefs, "days_of_epg_data")
+        onSharedPreferenceChanged(application.prefs, "empty_channel_tags_enabled")
 
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        application.prefs.registerOnSharedPreferenceChangeListener(this)
     }
 
     private fun updateViewProperties() {
@@ -218,7 +222,7 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
     }
 
     override fun onCleared() {
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        application.prefs.unregisterOnSharedPreferenceChangeListener(this)
         super.onCleared()
     }
 
@@ -238,7 +242,7 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
     }
 
     fun getProgramsByChannelAndBetweenTimeSync(channelId: Int, fragmentId: Int): List<EpgProgram> {
-        return appRepository.programData.getItemByChannelIdAndBetweenTime(channelId, startTimes[fragmentId], endTimes[fragmentId])
+        return application.programDataSource.getItemByChannelIdAndBetweenTime(channelId, startTimes[fragmentId], endTimes[fragmentId])
     }
 
     internal class EpgChannelLiveData(selectedChannelSortOrder: LiveData<Int>,

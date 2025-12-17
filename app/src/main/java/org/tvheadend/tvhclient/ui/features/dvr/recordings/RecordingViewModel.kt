@@ -14,9 +14,14 @@ import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.prefs
+import org.tvheadend.tvhclient.util.extensions.recordingDataSource
+import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import timber.log.Timber
 
-class RecordingViewModel(application: Application) : BaseViewModel(application), SharedPreferences.OnSharedPreferenceChangeListener {
+class RecordingViewModel(private val application: Application) : BaseViewModel(application), SharedPreferences.OnSharedPreferenceChangeListener {
 
     var selectedListPosition = 0
     val currentIdLiveData = MutableLiveData(0)
@@ -34,9 +39,9 @@ class RecordingViewModel(application: Application) : BaseViewModel(application),
     private var hideDuplicateScheduledRecordings: MutableLiveData<Boolean> = MutableLiveData()
 
     private val defaultChannelSortOrder = application.applicationContext.resources.getString(R.string.pref_default_channel_sort_order)
-    private val defaultShowGenreColor = application.applicationContext.resources.getBoolean(R.bool.pref_default_genre_colors_for_recordings_enabled)
+    private val defaultShowGenreColor = application.resources.getBoolean(R.bool.pref_default_genre_colors_for_recordings_enabled)
     private val defaultCompletedRecordingSortOrder = application.applicationContext.resources.getString(R.string.pref_default_completed_recording_sort_order)
-    private val defaultHideDuplicateScheduledRecordings = application.applicationContext.resources.getBoolean(R.bool.pref_default_hide_duplicate_scheduled_recordings_enabled)
+    private val defaultHideDuplicateScheduledRecordings = application.resources.getBoolean(R.bool.pref_default_hide_duplicate_scheduled_recordings_enabled)
 
     fun getIntentData(context: Context, recording: Recording): Intent {
         val intent = Intent(context, ConnectionService::class.java)
@@ -58,13 +63,13 @@ class RecordingViewModel(application: Application) : BaseViewModel(application),
     }
 
     init {
-        onSharedPreferenceChanged(sharedPreferences, "hide_duplicate_scheduled_recordings_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "completed_recording_sort_order")
-        onSharedPreferenceChanged(sharedPreferences, "genre_colors_for_recordings_enabled")
+        onSharedPreferenceChanged(application.prefs, "hide_duplicate_scheduled_recordings_enabled")
+        onSharedPreferenceChanged(application.prefs, "completed_recording_sort_order")
+        onSharedPreferenceChanged(application.prefs, "genre_colors_for_recordings_enabled")
 
         recordingLiveData.addSource(currentIdLiveData) { value ->
             if (value > 0) {
-                recordingLiveData.value = appRepository.recordingData.getItemById(value)
+                recordingLiveData.value = application.recordingDataSource.getItemById(value)
             }
         }
 
@@ -74,25 +79,25 @@ class RecordingViewModel(application: Application) : BaseViewModel(application),
                 Timber.d("Skipping loading of scheduled recordings because the duplicate setting is not set")
                 return@switchMap null
             }
-            return@switchMap appRepository.recordingData.getScheduledRecordings(value)
+            return@switchMap application.recordingDataSource.getScheduledRecordings(value)
         }
         completedRecordings = CompletedRecordingLiveData(completedRecordingSortOrder).switchMap { value ->
             if (value == null) {
                 Timber.d("Not loading of completed recordings because no recording sort order is set")
                 return@switchMap null
             }
-            return@switchMap appRepository.recordingData.getCompletedRecordings(value)
+            return@switchMap application.recordingDataSource.getCompletedRecordings(value)
         }
-        failedRecordings = appRepository.recordingData.getFailedRecordings()
-        removedRecordings = appRepository.recordingData.getRemovedRecordings()
+        failedRecordings = application.recordingDataSource.getFailedRecordings()
+        removedRecordings = application.recordingDataSource.getRemovedRecordings()
 
         Timber.d("Registering shared preference change listener")
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        application.prefs.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onCleared() {
         Timber.d("Unregistering shared preference change listener")
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        application.prefs.unregisterOnSharedPreferenceChangeListener(this)
         super.onCleared()
     }
 
@@ -107,21 +112,23 @@ class RecordingViewModel(application: Application) : BaseViewModel(application),
     }
 
     fun loadRecordingByIdSync(id: Int) {
-        recording = appRepository.recordingData.getItemById(id) ?: Recording()
+        recording = application.recordingDataSource.getItemById(id) ?: Recording()
     }
 
     fun getChannelList(): List<Channel> {
-        val channelSortOrder = Integer.valueOf(sharedPreferences.getString("channel_sort_order", defaultChannelSortOrder)
+        val channelSortOrder = Integer.valueOf(application.prefs.getString("channel_sort_order", defaultChannelSortOrder)
                 ?: defaultChannelSortOrder)
-        return appRepository.channelData.getChannels(channelSortOrder)
+        return application.channelDataSource.getChannels(channelSortOrder)
     }
 
     fun getRecordingProfileNames(): Array<String> {
-        return appRepository.serverProfileData.recordingProfileNames
+        return application.serverProfileDataSource.recordingProfileNames
     }
 
     fun getRecordingProfile(): ServerProfile? {
-        return appRepository.serverProfileData.getItemById(appRepository.serverStatusData.activeItem.recordingServerProfileId)
+        return application.serverProfileDataSource.getItemById(
+            application.serverStatusDataSource.activeItem.recordingServerProfileId
+        )
     }
 
     internal class ScheduledRecordingLiveData(hideDuplicates: LiveData<Boolean>) : MediatorLiveData<Boolean>() {

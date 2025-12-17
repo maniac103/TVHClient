@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.MiscContentActivityBinding
 import org.tvheadend.tvhclient.ui.base.BaseActivity
@@ -35,7 +34,6 @@ class SettingsActivity : BaseActivity(), RemoveFragmentFromBackstackInterface {
         setContentView(binding.root)
 
         setupToolbar(binding.toolbar, binding.appBar)
-        MainApplication.component.inject(this)
 
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
         snackbarMessageReceiver = SnackbarMessageReceiver(settingsViewModel)

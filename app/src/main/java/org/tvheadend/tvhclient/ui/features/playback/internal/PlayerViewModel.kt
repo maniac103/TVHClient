@@ -2,7 +2,6 @@ package org.tvheadend.tvhclient.ui.features.playback.internal
 
 import android.app.Application
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -32,6 +31,13 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import kotlin.math.max
 import androidx.core.net.toUri
+import androidx.lifecycle.application
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.connectionDataSource
+import org.tvheadend.tvhclient.util.extensions.prefs
+import org.tvheadend.tvhclient.util.extensions.recordingDataSource
+import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 
 
 class PlayerViewModel(application: Application) : BaseViewModel(application), ServerConnectionStateListener, VideoListener, Player.EventListener {
@@ -71,7 +77,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
     private lateinit var playbackInformation: PlaybackInformation
 
     // Handler and runnable to update the playback information every second
-    private lateinit var timeUpdateRunnable: Runnable
+    private val timeUpdateRunnable: Runnable
     private val timeUpdateHandler = Handler(Looper.getMainLooper())
 
     var pipModeActive: Boolean = false
@@ -88,12 +94,12 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         playerIsPlaying.postValue(false)
         playerState.postValue(Player.STATE_IDLE)
 
-        val channelSortOrder = Integer.valueOf(sharedPreferences.getString("channel_sort_order", defaultChannelSortOrder) ?: defaultChannelSortOrder)
-        channelList = appRepository.channelData.getChannels(channelSortOrder)
+        val channelSortOrder = Integer.valueOf(application.prefs.getString("channel_sort_order", defaultChannelSortOrder) ?: defaultChannelSortOrder)
+        channelList = application.channelDataSource.getChannels(channelSortOrder)
 
         Timber.d("Starting connection")
-        val connection = appRepository.connectionData.activeItem
-        val connectionTimeout = Integer.valueOf(sharedPreferences.getString("connection_timeout", defaultConnectionTimeout)!!) * 1000
+        val connection = application.connectionDataSource.activeItem
+        val connectionTimeout = Integer.valueOf(application.prefs.getString("connection_timeout", defaultConnectionTimeout)!!) * 1000
 
         val htspConnectionData = HtspConnectionData(
                 connection.username,
@@ -112,12 +118,12 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
 
         trackSelector = DefaultTrackSelector(application.applicationContext, AdaptiveTrackSelection.Factory())
         trackSelector.buildUponParameters().setRendererDisabled(C.TRACK_TYPE_TEXT, true)
-        if (sharedPreferences.getBoolean("audio_tunneling_enabled", defaultAudioTunnelingEnabled)) {
+        if (application.prefs.getBoolean("audio_tunneling_enabled", defaultAudioTunnelingEnabled)) {
             trackSelector.buildUponParameters().setTunnelingAudioSessionId(C.generateAudioSessionIdV21(application.applicationContext))
         }
 
         Timber.d("Creating load control")
-        val bufferTime = Integer.valueOf(sharedPreferences.getString("buffer_playback_ms", application.applicationContext.resources.getString(R.string.pref_default_buffer_playback_ms))!!)
+        val bufferTime = Integer.valueOf(application.prefs.getString("buffer_playback_ms", application.applicationContext.resources.getString(R.string.pref_default_buffer_playback_ms))!!)
         val loadControl = DefaultLoadControl.Builder()
                 .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE))
                 .setBufferDurationsMs(DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
@@ -153,8 +159,8 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
     fun isPlaybackProfileSelected(bundle: Bundle?): Boolean {
         val channelId = bundle?.getInt("channelId", 0) ?: 0
         if (channelId > 0) {
-            val serverStatus = appRepository.serverStatusData.activeItem
-            val serverProfile = appRepository.serverProfileData.getItemById(serverStatus.htspPlaybackServerProfileId)
+            val serverStatus = application.serverStatusDataSource.activeItem
+            val serverProfile = application.serverProfileDataSource.getItemById(serverStatus.htspPlaybackServerProfileId)
             if (serverProfile != null && !serverProfile.name.isNullOrEmpty() && serverProfile.name != "None") {
                 return true
             }
@@ -187,9 +193,9 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
 
     private fun loadMediaSourceForChannel(context: Context, channelId: Int) {
         Timber.d("Loading media source for channel id $channelId")
-        playbackInformation = PlaybackInformation(appRepository.channelData.getItemByIdWithPrograms(channelId, Date().time))
-        val serverStatus = appRepository.serverStatusData.activeItem
-        val serverProfile = appRepository.serverProfileData.getItemById(serverStatus.htspPlaybackServerProfileId)
+        playbackInformation = PlaybackInformation(application.channelDataSource.getItemByIdWithPrograms(channelId, Date().time))
+        val serverStatus = application.serverStatusDataSource.activeItem
+        val serverProfile = application.serverProfileDataSource.getItemById(serverStatus.htspPlaybackServerProfileId)
         htspSubscriptionDataSourceFactory = HtspSubscriptionDataSource.Factory(context, htspConnection, serverProfile?.name)
         dataSource = htspSubscriptionDataSourceFactory?.currentDataSource
 
@@ -205,7 +211,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
 
     private fun loadMediaSourceForRecording(recordingId: Int) {
         Timber.d("Loading media source for recording id $recordingId")
-        playbackInformation = PlaybackInformation(appRepository.recordingData.getItemById(recordingId))
+        playbackInformation = PlaybackInformation(application.recordingDataSource.getItemById(recordingId))
         htspFileInputStreamDataSourceFactory = HtspFileInputStreamDataSource.Factory(htspConnection)
         dataSource = htspFileInputStreamDataSourceFactory?.currentDataSource
 
@@ -295,7 +301,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         Timber.d("Video size changed to width $width, height $height, pixel aspect ratio $pixelWidthHeightRatio")
         var newPixelWidthHeightRatio = pixelWidthHeightRatio
 
-        val forceAspectRatio = sharedPreferences.getBoolean("force_aspect_ratio_for_sd_content_enabled", defaultForceAspectRatio)
+        val forceAspectRatio = application.prefs.getBoolean("force_aspect_ratio_for_sd_content_enabled", defaultForceAspectRatio)
         if (forceAspectRatio) {
             Timber.d("Video aspect shall be forced, checking original video aspect ratio")
 

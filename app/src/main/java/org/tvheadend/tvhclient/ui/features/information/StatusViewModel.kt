@@ -16,27 +16,35 @@ import org.tvheadend.data.entity.Subscription
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.inputDataSource
+import org.tvheadend.tvhclient.util.extensions.prefs
+import org.tvheadend.tvhclient.util.extensions.programDataSource
+import org.tvheadend.tvhclient.util.extensions.recordingDataSource
+import org.tvheadend.tvhclient.util.extensions.seriesRecordingDataSource
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
+import org.tvheadend.tvhclient.util.extensions.subscriptionDataSource
+import org.tvheadend.tvhclient.util.extensions.timerRecordingDataSource
 import timber.log.Timber
 
-class StatusViewModel(application: Application) : BaseViewModel(application), SharedPreferences.OnSharedPreferenceChangeListener {
-
-    val serverStatusLiveData: LiveData<ServerStatus?> = appRepository.serverStatusData.liveDataActiveItem
-    val channelCount: LiveData<Int> = appRepository.channelData.getLiveDataItemCount()
-    val programCount: LiveData<Int> = appRepository.programData.getLiveDataItemCount()
-    val timerRecordingCount: LiveData<Int> = appRepository.timerRecordingData.getLiveDataItemCount()
-    val seriesRecordingCount: LiveData<Int> = appRepository.seriesRecordingData.getLiveDataItemCount()
-    val completedRecordingCount: LiveData<Int> = appRepository.recordingData.getLiveDataCountByType("completed")
-    val scheduledRecordingCount: LiveData<Int> = appRepository.recordingData.getLiveDataCountByType("scheduled")
-    val failedRecordingCount: LiveData<Int> = appRepository.recordingData.getLiveDataCountByType("failed")
-    val removedRecordingCount: LiveData<Int> = appRepository.recordingData.getLiveDataCountByType("removed")
+class StatusViewModel(private val application: Application) : BaseViewModel(application), SharedPreferences.OnSharedPreferenceChangeListener {
+    val serverStatusLiveData: LiveData<ServerStatus?> = application.serverStatusDataSource.liveDataActiveItem
+    val channelCount: LiveData<Int> = application.channelDataSource.getLiveDataItemCount()
+    val programCount: LiveData<Int> = application.programDataSource.getLiveDataItemCount()
+    val timerRecordingCount: LiveData<Int> = application.timerRecordingDataSource.getLiveDataItemCount()
+    val seriesRecordingCount: LiveData<Int> = application.seriesRecordingDataSource.getLiveDataItemCount()
+    val completedRecordingCount: LiveData<Int> = application.recordingDataSource.getLiveDataCountByType("completed")
+    val scheduledRecordingCount: LiveData<Int> = application.recordingDataSource.getLiveDataCountByType("scheduled")
+    val failedRecordingCount: LiveData<Int> = application.recordingDataSource.getLiveDataCountByType("failed")
+    val removedRecordingCount: LiveData<Int> = application.recordingDataSource.getLiveDataCountByType("removed")
 
     val showRunningRecordingCount = MediatorLiveData<Boolean>()
     val showLowStorageSpace = MediatorLiveData<Boolean>()
     var runningRecordingCount = 0
     var availableStorageSpace = 0
 
-    val subscriptions: LiveData<List<Subscription>> = appRepository.subscriptionData.getLiveDataItems()
-    val inputs: LiveData<List<Input>> = appRepository.inputData.getLiveDataItems()
+    val subscriptions: LiveData<List<Subscription>> = application.subscriptionDataSource.getLiveDataItems()
+    val inputs: LiveData<List<Input>> = application.inputDataSource.getLiveDataItems()
 
     private lateinit var discSpaceUpdateTask: Runnable
     private val diskSpaceUpdateHandler = Handler(Looper.getMainLooper())
@@ -49,10 +57,10 @@ class StatusViewModel(application: Application) : BaseViewModel(application), Sh
         Timber.d("Initializing")
         // Listen to changes of the recording count. If the count changes to zero or the setting
         // to show notifications is disabled, set the value to false to remove any notification
-        showRunningRecordingCount.addSource(appRepository.recordingData.getLiveDataCountByType("running")) { count ->
+        showRunningRecordingCount.addSource(application.recordingDataSource.getLiveDataCountByType("running")) { count ->
             Timber.d("Running recording count has changed, checking if notification shall be shown")
             runningRecordingCount = count
-            val enabled = sharedPreferences.getBoolean("notify_running_recording_count_enabled", defaultNotifyRunningRecordingCount)
+            val enabled = application.prefs.getBoolean("notify_running_recording_count_enabled", defaultNotifyRunningRecordingCount)
             showRunningRecordingCount.value = enabled && count > 0
         }
 
@@ -62,8 +70,8 @@ class StatusViewModel(application: Application) : BaseViewModel(application), Sh
         showLowStorageSpace.addSource(serverStatusLiveData) { serverStatus ->
             if (serverStatus != null) {
                 availableStorageSpace = (serverStatus.freeDiskSpace / (1024 * 1024 * 1024)).toInt()
-                val enabled = sharedPreferences.getBoolean("notify_low_storage_space_enabled", defaultNotifyLowStorageSpace)
-                val threshold = Integer.valueOf(sharedPreferences.getString("low_storage_space_threshold", defaultNotifyLowStorageSpaceThreshold)!!)
+                val enabled = application.prefs.getBoolean("notify_low_storage_space_enabled", defaultNotifyLowStorageSpace)
+                val threshold = Integer.valueOf(application.prefs.getString("low_storage_space_threshold", defaultNotifyLowStorageSpaceThreshold)!!)
                 Timber.d("Server status free space has changed to $availableStorageSpace, threshold is $threshold, checking if notification shall be shown")
                 showLowStorageSpace.value = enabled && availableStorageSpace <= threshold
             }
@@ -85,16 +93,16 @@ class StatusViewModel(application: Application) : BaseViewModel(application), Sh
             diskSpaceUpdateHandler.postDelayed(discSpaceUpdateTask, 60000)
         }
 
-        onSharedPreferenceChanged(sharedPreferences, "notify_running_recording_count_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "notify_low_storage_space_enabled")
+        onSharedPreferenceChanged(application.prefs, "notify_running_recording_count_enabled")
+        onSharedPreferenceChanged(application.prefs, "notify_low_storage_space_enabled")
 
         Timber.d("Registering shared preference change listener")
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        application.prefs.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onCleared() {
         Timber.d("Unregistering shared preference change listener")
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        application.prefs.unregisterOnSharedPreferenceChangeListener(this)
         stopDiskSpaceUpdateHandler()
         super.onCleared()
     }
@@ -118,7 +126,7 @@ class StatusViewModel(application: Application) : BaseViewModel(application), Sh
     }
 
     fun getChannelById(id: Int): Channel? {
-        return appRepository.channelData.getItemById(id)
+        return application.channelDataSource.getItemById(id)
     }
 
     fun startDiskSpaceUpdateHandler() {

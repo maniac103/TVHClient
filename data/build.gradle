@@ -52,8 +52,4 @@ dependencies {
 
     // Logging library
     implementation "com.jakewharton.timber:timber:$timberVersion"
-
-    // Dependency injection
-    implementation "com.google.dagger:dagger:$daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 }

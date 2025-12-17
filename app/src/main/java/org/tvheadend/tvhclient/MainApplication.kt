@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDexApplication
+import androidx.preference.PreferenceManager
 import com.google.android.gms.cast.framework.CastOptions
 import com.google.android.gms.cast.framework.OptionsProvider
 import com.google.android.gms.cast.framework.SessionProvider
@@ -12,52 +13,59 @@ import com.google.android.gms.cast.framework.media.CastMediaOptions
 import com.google.android.gms.cast.framework.media.NotificationOptions
 import com.google.android.material.color.DynamicColors
 import org.tvheadend.data.AppRepository
-import org.tvheadend.data.di.DaggerRepositoryComponent
-import org.tvheadend.data.di.RepositoryModule
-import org.tvheadend.tvhclient.di.component.DaggerMainComponent
-import org.tvheadend.tvhclient.di.component.MainComponent
-import org.tvheadend.tvhclient.di.module.ContextModule
-import org.tvheadend.tvhclient.di.module.SharedPreferencesModule
+import org.tvheadend.data.db.AppRoomDatabase
+import org.tvheadend.data.source.ChannelDataSource
+import org.tvheadend.data.source.ChannelTagDataSource
+import org.tvheadend.data.source.ConnectionDataSource
+import org.tvheadend.data.source.InputDataSource
+import org.tvheadend.data.source.MiscDataSource
+import org.tvheadend.data.source.ProgramDataSource
+import org.tvheadend.data.source.RecordingDataSource
+import org.tvheadend.data.source.SeriesRecordingDataSource
+import org.tvheadend.data.source.ServerProfileDataSource
+import org.tvheadend.data.source.ServerStatusDataSource
+import org.tvheadend.data.source.SubscriptionDataSource
+import org.tvheadend.data.source.TagAndChannelDataSource
+import org.tvheadend.data.source.TimerRecordingDataSource
 import org.tvheadend.tvhclient.ui.common.onAttach
 import org.tvheadend.tvhclient.ui.features.playback.external.ExpandedControlsActivity
 import org.tvheadend.tvhclient.util.MigrateUtils
 import org.tvheadend.tvhclient.util.logging.DebugTree
 import org.tvheadend.tvhclient.util.logging.FileLoggingTree
 import timber.log.Timber
-import javax.inject.Inject
 
 // TODO snackbar locale changes
 // TODO when a notification is dismissed, it reappears when the recording gets updated,
 //  save the dismissed id in the viewmodel and don't add another notification if the id was already dismissed
 
 class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreferences.OnSharedPreferenceChangeListener {
+    val appRepository: AppRepository by lazy {
+       val db = AppRoomDatabase.getInstance(this)
+        AppRepository(
+            ChannelDataSource(db),
+            ProgramDataSource(db),
+            RecordingDataSource(db),
+            SeriesRecordingDataSource(db),
+            TimerRecordingDataSource(db),
+            ConnectionDataSource(db),
+            ChannelTagDataSource(db),
+            ServerStatusDataSource(db),
+            ServerProfileDataSource(db),
+            TagAndChannelDataSource(db),
+            MiscDataSource(db),
+            SubscriptionDataSource(db),
+            InputDataSource(db)
+        )
+    }
 
-    @Inject
-    lateinit var appRepository: AppRepository
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
+    val sharedPreferences: SharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(this)
+    }
 
     override fun onCreate() {
         super.onCreate()
 
         DynamicColors.applyToActivitiesIfAvailable(this)
-
-        // Create the repository component which is then be used for the dependency injection.
-        val repositoryComponent = DaggerRepositoryComponent
-                .builder()
-                .repositoryModule(RepositoryModule(applicationContext))
-                .build()
-
-        // Setup the required modules and components for dependency injection
-        component = DaggerMainComponent
-                .builder()
-                .contextModule(ContextModule(applicationContext))
-                .sharedPreferencesModule(SharedPreferencesModule())
-                .repositoryComponent(repositoryComponent)
-                .build()
-        component.inject(this)
-
-        instance = this
 
         // Initialize the logging. Log to the console only when in debug mode.
         Timber.plant(DebugTree())
@@ -130,11 +138,5 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
             }
         }
         AppCompatDelegate.setDefaultNightMode(mode)
-    }
-
-    companion object {
-
-        lateinit var instance: MainApplication
-        lateinit var component: MainComponent
     }
 }

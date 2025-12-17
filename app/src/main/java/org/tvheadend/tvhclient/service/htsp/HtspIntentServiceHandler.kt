@@ -25,7 +25,11 @@ import org.tvheadend.tvhclient.service.ConnectionIntentService
 import org.tvheadend.tvhclient.service.ServerTicketReceiver
 import org.tvheadend.tvhclient.service.SyncStateResult
 import org.tvheadend.tvhclient.util.convertUrlToHashString
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.channelTagDataSource
+import org.tvheadend.tvhclient.util.extensions.programDataSource
 import org.tvheadend.tvhclient.util.extensions.sendSyncStateMessage
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import timber.log.Timber
 import java.io.*
 import java.net.URL
@@ -35,12 +39,12 @@ import java.util.concurrent.ScheduledExecutorService
 import kotlin.math.floor
 import kotlin.math.max
 
-class HtspIntentServiceHandler(val context: Context, val appRepository: AppRepository, val connection: Connection) : ConnectionIntentService.ServiceInterface, ServerConnectionStateListener {
+class HtspIntentServiceHandler(val context: Context, val connection: Connection) : ConnectionIntentService.ServiceInterface, ServerConnectionStateListener {
 
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private val execService: ScheduledExecutorService = Executors.newScheduledThreadPool(10)
     private val htspConnection: HtspConnection
-    private val serverStatus: ServerStatus = appRepository.serverStatusData.activeItem
+    private val serverStatus: ServerStatus = context.serverStatusDataSource.activeItem
     private var htspVersion: Int = 13
 
     private val pendingEventOps = ArrayList<Program>()
@@ -168,14 +172,14 @@ class HtspIntentServiceHandler(val context: Context, val appRepository: AppRepos
         Timber.d("Downloading and saving all channel and channel tag icons...")
 
         val iconUrls = ArrayList<String>()
-        appRepository.channelData.getItems().forEach {
+        context.channelDataSource.getItems().forEach {
             val icon = it.icon
             if (!icon.isNullOrEmpty()) {
                 iconUrls.add(icon)
             }
         }
 
-        appRepository.channelTagData.getItems().forEach {
+        context.channelTagDataSource.getItems().forEach {
             val icon = it.tagIcon
             if (!icon.isNullOrEmpty()) {
                 iconUrls.add(icon)
@@ -221,15 +225,15 @@ class HtspIntentServiceHandler(val context: Context, val appRepository: AppRepos
     private fun removeOutdatedProgramsFromDatabase() {
         Timber.d("Deleting programs from the database that are older than one day from now")
         val pastTime = System.currentTimeMillis() - 24 * 60 * 60 * 1000
-        appRepository.programData.removeItemsByTime(pastTime)
+        context.programDataSource.removeItemsByTime(pastTime)
     }
 
     private fun removeDuplicateProgramsFromDatabase() {
         Timber.d("Removing duplicate programs from the database")
         val duplicatePrograms = Vector<Int>()
-        val channels = appRepository.channelData.getItems()
+        val channels = context.channelDataSource.getItems()
         channels.forEach { channel ->
-            val programs = appRepository.programData.getDuplicatePrograms(channel.id)
+            val programs = context.programDataSource.getDuplicatePrograms(channel.id)
             Timber.d("Loaded ${programs.size} duplicate programs for channel ${channel.name}")
 
             var lastProgram = EpgProgram()
@@ -255,7 +259,7 @@ class HtspIntentServiceHandler(val context: Context, val appRepository: AppRepos
 
         Timber.d("Removing ${duplicatePrograms.size} duplicate programs")
         duplicatePrograms.forEach {
-            appRepository.programData.removeItemById(it)
+            context.programDataSource.removeItemById(it)
         }
     }
 
@@ -333,9 +337,9 @@ class HtspIntentServiceHandler(val context: Context, val appRepository: AppRepos
     private fun getMoreEvents(intent: Intent) {
 
         val numberOfProgramsToLoad = intent.getIntExtra("numFollowing", 0)
-        val channelList = appRepository.channelData.getItems()
+        val channelList = context.channelDataSource.getItems()
 
-        Timber.d("Database currently contains ${appRepository.programData.itemCount} events.")
+        Timber.d("Database currently contains ${context.programDataSource.itemCount} events.")
         Timber.d("Loading $numberOfProgramsToLoad events for each of the ${channelList.size} channels")
 
         var channelCount = 0
@@ -350,7 +354,7 @@ class HtspIntentServiceHandler(val context: Context, val appRepository: AppRepos
             msgIntent.putExtra("channelId", it.id)
             msgIntent.putExtra("channelName", it.name)
 
-            val lastProgram = appRepository.programData.getLastItemByChannelId(it.id)
+            val lastProgram = context.programDataSource.getLastItemByChannelId(it.id)
             when {
                 lastProgram != null -> {
                     Timber.d("Loading more programs for channel ${it.name} from last program id ${lastProgram.eventId}")
@@ -394,8 +398,8 @@ class HtspIntentServiceHandler(val context: Context, val appRepository: AppRepos
         }
 
         Timber.d("Done loading more events")
-        appRepository.programData.addItems(pendingEventOps)
-        Timber.d("Saved ${pendingEventOps.size} events for all channels. Database contains ${appRepository.programData.itemCount} events")
+        context.programDataSource.addItems(pendingEventOps)
+        Timber.d("Saved ${pendingEventOps.size} events for all channels. Database contains ${context.programDataSource.itemCount} events")
         pendingEventOps.clear()
     }
 }

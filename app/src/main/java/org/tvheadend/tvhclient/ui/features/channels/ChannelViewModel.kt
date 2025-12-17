@@ -8,9 +8,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.tvhclient.R
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
-class ChannelViewModel(application: Application) : BaseChannelViewModel(application), SharedPreferences.OnSharedPreferenceChangeListener {
+class ChannelViewModel(private val application: Application) : BaseChannelViewModel(application), SharedPreferences.OnSharedPreferenceChangeListener {
 
     var selectedListPosition = 0
     var selectedTimeOffset = 0
@@ -51,23 +53,23 @@ class ChannelViewModel(application: Application) : BaseChannelViewModel(applicat
                 return@switchMap null
             }
             Timber.d("Loading channels because either the selected time, channel sort order or channel tag ids have changed")
-            return@switchMap appRepository.channelData.getAllChannelsByTime(time, sortOrder, tagIds)
+            return@switchMap application.channelDataSource.getAllChannelsByTime(time, sortOrder, tagIds)
         }
 
-        onSharedPreferenceChanged(sharedPreferences, "channel_sort_order")
-        onSharedPreferenceChanged(sharedPreferences, "channel_name_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "channel_number_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "program_progressbar_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "program_subtitle_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "next_program_title_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "genre_colors_for_channels_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "empty_channel_tags_enabled")
+        onSharedPreferenceChanged(application.prefs, "channel_sort_order")
+        onSharedPreferenceChanged(application.prefs, "channel_name_enabled")
+        onSharedPreferenceChanged(application.prefs, "channel_number_enabled")
+        onSharedPreferenceChanged(application.prefs, "program_progressbar_enabled")
+        onSharedPreferenceChanged(application.prefs, "program_subtitle_enabled")
+        onSharedPreferenceChanged(application.prefs, "next_program_title_enabled")
+        onSharedPreferenceChanged(application.prefs, "genre_colors_for_channels_enabled")
+        onSharedPreferenceChanged(application.prefs, "empty_channel_tags_enabled")
 
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        application.prefs.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onCleared() {
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        application.prefs.unregisterOnSharedPreferenceChangeListener(this)
         super.onCleared()
     }
 

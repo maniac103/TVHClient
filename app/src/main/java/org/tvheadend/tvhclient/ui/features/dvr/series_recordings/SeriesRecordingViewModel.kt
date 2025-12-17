@@ -6,12 +6,18 @@ import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.application
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.SeriesRecording
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.prefs
+import org.tvheadend.tvhclient.util.extensions.seriesRecordingDataSource
+import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import timber.log.Timber
 import java.util.*
 
@@ -21,7 +27,7 @@ class SeriesRecordingViewModel(application: Application) : BaseViewModel(applica
     val currentIdLiveData = MutableLiveData("")
     var recording = SeriesRecording()
     var recordingLiveData = MediatorLiveData<SeriesRecording>()
-    val recordings: LiveData<List<SeriesRecording>> = appRepository.seriesRecordingData.getLiveDataItems()
+    val recordings: LiveData<List<SeriesRecording>> = application.seriesRecordingDataSource.getLiveDataItems()
     var recordingProfileNameId = 0
 
     var duplicateDetectionList: Array<String> = application.resources.getStringArray(R.array.duplicate_detection_list)
@@ -74,13 +80,13 @@ class SeriesRecordingViewModel(application: Application) : BaseViewModel(applica
     init {
         recordingLiveData.addSource(currentIdLiveData) { value ->
             if (value.isNotEmpty()) {
-                recordingLiveData.value = appRepository.seriesRecordingData.getItemById(value)
+                recordingLiveData.value = application.seriesRecordingDataSource.getItemById(value)
             }
         }
     }
 
     fun loadRecordingByIdSync(id: String) {
-        recording = appRepository.seriesRecordingData.getItemById(id) ?: SeriesRecording()
+        recording = application.seriesRecordingDataSource.getItemById(id) ?: SeriesRecording()
         // In case one of the values is negative the time setting shall be disabled
         isTimeEnabled = recording.start >= 0 && recording.startWindow >= 0
     }
@@ -122,16 +128,16 @@ class SeriesRecordingViewModel(application: Application) : BaseViewModel(applica
     }
 
     fun getChannelList(): List<Channel> {
-        val channelSortOrder = Integer.valueOf(sharedPreferences.getString("channel_sort_order", defaultChannelSortOrder)
+        val channelSortOrder = Integer.valueOf(application.prefs.getString("channel_sort_order", defaultChannelSortOrder)
                 ?: defaultChannelSortOrder)
-        return appRepository.channelData.getChannels(channelSortOrder)
+        return application.channelDataSource.getChannels(channelSortOrder)
     }
 
     fun getRecordingProfileNames(): Array<String> {
-        return appRepository.serverProfileData.recordingProfileNames
+        return application.serverProfileDataSource.recordingProfileNames
     }
 
     fun getRecordingProfile(): ServerProfile? {
-        return appRepository.serverProfileData.getItemById(appRepository.serverStatusData.activeItem.seriesRecordingServerProfileId)
+        return application.serverProfileDataSource.getItemById(application.serverStatusDataSource.activeItem.seriesRecordingServerProfileId)
     }
 }

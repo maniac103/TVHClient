@@ -5,12 +5,18 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.application
 import androidx.lifecycle.switchMap
 import org.tvheadend.data.entity.Program
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
+import org.tvheadend.tvhclient.util.extensions.prefs
+import org.tvheadend.tvhclient.util.extensions.programDataSource
+import org.tvheadend.tvhclient.util.extensions.recordingDataSource
+import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import timber.log.Timber
 import java.util.*
 
@@ -40,13 +46,13 @@ class ProgramViewModel(application: Application) : BaseViewModel(application), S
 
     init {
         Timber.d("Initializing")
-        onSharedPreferenceChanged(sharedPreferences, "genre_colors_for_programs_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "program_subtitle_enabled")
-        onSharedPreferenceChanged(sharedPreferences, "program_artwork_enabled")
+        onSharedPreferenceChanged(application.prefs, "genre_colors_for_programs_enabled")
+        onSharedPreferenceChanged(application.prefs, "program_subtitle_enabled")
+        onSharedPreferenceChanged(application.prefs, "program_artwork_enabled")
 
         program.addSource(eventIdLiveData) { value ->
             if (value > 0) {
-                program.value = appRepository.programData.getItemById(value)
+                program.value = application.programDataSource.getItemById(value)
             }
         }
 
@@ -55,28 +61,28 @@ class ProgramViewModel(application: Application) : BaseViewModel(application), S
             val selectedTime = value.second ?: Date().time
 
             if (channelId == 0) {
-                return@switchMap appRepository.programData.getLiveDataItemsFromTime(selectedTime)
+                return@switchMap application.programDataSource.getLiveDataItemsFromTime(selectedTime)
             } else {
-                return@switchMap appRepository.programData.getLiveDataItemByChannelIdAndTime(channelId, selectedTime)
+                return@switchMap application.programDataSource.getLiveDataItemByChannelIdAndTime(channelId, selectedTime)
             }
         }
 
         recordings = RecordingLiveData(channelIdLiveData).switchMap { value ->
             val channelId = value ?: 0
             if (channelId == 0) {
-                return@switchMap appRepository.recordingData.getLiveDataItems()
+                return@switchMap application.recordingDataSource.getLiveDataItems()
             } else {
-                return@switchMap appRepository.recordingData.getLiveDataItemsByChannelId(channelId)
+                return@switchMap application.recordingDataSource.getLiveDataItemsByChannelId(channelId)
             }
         }
 
         Timber.d("Registering shared preference change listener")
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        application.prefs.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onCleared() {
         Timber.d("Unregistering shared preference change listener")
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        application.prefs.unregisterOnSharedPreferenceChangeListener(this)
         super.onCleared()
     }
 
@@ -91,11 +97,13 @@ class ProgramViewModel(application: Application) : BaseViewModel(application), S
     }
 
     fun getRecordingProfile(): ServerProfile? {
-        return appRepository.serverProfileData.getItemById(appRepository.serverStatusData.activeItem.recordingServerProfileId)
+        return application.serverProfileDataSource.getItemById(
+            application.serverStatusDataSource.activeItem.recordingServerProfileId
+        )
     }
 
     fun getRecordingProfileNames(): Array<String> {
-        return appRepository.serverProfileData.recordingProfileNames
+        return application.serverProfileDataSource.recordingProfileNames
     }
 
     internal class ProgramLiveData(channelId: LiveData<Int>,

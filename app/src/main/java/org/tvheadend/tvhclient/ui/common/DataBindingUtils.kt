@@ -304,7 +304,7 @@ fun setOptionalDescriptionText(view: TextView, text: String?) {
             val coloredText = SpannableString(str.substringAfter("]", "").substringBefore("[/COLOR]", ""))
             val remainingText = str.substringAfter("[/COLOR]", "")
 
-            val colorId = view.resources.getIdentifier(colorName, "color", MainApplication.instance.packageName)
+            val colorId = view.resources.getIdentifier(colorName, "color", view.context.packageName)
             if (colorId > 0) {
                 coloredText.setSpan(ForegroundColorSpan(ContextCompat.getColor(view.context, colorId)), 0, coloredText.length, 0)
             }

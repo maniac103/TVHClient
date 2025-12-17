@@ -113,10 +113,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3-native-mt'
 
-    // Dependency injection
-    implementation "com.google.dagger:dagger:$daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
-
     // Use multidex because the method count is over 64k
     implementation 'androidx.multidex:multidex:2.0.1'
 

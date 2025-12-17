@@ -8,10 +8,39 @@ import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.snackbar.Snackbar
+import org.tvheadend.data.source.ChannelDataSource
+import org.tvheadend.data.source.ChannelTagDataSource
+import org.tvheadend.data.source.ConnectionDataSource
+import org.tvheadend.data.source.InputDataSource
+import org.tvheadend.data.source.MiscDataSource
+import org.tvheadend.data.source.ProgramDataSource
+import org.tvheadend.data.source.RecordingDataSource
+import org.tvheadend.data.source.SeriesRecordingDataSource
+import org.tvheadend.data.source.ServerProfileDataSource
+import org.tvheadend.data.source.ServerStatusDataSource
+import org.tvheadend.data.source.SubscriptionDataSource
+import org.tvheadend.data.source.TagAndChannelDataSource
+import org.tvheadend.data.source.TimerRecordingDataSource
+import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.service.SyncStateReceiver
 import org.tvheadend.tvhclient.service.SyncStateResult
 import org.tvheadend.tvhclient.ui.common.SnackbarMessageReceiver
 import timber.log.Timber
+
+val Context.prefs get() = (applicationContext as MainApplication).sharedPreferences
+val Context.channelDataSource get() = (applicationContext as MainApplication).appRepository.channelData
+val Context.programDataSource get() = (applicationContext as MainApplication).appRepository.programData
+val Context.recordingDataSource get() = (applicationContext as MainApplication).appRepository.recordingData
+val Context.seriesRecordingDataSource get() = (applicationContext as MainApplication).appRepository.seriesRecordingData
+val Context.timerRecordingDataSource get() = (applicationContext as MainApplication).appRepository.timerRecordingData
+val Context.connectionDataSource get() = (applicationContext as MainApplication).appRepository.connectionData
+val Context.channelTagDataSource get() = (applicationContext as MainApplication).appRepository.channelTagData
+val Context.serverStatusDataSource get() = (applicationContext as MainApplication).appRepository.serverStatusData
+val Context.serverProfileDataSource get() = (applicationContext as MainApplication).appRepository.serverProfileData
+val Context.tagAndChannelDataSource get() = (applicationContext as MainApplication).appRepository.tagAndChannelData
+val Context.miscDataSource get() = (applicationContext as MainApplication).appRepository.miscData
+val Context.subscriptionDataSource get() = (applicationContext as MainApplication).appRepository.subscriptionData
+val Context.inputDataSource get() = (applicationContext as MainApplication).appRepository.inputData
 
 fun Context.sendSnackbarMessage(resId: Int, duration: Int = Snackbar.LENGTH_SHORT) {
     this.sendSnackbarMessage(this.getString(resId), duration)

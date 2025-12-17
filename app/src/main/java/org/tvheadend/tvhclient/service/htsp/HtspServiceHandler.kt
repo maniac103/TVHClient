@@ -15,7 +15,6 @@ import androidx.work.WorkManager
 import org.json.JSONException
 import org.json.JSONObject
 import org.tvheadend.api.*
-import org.tvheadend.data.AppRepository
 import org.tvheadend.data.entity.*
 import org.tvheadend.htsp.*
 import org.tvheadend.tvhclient.BuildConfig
@@ -24,9 +23,21 @@ import org.tvheadend.tvhclient.service.*
 import org.tvheadend.tvhclient.ui.common.addNotificationScheduledRecordingStarts
 import org.tvheadend.tvhclient.ui.common.removeNotificationById
 import org.tvheadend.tvhclient.util.convertUrlToHashString
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.channelTagDataSource
+import org.tvheadend.tvhclient.util.extensions.connectionDataSource
+import org.tvheadend.tvhclient.util.extensions.inputDataSource
 import org.tvheadend.tvhclient.util.extensions.isEqualTo
+import org.tvheadend.tvhclient.util.extensions.programDataSource
+import org.tvheadend.tvhclient.util.extensions.recordingDataSource
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import org.tvheadend.tvhclient.util.extensions.sendSyncStateMessage
+import org.tvheadend.tvhclient.util.extensions.seriesRecordingDataSource
+import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
+import org.tvheadend.tvhclient.util.extensions.subscriptionDataSource
+import org.tvheadend.tvhclient.util.extensions.tagAndChannelDataSource
+import org.tvheadend.tvhclient.util.extensions.timerRecordingDataSource
 import org.tvheadend.tvhclient.util.getIconUrl
 import org.tvheadend.tvhclient.util.worker.DatabaseCleanupWorker
 import org.tvheadend.tvhclient.util.worker.EpgDataUpdateWorker
@@ -41,7 +52,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.floor
 import kotlin.math.max
 
-class HtspServiceHandler(val context: Context, val appRepository: AppRepository, val connection: Connection) : ConnectionService.ServiceInterface, ServerConnectionStateListener, ServerMessageListener<HtspMessage> {
+class HtspServiceHandler(val context: Context, val connection: Connection) : ConnectionService.ServiceInterface, ServerConnectionStateListener, ServerMessageListener<HtspMessage> {
 
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private var htspConnectionData: HtspConnectionData = HtspConnectionData(
@@ -61,9 +72,9 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
     private val pendingChannelTagOps = ArrayList<ChannelTag>()
     private val pendingRecordingOps = ArrayList<Recording>()
 
-    private var pendingHtspProfiles: MutableList<ServerProfile> = appRepository.serverProfileData.htspPlaybackProfiles.toMutableList()
-    private var pendingHttpProfiles: MutableList<ServerProfile> = appRepository.serverProfileData.httpPlaybackProfiles.toMutableList()
-    private var pendingRecordingProfiles: MutableList<ServerProfile> = appRepository.serverProfileData.recordingProfiles.toMutableList()
+    private var pendingHtspProfiles: MutableList<ServerProfile> = context.serverProfileDataSource.htspPlaybackProfiles.toMutableList()
+    private var pendingHttpProfiles: MutableList<ServerProfile> = context.serverProfileDataSource.httpPlaybackProfiles.toMutableList()
+    private var pendingRecordingProfiles: MutableList<ServerProfile> = context.serverProfileDataSource.recordingProfiles.toMutableList()
 
     private var initialSyncWithServerRunning: Boolean = false
     private var syncEventsRequired: Boolean = false
@@ -284,7 +295,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             Timber.d("Updating last update time of full sync")
             connection.lastUpdate = System.currentTimeMillis() / 1000L
         }
-        appRepository.connectionData.updateItem(connection)
+        context.connectionDataSource.updateItem(connection)
 
         // The initial sync is considered to be done at this point.
         // Send the message to the listeners that the sync is done
@@ -450,37 +461,35 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
 
     private fun setDefaultProfileSelection() {
         Timber.d("Setting default profiles in case none are selected yet")
-        val serverStatus = appRepository.serverStatusData.activeItem
-        serverStatus.let {
-            if (it.htspPlaybackServerProfileId == 0) {
-                for (profile in pendingHtspProfiles) {
-                    if (profile.name.isEqualTo("htsp")) {
-                        Timber.d("Setting htsp profile to htsp")
-                        it.htspPlaybackServerProfileId = profile.id
-                        break
-                    }
+        val serverStatus = context.serverStatusDataSource.activeItem
+        if (serverStatus.htspPlaybackServerProfileId == 0) {
+            for (profile in pendingHtspProfiles) {
+                if (profile.name.isEqualTo("htsp")) {
+                    Timber.d("Setting htsp profile to htsp")
+                    serverStatus.htspPlaybackServerProfileId = profile.id
+                    break
                 }
             }
-            if (it.httpPlaybackServerProfileId == 0) {
-                for (profile in pendingHttpProfiles) {
-                    if (profile.name.isEqualTo("pass")) {
-                        Timber.d("Setting http profile to pass")
-                        it.httpPlaybackServerProfileId = profile.id
-                        break
-                    }
-                }
-            }
-            if (it.recordingServerProfileId == 0) {
-                for (profile in pendingRecordingProfiles) {
-                    if (profile.name.isEqualTo("Default Profile")) {
-                        Timber.d("Setting recording profile to default")
-                        it.recordingServerProfileId = profile.id
-                        break
-                    }
-                }
-            }
-            appRepository.serverStatusData.updateItem(it)
         }
+        if (serverStatus.httpPlaybackServerProfileId == 0) {
+            for (profile in pendingHttpProfiles) {
+                if (profile.name.isEqualTo("pass")) {
+                    Timber.d("Setting http profile to pass")
+                    serverStatus.httpPlaybackServerProfileId = profile.id
+                    break
+                }
+            }
+        }
+        if (serverStatus.recordingServerProfileId == 0) {
+            for (profile in pendingRecordingProfiles) {
+                if (profile.name.isEqualTo("Default Profile")) {
+                    Timber.d("Setting recording profile to default")
+                    serverStatus.recordingServerProfileId = profile.id
+                    break
+                }
+            }
+        }
+        context.serverStatusDataSource.updateItem(serverStatus)
     }
 
     /**
@@ -515,7 +524,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             return
         }
 
-        var channelTag = appRepository.channelTagData.getItemById(msg.getInteger("tagId"))
+        var channelTag = context.channelTagDataSource.getItemById(msg.getInteger("tagId"))
         if (channelTag == null) {
             Timber.d("Could not find a channel tag with id ${msg.getInteger("tagId")} in the database")
             channelTag = ChannelTag()
@@ -543,11 +552,11 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
      */
     private fun onTagDelete(msg: HtspMessage) {
         if (msg.containsKey("tagId")) {
-            val tag = appRepository.channelTagData.getItemById(msg.getInteger("tagId"))
+            val tag = context.channelTagDataSource.getItemById(msg.getInteger("tagId"))
             if (tag != null) {
                 deleteIconFileFromCache(tag.tagIcon)
-                appRepository.channelTagData.removeItem(tag)
-                appRepository.tagAndChannelData.removeItemByTagId(tag.tagId)
+                context.channelTagDataSource.removeItem(tag)
+                context.tagAndChannelDataSource.removeItemByTagId(tag.tagId)
             }
         }
     }
@@ -587,9 +596,9 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             return
         }
 
-        val channel = appRepository.channelData.getItemById(msg.getInteger("channelId")) ?: return
+        val channel = context.channelDataSource.getItemById(msg.getInteger("channelId")) ?: return
         val updatedChannel = convertMessageToChannelModel(channel, msg)
-        appRepository.channelData.updateItem(updatedChannel)
+        context.channelDataSource.updateItem(updatedChannel)
     }
 
     /**
@@ -602,10 +611,10 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
         if (msg.containsKey("channelId")) {
             val channelId = msg.getInteger("channelId")
 
-            val channel = appRepository.channelData.getItemById(channelId)
+            val channel = context.channelDataSource.getItemById(channelId)
             if (channel != null) {
                 deleteIconFileFromCache(channel.icon)
-                appRepository.channelData.removeItemById(channel.id)
+                context.channelDataSource.removeItemById(channel.id)
             }
         }
     }
@@ -628,7 +637,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
                 context.sendSyncStateMessage(SyncStateResult.Syncing(SyncState.InProgress("Received ${pendingRecordingOps.size} recordings")))
             }
         } else {
-            appRepository.recordingData.addItem(recording)
+            context.recordingDataSource.addItem(recording)
         }
 
         addNotificationScheduledRecordingStarts(context, recording)
@@ -641,9 +650,9 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
      * @param msg The message with the updated recording data
      */
     private fun onDvrEntryUpdate(msg: HtspMessage) {
-        val recording = appRepository.recordingData.getItemById(msg.getInteger("id")) ?: return
+        val recording = context.recordingDataSource.getItemById(msg.getInteger("id")) ?: return
         val updatedRecording = convertMessageToRecordingModel(recording, msg)
-        appRepository.recordingData.updateItem(updatedRecording)
+        context.recordingDataSource.updateItem(updatedRecording)
 
         removeNotificationById(context, recording.id)
         if (sharedPreferences.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
@@ -662,8 +671,8 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
      */
     private fun onDvrEntryDelete(msg: HtspMessage) {
         if (msg.containsKey("id")) {
-            val recording = appRepository.recordingData.getItemById(msg.getInteger("id")) ?: return
-            appRepository.recordingData.removeItem(recording)
+            val recording = context.recordingDataSource.getItemById(msg.getInteger("id")) ?: return
+            context.recordingDataSource.removeItem(recording)
         }
     }
 
@@ -676,7 +685,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
     private fun onAutorecEntryAdd(msg: HtspMessage) {
         val seriesRecording = convertMessageToSeriesRecordingModel(SeriesRecording(), msg)
         seriesRecording.connectionId = connection.id
-        appRepository.seriesRecordingData.addItem(seriesRecording)
+        context.seriesRecordingDataSource.addItem(seriesRecording)
     }
 
     /**
@@ -691,9 +700,9 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             Timber.d("Could not find a series recording with id $id in the database")
             return
         }
-        val recording = appRepository.seriesRecordingData.getItemById(msg.getString("id")) ?: return
+        val recording = context.seriesRecordingDataSource.getItemById(msg.getString("id")) ?: return
         val updatedRecording = convertMessageToSeriesRecordingModel(recording, msg)
-        appRepository.seriesRecordingData.updateItem(updatedRecording)
+        context.seriesRecordingDataSource.updateItem(updatedRecording)
     }
 
     /**
@@ -705,8 +714,8 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
     private fun onAutorecEntryDelete(msg: HtspMessage) {
         val id = msg.getString("id", "")
         if (id.isNotEmpty()) {
-            val seriesRecording = appRepository.seriesRecordingData.getItemById(msg.getString("id")) ?: return
-            appRepository.seriesRecordingData.removeItem(seriesRecording)
+            val seriesRecording = context.seriesRecordingDataSource.getItemById(msg.getString("id")) ?: return
+            context.seriesRecordingDataSource.removeItem(seriesRecording)
         }
     }
 
@@ -719,7 +728,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
     private fun onTimerRecEntryAdd(msg: HtspMessage) {
         val recording = convertMessageToTimerRecordingModel(TimerRecording(), msg)
         recording.connectionId = connection.id
-        appRepository.timerRecordingData.addItem(recording)
+        context.timerRecordingDataSource.addItem(recording)
     }
 
     /**
@@ -734,9 +743,9 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             Timber.d("Could not find a timer recording with id $id in the database")
             return
         }
-        val recording = appRepository.timerRecordingData.getItemById(id) ?: return
+        val recording = context.timerRecordingDataSource.getItemById(id) ?: return
         val updatedRecording = convertMessageToTimerRecordingModel(recording, msg)
-        appRepository.timerRecordingData.updateItem(updatedRecording)
+        context.timerRecordingDataSource.updateItem(updatedRecording)
     }
 
     /**
@@ -748,8 +757,8 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
     private fun onTimerRecEntryDelete(msg: HtspMessage) {
         val id = msg.getString("id", "")
         if (id.isNotEmpty()) {
-            val timerRecording = appRepository.timerRecordingData.getItemById(id) ?: return
-            appRepository.timerRecordingData.removeItem(timerRecording)
+            val timerRecording = context.timerRecordingDataSource.getItemById(id) ?: return
+            context.timerRecordingDataSource.removeItem(timerRecording)
         }
     }
 
@@ -762,11 +771,11 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
     private fun onEventAdd(msg: HtspMessage) {
         if (!firstEventReceived && syncRequired) {
             Timber.d("Sync is required and received first event, saving ${pendingChannelOps.size} channels")
-            appRepository.channelData.addItems(pendingChannelOps)
+            context.channelDataSource.addItems(pendingChannelOps)
 
             Timber.d("Updating connection status with full sync completed")
             connection.isSyncRequired = false
-            appRepository.connectionData.updateItem(connection)
+            context.connectionDataSource.updateItem(connection)
         }
 
         firstEventReceived = true
@@ -782,7 +791,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             }
         } else {
             Timber.d("Adding event ${program.title}")
-            appRepository.programData.addItem(program)
+            context.programDataSource.addItem(program)
         }
     }
 
@@ -793,10 +802,10 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
      * @param msg The message with the updated epg event data
      */
     private fun onEventUpdate(msg: HtspMessage) {
-        val program = appRepository.programData.getItemById(msg.getInteger("eventId")) ?: return
+        val program = context.programDataSource.getItemById(msg.getInteger("eventId")) ?: return
         val updatedProgram = convertMessageToProgramModel(program, msg)
         Timber.d("Updating event ${updatedProgram.title}")
-        appRepository.programData.updateItem(updatedProgram)
+        context.programDataSource.updateItem(updatedProgram)
     }
 
     /**
@@ -807,7 +816,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
      */
     private fun onEventDelete(msg: HtspMessage) {
         if (msg.containsKey("id")) {
-            appRepository.programData.removeItemById(msg.getInteger("id"))
+            context.programDataSource.removeItemById(msg.getInteger("id"))
         }
     }
 
@@ -835,7 +844,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
                 pendingEventOps.addAll(programs)
             } else {
                 Timber.d("Saving ${programs.size} events for channel $channelName")
-                appRepository.programData.addItems(programs)
+                context.programDataSource.addItems(programs)
             }
         }
     }
@@ -852,7 +861,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
         addProfile(name = "htsp", type = ServerProfile.HTSP_PROFILE, profiles = pendingHtspProfiles)
 
         Timber.d("Adding ${pendingHtspProfiles.size} htsp profiles")
-        appRepository.serverProfileData.addItems(pendingHtspProfiles)
+        context.serverProfileDataSource.addItems(pendingHtspProfiles)
     }
 
     private fun onHttpProfiles(message: HtspMessage) {
@@ -886,7 +895,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
         addProfile(name = "pass", type = ServerProfile.HTTP_PROFILE, profiles = pendingHttpProfiles)
 
         Timber.d("Adding ${pendingHttpProfiles.size} http profiles")
-        appRepository.serverProfileData.addItems(pendingHttpProfiles)
+        context.serverProfileDataSource.addItems(pendingHttpProfiles)
     }
 
     private fun onSubscriptions(message: HtspMessage) {
@@ -899,7 +908,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
                     val entries = response.getJSONArray("entries")
                     Timber.d("Received status of ${entries.length()} subscriptions")
 
-                    appRepository.subscriptionData.removeItems()
+                    context.subscriptionDataSource.removeItems()
 
                     if (entries.length() > 0) {
                         var i = 0
@@ -926,7 +935,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
                                 subscription.dataOut = if (entry.has("out")) entry.getInt("out") else 0
                                 subscription.start = if (entry.has("state")) entry.getInt("state") else 0
 
-                                appRepository.subscriptionData.addItem(subscription)
+                                context.subscriptionDataSource.addItem(subscription)
                             }
                             i++
                         }
@@ -950,7 +959,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
                     val entries = response.getJSONArray("entries")
                     Timber.d("Received status of ${entries.length()} inputs")
 
-                    appRepository.inputData.removeItems()
+                    context.inputDataSource.removeItems()
 
                     if (entries.length() > 0) {
                         var i = 0
@@ -977,7 +986,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
                                 input.continuityErrors = if (entry.has("cc")) entry.getInt("cc") else 0
                                 input.transportErrors = if (entry.has("te")) entry.getInt("te") else 0
 
-                                appRepository.inputData.addItem(input)
+                                context.inputDataSource.addItem(input)
                             }
                             i++
                         }
@@ -1001,11 +1010,11 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             }
         }
         Timber.d("Adding ${pendingRecordingProfiles.size} recording profiles")
-        appRepository.serverProfileData.addItems(pendingRecordingProfiles)
+        context.serverProfileDataSource.addItems(pendingRecordingProfiles)
     }
 
     private fun onServerStatus(message: HtspMessage) {
-        val serverStatus = appRepository.serverStatusData.activeItem
+        val serverStatus = context.serverStatusDataSource.activeItem
         serverStatus.let {
             val updatedServerStatus = convertMessageToServerStatusModel(it, message)
             updatedServerStatus.connectionId = connection.id
@@ -1013,13 +1022,13 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             Timber.d("Received initial response from server ${updatedServerStatus.serverName}, api version: ${updatedServerStatus.htspVersion}")
 
             // Update the database with the new server status data and the local variables too
-            appRepository.serverStatusData.updateItem(updatedServerStatus)
+            context.serverStatusDataSource.updateItem(updatedServerStatus)
             htspVersion = updatedServerStatus.htspVersion
         }
     }
 
     private fun onSystemTime(message: HtspMessage) {
-        val serverStatus = appRepository.serverStatusData.activeItem
+        val serverStatus = context.serverStatusDataSource.activeItem
         serverStatus.let {
             val gmtOffsetFromServer = message.getInteger("gmtoffset", 0) * 60 * 1000
             val gmtOffset = gmtOffsetFromServer - daylightSavingOffset
@@ -1027,18 +1036,18 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
 
             it.gmtoffset = gmtOffset
             it.time = message.getLong("time", 0)
-            appRepository.serverStatusData.updateItem(it)
+            context.serverStatusDataSource.updateItem(it)
 
             Timber.d("Received system time from server ${it.serverName}, server time: ${it.time}, server gmt offset: ${it.gmtoffset}")
         }
     }
 
     private fun onDiskSpace(message: HtspMessage) {
-        val serverStatus = appRepository.serverStatusData.activeItem
+        val serverStatus = context.serverStatusDataSource.activeItem
         serverStatus.let {
             it.freeDiskSpace = message.getLong("freediskspace", 0)
             it.totalDiskSpace = message.getLong("totaldiskspace", 0)
-            appRepository.serverStatusData.updateItem(it)
+            context.serverStatusDataSource.updateItem(it)
 
             Timber.d("Received disk space information from server ${it.serverName}, free disk space: ${it.freeDiskSpace}, total disk space: ${it.totalDiskSpace}")
         }
@@ -1050,7 +1059,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
     private fun saveAllReceivedChannels() {
         Timber.d("Saving ${pendingChannelOps.size} channels")
         if (pendingChannelOps.isNotEmpty()) {
-            appRepository.channelData.addItems(pendingChannelOps)
+            context.channelDataSource.addItems(pendingChannelOps)
         }
     }
 
@@ -1066,10 +1075,10 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
         val pendingAddedTagAndChannelOps = ArrayList<TagAndChannel>()
 
         if (pendingChannelTagOps.isNotEmpty()) {
-            appRepository.channelTagData.addItems(pendingChannelTagOps)
+            context.channelTagDataSource.addItems(pendingChannelTagOps)
             for (tag in pendingChannelTagOps) {
 
-                val tac = appRepository.tagAndChannelData.getItemById(tag.tagId)
+                val tac = context.tagAndChannelDataSource.getItemById(tag.tagId)
                 if (tac != null) {
                     pendingRemovedTagAndChannelOps.add(tac)
                 }
@@ -1087,7 +1096,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             }
 
             Timber.d("Removing ${pendingRemovedTagAndChannelOps.size} and adding ${pendingAddedTagAndChannelOps.size} tag and channel relations")
-            appRepository.tagAndChannelData.addAndRemoveItems(pendingAddedTagAndChannelOps, pendingRemovedTagAndChannelOps)
+            context.tagAndChannelDataSource.addAndRemoveItems(pendingAddedTagAndChannelOps, pendingRemovedTagAndChannelOps)
         }
     }
 
@@ -1100,17 +1109,17 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
      */
     private fun saveAllReceivedRecordings() {
         Timber.d("Removing previously existing recordings and saving ${pendingRecordingOps.size} new recordings")
-        appRepository.recordingData.removeAndAddItems(pendingRecordingOps)
+        context.recordingDataSource.removeAndAddItems(pendingRecordingOps)
     }
 
     private fun saveAllReceivedEvents() {
         Timber.d("Saving ${pendingEventOps.size} new events")
         if (pendingEventOps.isNotEmpty()) {
-            appRepository.programData.addItems(pendingEventOps)
+            context.programDataSource.addItems(pendingEventOps)
         }
     }
 
-    private fun loadAllChannelIcons(channels: List<Channel> = appRepository.channelData.getItems()) {
+    private fun loadAllChannelIcons(channels: List<Channel> = context.channelDataSource.getItems()) {
         Timber.d("Downloading and saving all channel icons...")
 
         for (channel in channels) {
@@ -1125,7 +1134,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
         }
     }
 
-    private fun loadAllChannelTagIcons(tags: List<ChannelTag> = appRepository.channelTagData.getItems()) {
+    private fun loadAllChannelTagIcons(tags: List<ChannelTag> = context.channelTagDataSource.getItems()) {
         Timber.d("Downloading and saving all channel tag icons...")
 
         for (tag in tags) {
@@ -1246,7 +1255,7 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
         htspConnection?.sendMessage(request, object : ServerResponseListener<HtspMessage> {
             override fun handleResponse(response: HtspMessage) {
                 val program = convertMessageToProgramModel(Program(), response)
-                appRepository.programData.addItem(program)
+                context.programDataSource.addItem(program)
             }
         })
     }
@@ -1282,13 +1291,13 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
     private fun getMoreEvents(intent: Intent) {
 
         val numberOfProgramsToLoad = intent.getIntExtra("numFollowing", 0)
-        val channelList = appRepository.channelData.getItems()
+        val channelList = context.channelDataSource.getItems()
 
-        Timber.d("Database currently contains ${appRepository.programData.itemCount} events. ")
+        Timber.d("Database currently contains ${context.programDataSource.itemCount} events. ")
         Timber.d("Loading $numberOfProgramsToLoad events for each of the ${channelList.size} channels")
 
         for (channel in channelList) {
-            val lastProgram = appRepository.programData.getLastItemByChannelId(channel.id)
+            val lastProgram = context.programDataSource.getLastItemByChannelId(channel.id)
 
             val msgIntent = Intent()
             msgIntent.putExtra("numFollowing", numberOfProgramsToLoad)
@@ -1313,8 +1322,8 @@ class HtspServiceHandler(val context: Context, val appRepository: AppRepository,
             getEvents(msgIntent)
         }
 
-        appRepository.programData.addItems(pendingEventOps)
-        Timber.d("Saved ${pendingEventOps.size} events for all channels. Database contains ${appRepository.programData.itemCount} events")
+        context.programDataSource.addItems(pendingEventOps)
+        Timber.d("Saved ${pendingEventOps.size} events for all channels. Database contains ${context.programDataSource.itemCount} events")
         pendingEventOps.clear()
     }
 

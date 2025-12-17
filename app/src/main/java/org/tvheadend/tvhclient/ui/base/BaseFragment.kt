@@ -8,21 +8,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
-import androidx.preference.PreferenceManager
-import org.tvheadend.data.AppRepository
 import org.tvheadend.data.entity.Connection
-import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
+import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
-import javax.inject.Inject
 
 abstract class BaseFragment : Fragment() {
-
-    @Inject
-    lateinit var appRepository: AppRepository
-
     protected lateinit var sharedPreferences: SharedPreferences
     protected lateinit var baseViewModel: BaseViewModel
     protected lateinit var toolbarInterface: ToolbarInterface
@@ -33,13 +26,12 @@ abstract class BaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        MainApplication.component.inject(this)
 
         if (activity is ToolbarInterface) {
             toolbarInterface = activity as ToolbarInterface
         }
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+        sharedPreferences = requireContext().prefs
         baseViewModel = ViewModelProvider(requireActivity())[BaseViewModel::class.java]
         baseViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { isAvailable ->
             Timber.d("Received live data, connection to server availability changed to $isAvailable")

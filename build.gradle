@@ -10,7 +10,6 @@ buildscript {
 
         timberVersion = '5.0.1'
         appCompatVersion = '1.7.1'
-        daggerVersion = '2.57.2'
         coreKtxVersion = "1.17.0"
         prefKtxVersion = "1.2.1"
     }

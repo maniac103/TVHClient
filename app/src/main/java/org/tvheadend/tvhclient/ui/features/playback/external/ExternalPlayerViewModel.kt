@@ -1,7 +1,6 @@
 package org.tvheadend.tvhclient.ui.features.playback.external
 
 import android.app.Application
-import android.net.Uri
 import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
@@ -26,6 +25,11 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import androidx.core.net.toUri
+import androidx.lifecycle.application
+import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.recordingDataSource
+import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
+import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 
 class ExternalPlayerViewModel(application: Application) : BaseViewModel(application), ServerConnectionStateListener {
 
@@ -104,12 +108,12 @@ class ExternalPlayerViewModel(application: Application) : BaseViewModel(applicat
         val request = HtspMessage()
         request["method"] = "getTicket"
         if (channelId > 0) {
-            channel = appRepository.channelData.getItemById(channelId)
+            channel = application.channelDataSource.getItemById(channelId)
             Timber.d("Requesting ticket for channel id $channelId")
             request["channelId"] = channelId
         }
         if (dvrId > 0) {
-            recording = appRepository.recordingData.getItemById(dvrId)
+            recording = application.recordingDataSource.getItemById(dvrId)
             Timber.d("Requesting ticket for recording id $dvrId")
             request["dvrId"] = dvrId
         }
@@ -164,12 +168,12 @@ class ExternalPlayerViewModel(application: Application) : BaseViewModel(applicat
     }
 
     private fun getHttpProfile(): ServerProfile? {
-        val serverStatus = appRepository.serverStatusData.activeItem
-        return appRepository.serverProfileData.getItemById(serverStatus.httpPlaybackServerProfileId)
+        val serverStatus = application.serverStatusDataSource.activeItem
+        return application.serverProfileDataSource.getItemById(serverStatus.httpPlaybackServerProfileId)
     }
 
     fun getServerStatus(): ServerStatus {
-        return appRepository.serverStatusData.activeItem
+        return application.serverStatusDataSource.activeItem
     }
 
     fun getPlaybackUrl(convertHostname: Boolean = false, profileId: Int = 0): String {
@@ -180,7 +184,7 @@ class ExternalPlayerViewModel(application: Application) : BaseViewModel(applicat
         val defaultProfileName = defaultProfile?.name ?: "pass"
 
         // Get the playback profile for the given id. In case no profile is returned, use the default name
-        val serverProfile = appRepository.serverProfileData.getItemById(profileId)
+        val serverProfile = application.serverProfileDataSource.getItemById(profileId)
         return "${getServerUrl(convertHostname)}$path?ticket=$ticket&profile=${serverProfile?.name
                 ?: defaultProfileName}"
     }
