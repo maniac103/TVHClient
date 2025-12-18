@@ -2,6 +2,7 @@ package org.tvheadend.tvhclient.ui.common
 
 import android.annotation.TargetApi
 import android.content.Context
+import android.content.res.Resources
 import android.os.Build
 import java.util.*
 import androidx.core.content.edit
@@ -26,11 +27,11 @@ private fun setLocale(context: Context, language: String): Context {
 }
 
 private fun getPersistedData(context: Context, defaultLanguage: String): String {
-    return context.prefs.getString(SELECTED_LANGUAGE, defaultLanguage) ?: defaultLanguage
+    return context.prefs.prefs.getString(SELECTED_LANGUAGE, defaultLanguage) ?: defaultLanguage
 }
 
 private fun persist(context: Context, language: String) {
-    context.prefs.edit {
+    context.prefs.prefs.edit {
         putString(SELECTED_LANGUAGE, language)
     }
 }
@@ -58,11 +59,11 @@ private fun updateResourcesLegacy(context: Context, language: String): Context {
     return context.createConfigurationContext(configuration)
 }
 
-fun getLocale(context: Context): Locale {
+fun getLocale(res: Resources): Locale {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        context.resources.configuration.locales.get(0)
+        res.configuration.locales.get(0)
     } else {
         @Suppress("DEPRECATION")
-        context.resources.configuration.locale
+        res.configuration.locale
     }
 }

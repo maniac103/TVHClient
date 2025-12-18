@@ -5,12 +5,10 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.preference.PreferenceManager
 import org.tvheadend.api.AuthenticationStateResult
 import org.tvheadend.api.ConnectionStateResult
 import org.tvheadend.api.ServerConnectionStateListener
 import org.tvheadend.api.ServerResponseListener
-import org.tvheadend.data.AppRepository
 import org.tvheadend.data.entity.Connection
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.data.entity.Program
@@ -20,7 +18,6 @@ import org.tvheadend.htsp.HtspConnectionData
 import org.tvheadend.htsp.HtspFileInputStream
 import org.tvheadend.htsp.HtspMessage
 import org.tvheadend.tvhclient.BuildConfig
-import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionIntentService
 import org.tvheadend.tvhclient.service.ServerTicketReceiver
 import org.tvheadend.tvhclient.service.SyncStateResult
@@ -54,12 +51,12 @@ class HtspIntentServiceHandler(val context: Context, val connection: Connection)
         htspVersion = serverStatus.htspVersion
 
         val htspConnectionData = HtspConnectionData(
-                connection.username,
-                connection.password,
-                connection.serverUrl,
-                BuildConfig.VERSION_NAME,
-                BuildConfig.VERSION_CODE,
-                context.prefs.getString("connection_timeout", context.resources.getString(R.string.pref_default_connection_timeout))!!.toInt() * 1000
+            connection.username,
+            connection.password,
+            connection.serverUrl,
+            BuildConfig.VERSION_NAME,
+            BuildConfig.VERSION_CODE,
+            context.prefs.connectionTimeoutMs
         )
         htspConnection = HtspConnection(htspConnectionData, this, null)
 

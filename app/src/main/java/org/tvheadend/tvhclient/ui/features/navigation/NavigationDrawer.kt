@@ -196,8 +196,7 @@ class NavigationDrawer(private val activity: AppCompatActivity,
             activity.supportFragmentManager.commit {
                 replace(R.id.main, fragment)
 
-                val addFragmentToBackStack = activity.prefs.getBoolean("navigation_history_enabled", activity.resources.getBoolean(R.bool.pref_default_navigation_history_enabled))
-                if (addFragmentToBackStack) {
+                if (activity.prefs.navigationHistoryEnabled) {
                     addToBackStack(null)
                 }
             }

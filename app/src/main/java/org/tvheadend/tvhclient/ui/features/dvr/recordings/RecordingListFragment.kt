@@ -19,6 +19,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
 import org.tvheadend.tvhclient.ui.features.dvr.recordings.download.DownloadPermissionGrantedInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
+import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -80,7 +81,7 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
 
-        if (sharedPreferences.getBoolean("delete_all_recordings_menu_enabled", resources.getBoolean(R.bool.pref_default_delete_all_recordings_menu_enabled))
+        if (requireActivity().prefs.deleteAllRecordingsMenuEnabled
                 && recyclerViewAdapter.itemCount > 1
                 && isConnectionToServerAvailable) {
             menu.findItem(R.id.menu_remove_all_recordings)?.isVisible = true
@@ -92,9 +93,8 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         // Do not show the search menu when no recordings are available
         menu.findItem(R.id.menu_search)?.isVisible = recyclerViewAdapter.itemCount > 0
 
-        val showGenreColors = sharedPreferences.getBoolean("genre_colors_for_recordings_enabled", resources.getBoolean(R.bool.pref_default_genre_colors_for_recordings_enabled))
         if (!baseViewModel.isSearchActive) {
-            menu.findItem(R.id.menu_genre_color_information)?.isVisible = showGenreColors
+            menu.findItem(R.id.menu_genre_color_information)?.isVisible = requireActivity().prefs.genreColorsForRecordingsEnabled
         }
     }
 

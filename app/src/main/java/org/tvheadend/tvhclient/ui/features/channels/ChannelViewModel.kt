@@ -1,106 +1,27 @@
 package org.tvheadend.tvhclient.ui.features.channels
 
 import android.app.Application
-import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
-import org.tvheadend.data.entity.Channel
-import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
-import timber.log.Timber
+import org.tvheadend.tvhclient.util.livedata.CombinedTupleLiveData
 
-class ChannelViewModel(private val application: Application) : BaseChannelViewModel(application), SharedPreferences.OnSharedPreferenceChangeListener {
+class ChannelViewModel(private val application: Application) : BaseChannelViewModel(application) {
 
     var selectedListPosition = 0
     var selectedTimeOffset = 0
-    val channels: LiveData<List<Channel>>
-    var showGenreColor = MutableLiveData<Boolean>()
-    var showNextProgramTitle = MutableLiveData<Boolean>()
-    var showProgressBar = MutableLiveData<Boolean>()
-    var showProgramSubtitle = MutableLiveData<Boolean>()
-    val showChannelName = MutableLiveData<Boolean>()
-    val showChannelNumber = MutableLiveData<Boolean>()
-    private val channelSortOrder = MutableLiveData<Int>()
 
-    private val defaultShowChannelName = application.applicationContext.resources.getBoolean(R.bool.pref_default_channel_name_enabled)
-    private val defaultShowChannelNumber = application.applicationContext.resources.getBoolean(R.bool.pref_default_channel_number_enabled)
-    private val defaultShowProgramSubtitle = application.applicationContext.resources.getBoolean(R.bool.pref_default_program_subtitle_enabled)
-    private val defaultShowProgressBar = application.applicationContext.resources.getBoolean(R.bool.pref_default_program_progressbar_enabled)
-    private val defaultShowNextProgramTitle = application.applicationContext.resources.getBoolean(R.bool.pref_default_next_program_title_enabled)
-    private val defaultShowGenreColor = application.applicationContext.resources.getBoolean(R.bool.pref_default_genre_colors_for_channels_enabled)
-    private val defaultShowAllChannelTags = application.applicationContext.resources.getBoolean(R.bool.pref_default_empty_channel_tags_enabled)
+    val channels = CombinedTupleLiveData(
+        selectedTime,
+        application.prefs.channelSortOrderLiveData(),
+        selectedChannelTagIds
+    ) { time, sortOrder, tagIds -> Triple(time, sortOrder, tagIds) }
+        .switchMap { (time, sortOrder, tagIds) -> application.channelDataSource.getAllChannelsByTime(time, sortOrder.ordinal, tagIds) }
 
-    init {
-        val trigger = ChannelLiveData(selectedTime, channelSortOrder, selectedChannelTagIds)
-        channels = trigger.switchMap { value ->
-            val time = value.first
-            val sortOrder = value.second
-            val tagIds = value.third
-
-            if (time == null) {
-                Timber.d("Not loading channels because the selected time is not set")
-                return@switchMap null
-            }
-            if (sortOrder == null) {
-                Timber.d("Not loading channels because no channel sort order is set")
-                return@switchMap null
-            }
-            if (tagIds == null) {
-                Timber.d("Not loading channels because no selected channel tag id is set")
-                return@switchMap null
-            }
-            Timber.d("Loading channels because either the selected time, channel sort order or channel tag ids have changed")
-            return@switchMap application.channelDataSource.getAllChannelsByTime(time, sortOrder, tagIds)
-        }
-
-        onSharedPreferenceChanged(application.prefs, "channel_sort_order")
-        onSharedPreferenceChanged(application.prefs, "channel_name_enabled")
-        onSharedPreferenceChanged(application.prefs, "channel_number_enabled")
-        onSharedPreferenceChanged(application.prefs, "program_progressbar_enabled")
-        onSharedPreferenceChanged(application.prefs, "program_subtitle_enabled")
-        onSharedPreferenceChanged(application.prefs, "next_program_title_enabled")
-        onSharedPreferenceChanged(application.prefs, "genre_colors_for_channels_enabled")
-        onSharedPreferenceChanged(application.prefs, "empty_channel_tags_enabled")
-
-        application.prefs.registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onCleared() {
-        application.prefs.unregisterOnSharedPreferenceChangeListener(this)
-        super.onCleared()
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        Timber.d("Shared preference $key has changed")
-        if (sharedPreferences == null) return
-        when (key) {
-            "channel_sort_order" -> channelSortOrder.value = Integer.valueOf(sharedPreferences.getString("channel_sort_order", defaultChannelSortOrder) ?: defaultChannelSortOrder)
-            "channel_name_enabled" -> showChannelName.value = sharedPreferences.getBoolean(key, defaultShowChannelName)
-            "channel_number_enabled" -> showChannelNumber.value = sharedPreferences.getBoolean(key, defaultShowChannelNumber)
-            "program_subtitle_enabled" -> showProgramSubtitle.value = sharedPreferences.getBoolean(key, defaultShowProgramSubtitle)
-            "program_progressbar_enabled" -> showProgressBar.value = sharedPreferences.getBoolean(key, defaultShowProgressBar)
-            "next_program_title_enabled" -> showNextProgramTitle.value = sharedPreferences.getBoolean(key, defaultShowNextProgramTitle)
-            "genre_colors_for_channels_enabled" -> showGenreColor.value = sharedPreferences.getBoolean(key, defaultShowGenreColor)
-            "empty_channel_tags_enabled" -> showAllChannelTags.value = sharedPreferences.getBoolean(key, defaultShowAllChannelTags)
-        }
-    }
-
-    internal class ChannelLiveData(selectedTime: LiveData<Long>,
-                                         selectedChannelSortOrder: LiveData<Int>,
-                                         selectedChannelTagIds: LiveData<List<Int>?>) : MediatorLiveData<Triple<Long?, Int?, List<Int>?>>() {
-        init {
-            addSource(selectedTime) { time ->
-                value = Triple(time, selectedChannelSortOrder.value, selectedChannelTagIds.value)
-            }
-            addSource(selectedChannelSortOrder) { order ->
-                value = Triple(selectedTime.value, order, selectedChannelTagIds.value)
-            }
-            addSource(selectedChannelTagIds) { integers ->
-                value = Triple(selectedTime.value, selectedChannelSortOrder.value, integers)
-            }
-        }
-    }
+    var showGenreColor = application.prefs.genreColorsForChannelsLiveData()
+    var showNextProgramTitle = application.prefs.showNextProgramTitleLiveData()
+    var showProgressBar = application.prefs.showProgramProgressLiveData()
+    var showProgramSubtitle = application.prefs.showProgramSubtitleLiveData()
+    val showChannelName = application.prefs.showChannelNameLiveData()
+    val showChannelNumber = application.prefs.showChannelNumbersLiveData()
 }

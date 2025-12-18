@@ -27,7 +27,7 @@ import org.tvheadend.tvhclient.service.SyncStateResult
 import org.tvheadend.tvhclient.ui.common.SnackbarMessageReceiver
 import timber.log.Timber
 
-val Context.prefs get() = (applicationContext as MainApplication).sharedPreferences
+val Context.prefs get() = (applicationContext as MainApplication).preferences
 val Context.channelDataSource get() = (applicationContext as MainApplication).appRepository.channelData
 val Context.programDataSource get() = (applicationContext as MainApplication).appRepository.programData
 val Context.recordingDataSource get() = (applicationContext as MainApplication).appRepository.recordingData

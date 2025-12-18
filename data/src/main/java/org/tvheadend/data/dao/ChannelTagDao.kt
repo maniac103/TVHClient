@@ -61,7 +61,7 @@ internal interface ChannelTagDao {
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND is_selected = 1 " +
             " ORDER BY tag_name")
-    fun loadAllSelectedItemIds(): LiveData<List<Int>?>
+    fun loadAllSelectedItemIds(): LiveData<List<Int>>
 
     companion object {
 

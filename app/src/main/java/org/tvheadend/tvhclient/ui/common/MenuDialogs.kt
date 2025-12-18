@@ -24,7 +24,7 @@ import org.tvheadend.tvhclient.util.extensions.prefs
 
 
 fun showChannelTagSelectionDialog(context: Context, channelTags: MutableList<ChannelTag>, channelCount: Int, callback: ChannelTagIdsSelectedInterface): Boolean {
-    val isMultipleChoice = context.prefs.getBoolean("multiple_channel_tags_enabled", context.resources.getBoolean(R.bool.pref_default_multiple_channel_tags_enabled))
+    val isMultipleChoice = context.prefs.multiChannelTagsEnabled
 
     // Create a default tag (All channels)
     if (!isMultipleChoice) {
@@ -77,8 +77,6 @@ class ChannelTagSelectionAdapter(context: Context, private val channelTagList: L
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val binding = if (convertView == null) {
             val inflater = LayoutInflater.from(context)
-            val showChannelTagIcons = context.prefs.getBoolean("channel_tag_icons_enabled",
-                parent.context.resources.getBoolean(R.bool.pref_default_channel_tag_icons_enabled))
 
             val binding = if (isMultiChoice) {
                 ChanneltagListMultipleChoiceAdapterBinding.inflate(inflater, parent, false)
@@ -86,7 +84,7 @@ class ChannelTagSelectionAdapter(context: Context, private val channelTagList: L
                 ChanneltagListSingleChoiceAdapterBinding.inflate(inflater, parent, false)
             }
             binding.setVariable(BR.callback, this)
-            binding.setVariable(BR.showChannelTagIcons, showChannelTagIcons)
+            binding.setVariable(BR.showChannelTagIcons, context.prefs.channelTagIconsEnabled)
             binding
         } else {
             convertView.tag as ViewDataBinding
@@ -186,12 +184,12 @@ fun showProgramTimeframeSelectionDialog(context: Context, currentSelection: Int,
 }
 
 fun showChannelSortOrderSelectionDialog(context: Context): Boolean {
-    val channelSortOrder = context.prefs.getString("channel_sort_order", context.resources.getString(R.string.pref_default_channel_sort_order))!!.toInt()
+    val channelSortOrder = context.prefs.prefs.getString("channel_sort_order", context.resources.getString(R.string.pref_default_channel_sort_order))!!.toInt()
     MaterialAlertDialogBuilder(context)
         .setTitle(R.string.pref_sort_channels)
         .setSingleChoiceItems(R.array.pref_sort_channels_names, channelSortOrder) { _, index ->
             Timber.d("New selected channel sort order changed from $channelSortOrder to $index")
-            context.prefs.edit {
+            context.prefs.prefs.edit {
                 putString("channel_sort_order", index.toString())
             }
         }
@@ -200,12 +198,12 @@ fun showChannelSortOrderSelectionDialog(context: Context): Boolean {
 }
 
 fun showCompletedRecordingSortOrderSelectionDialog(context: Context): Boolean {
-    val sortOrder = context.prefs.getString("completed_recording_sort_order", context.resources.getString(R.string.pref_default_completed_recording_sort_order))!!.toInt()
+    val sortOrder = context.prefs.prefs.getString("completed_recording_sort_order", context.resources.getString(R.string.pref_default_completed_recording_sort_order))!!.toInt()
     MaterialAlertDialogBuilder(context)
         .setTitle(R.string.pref_sort_completed_recordings)
         .setSingleChoiceItems(R.array.pref_sort_completed_recordings_names, sortOrder) { _, index ->
             Timber.d("New selected completed recording sort order changed from $sortOrder to $index")
-            context.prefs.edit {
+            context.prefs.prefs.edit {
                 putString("completed_recording_sort_order", index.toString())
             }
         }

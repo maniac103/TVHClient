@@ -28,6 +28,7 @@ import java.net.URLEncoder
 import androidx.core.net.toUri
 import androidx.fragment.app.commit
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.tvheadend.tvhclient.util.Preferences
 import org.tvheadend.tvhclient.util.extensions.prefs
 
 fun preparePopupOrToolbarRecordingMenu(context: Context,
@@ -112,7 +113,7 @@ fun preparePopupOrToolbarMiscMenu(context: Context,
     }
     // Show the add reminder menu only for programs and
     // recordings where the start time is in the future.
-    if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
+    if (context.prefs.notificationsEnabled) {
         val currentTime = System.currentTimeMillis()
         var startTime = currentTime
         if (program != null && program.start > 0) {
@@ -459,7 +460,7 @@ fun recordSelectedProgramWithCustomProfile(context: Context, eventId: Int, chann
 }
 
 fun playSelectedChannel(context: Context, channelId: Int): Boolean {
-    if (context.prefs.getBoolean("internal_player_for_channels_enabled", context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))) {
+    if (context.prefs.internalPlayerForChannelsEnabled) {
         val intent = Intent(context, PlaybackActivity::class.java)
         intent.putExtra("channelId", channelId)
         context.startActivity(intent)
@@ -472,7 +473,7 @@ fun playSelectedChannel(context: Context, channelId: Int): Boolean {
 }
 
 fun playSelectedRecording(context: Context, dvrId: Int): Boolean {
-    if (context.prefs.getBoolean("internal_player_for_recordings_enabled", context.resources.getBoolean(R.bool.pref_default_internal_player_enabled))) {
+    if (context.prefs.internalPlayerForRecordingsEnabled) {
         val intent = Intent(context, PlaybackActivity::class.java)
         intent.putExtra("dvrId", dvrId)
         context.startActivity(intent)
@@ -513,31 +514,27 @@ fun castSelectedRecording(context: Context, id: Int): Boolean {
 }
 
 fun playOrCastChannel(context: Context, channelId: Int): Boolean {
-    val channelIconAction = context.prefs.getString("channel_icon_action", context.resources.getString(R.string.pref_default_channel_icon_action))!!.toInt()
-
-    if (channelIconAction == 1) {
-        playSelectedChannel(context, channelId)
-    } else if (channelIconAction == 2) {
-        if (context.getCastSession() != null) {
+    when (context.prefs.channelIconAction) {
+        Preferences.IconAction.Play -> playSelectedChannel(context, channelId)
+        Preferences.IconAction.CastOrPlay -> if (context.getCastSession() != null) {
             castSelectedChannel(context, channelId)
         } else {
             playSelectedChannel(context, channelId)
         }
+        Preferences.IconAction.DoNothing -> {}
     }
     return true
 }
 
 fun playOrCastRecording(context: Context, recordingId: Int): Boolean {
-    val channelIconAction = context.prefs.getString("channel_icon_action", context.resources.getString(R.string.pref_default_channel_icon_action))!!.toInt()
-
-    if (channelIconAction == 1) {
-        playSelectedRecording(context, recordingId)
-    } else if (channelIconAction == 2) {
-        if (context.getCastSession() != null) {
+    when (context.prefs.channelIconAction) {
+        Preferences.IconAction.Play -> playSelectedRecording(context, recordingId)
+        Preferences.IconAction.CastOrPlay -> if (context.getCastSession() != null) {
             castSelectedRecording(context, recordingId)
         } else {
             playSelectedRecording(context, recordingId)
         }
+        Preferences.IconAction.DoNothing -> {}
     }
     return true
 }

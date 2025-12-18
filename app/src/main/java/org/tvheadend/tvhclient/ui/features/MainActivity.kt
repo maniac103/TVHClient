@@ -154,7 +154,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
                 addToBackStack(null)
             }
 
-            val showPrivacyPolicyRequired = prefs.getBoolean("showPrivacyPolicy", true)
+            val showPrivacyPolicyRequired = prefs.prefs.getBoolean("showPrivacyPolicy", true)
             Timber.d("Privacy policy needs to be displayed $showPrivacyPolicyRequired")
             if (showPrivacyPolicyRequired) {
                 supportFragmentManager.commit {
@@ -167,7 +167,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             // Show the full changelog if the changelog was never shown before (app version
             // name is empty) or if it was already shown and the version name is the same as
             // the one in the preferences. Otherwise show the changelog of the newest app version.
-            val versionName = prefs.getString("versionNameForChangelog", "") ?: ""
+            val versionName = prefs.prefs.getString("versionNameForChangelog", "") ?: ""
             val showChangeLogRequired = BuildConfig.VERSION_NAME != versionName
             Timber.d("Version name from prefs is $versionName, build version from gradle is ${BuildConfig.VERSION_NAME}")
 
@@ -612,8 +612,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             return
         }
 
-        val navigationHistoryEnabled = prefs.getBoolean("navigation_history_enabled", resources.getBoolean(R.bool.pref_default_navigation_history_enabled))
-        if (!navigationHistoryEnabled) {
+        if (!prefs.navigationHistoryEnabled) {
             // The following fragments can be called from the channel list fragment.
             // So do not finish the activity in case any of these fragments are visible
             // but pop the back stack so that the channel list is shown again.

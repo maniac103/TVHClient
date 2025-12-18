@@ -2,20 +2,16 @@ package org.tvheadend.tvhclient.ui.features.epg
 
 import android.app.Application
 import android.content.ContextWrapper
-import android.content.SharedPreferences
 import android.util.SparseArray
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.switchMap
-import org.tvheadend.data.entity.EpgChannel
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.features.channels.BaseChannelViewModel
@@ -23,32 +19,30 @@ import org.tvheadend.tvhclient.ui.features.programs.ProgramDetailsFragment
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.programDataSource
+import org.tvheadend.tvhclient.util.livedata.CombinedPairLiveData
 import org.tvheadend.tvhclient.util.livedata.LiveEvent
 import timber.log.Timber
 import java.util.*
 
-class EpgViewModel(application: Application) : BaseChannelViewModel(application), SharedPreferences.OnSharedPreferenceChangeListener {
+class EpgViewModel(application: Application) : BaseChannelViewModel(application) {
 
     val registeredEpgFragments = SparseArray<Fragment>()
-    val epgChannels: LiveData<List<EpgChannel>>
+    val epgChannels = CombinedPairLiveData(selectedChannelTagIds, application.prefs.channelSortOrderLiveData()) { tagIds, sortOrder ->
+        tagIds to sortOrder
+    }.switchMap { (tagIds, sortOrder) ->
+        application.channelDataSource.getAllEpgChannels(sortOrder.ordinal, tagIds)
+    }
+
     private val viewAndEpgDataIsInvalidLiveEvent = LiveEvent<Boolean>()
     val viewAndEpgDataIsInvalid: MediatorLiveData<Boolean> = viewAndEpgDataIsInvalidLiveEvent
-    var epgData = MutableLiveData<HashMap<Int, List<EpgProgram>>>()
+    val epgData = MutableLiveData<HashMap<Int, List<EpgProgram>>>()
 
-    private val channelSortOrder = MutableLiveData<Int>()
-    val showChannelNumber = MutableLiveData<Boolean>()
-    var showGenreColor = MutableLiveData<Boolean>()
-    var showProgramSubtitle = MutableLiveData<Boolean>()
+    val showChannelNumber = application.prefs.showChannelNumbersLiveData()
+    var showGenreColor = application.prefs.genreColorsForProgramGuideLiveData()
+    var showProgramSubtitle = application.prefs.showProgramSubtitleLiveData()
 
-    private var hoursOfEpgDataPerScreen = MutableLiveData<Int>()
-    private var daysOfEpgData = MutableLiveData<Int>()
-
-    private val defaultShowChannelNumber = application.applicationContext.resources.getBoolean(R.bool.pref_default_channel_number_enabled)
-    private val defaultShowProgramSubtitle = application.applicationContext.resources.getBoolean(R.bool.pref_default_program_subtitle_enabled)
-    private val defaultDaysOfEpgData = application.applicationContext.resources.getString(R.string.pref_default_days_of_epg_data)
-    private val defaultShowGenreColor = application.applicationContext.resources.getBoolean(R.bool.pref_default_genre_colors_for_program_guide_enabled)
-    private val defaultHoursOfEpgDataPerScreen = application.applicationContext.resources.getString(R.string.pref_default_hours_of_epg_data_per_screen)
-    private val defaultShowAllChannelTags = application.applicationContext.resources.getBoolean(R.bool.pref_default_empty_channel_tags_enabled)
+    private var hoursOfEpgDataPerScreen = application.prefs.epgHoursPerScreenLiveData()
+    private var daysOfEpgData = application.prefs.epgDaysToShowLiveData()
 
     /**
      * Whenever the display width is set, update the pixels per minute variable
@@ -99,28 +93,6 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
     init {
         Timber.d("Initializing")
 
-        daysToShow = Integer.parseInt(application.prefs.getString("days_of_epg_data", defaultDaysOfEpgData)!!)
-        hoursToShow = Integer.parseInt(application.prefs.getString("hours_of_epg_data_per_screen", defaultHoursOfEpgDataPerScreen)!!)
-
-        daysOfEpgData.value = daysToShow
-        hoursOfEpgDataPerScreen.value = hoursToShow
-
-        epgChannels = EpgChannelLiveData(channelSortOrder, selectedChannelTagIds).switchMap { value ->
-            val sortOrder = value.first
-            val tagIds = value.second
-
-            if (sortOrder == null) {
-                Timber.d("Not loading epg channels because no channel sort order is set")
-                return@switchMap null
-            }
-            if (tagIds == null) {
-                Timber.d("Not loading epg channels because no channel tag id is set")
-                return@switchMap null
-            }
-            Timber.d("Loading epg channels because either the channel sort order or channel tag ids have changed")
-            return@switchMap application.channelDataSource.getAllEpgChannels(sortOrder, tagIds)
-        }
-
         // In case the live data hours to show has changed due to a shared preference change
         // the properties that depend on that value need to be updated
         viewAndEpgDataIsInvalid.addSource(hoursOfEpgDataPerScreen) { hours ->
@@ -154,16 +126,6 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
         // For the first time initialize the required
         // view properties and create an empty cache
         updateViewProperties()
-
-        onSharedPreferenceChanged(application.prefs, "channel_sort_order")
-        onSharedPreferenceChanged(application.prefs, "channel_number_enabled")
-        onSharedPreferenceChanged(application.prefs, "program_subtitle_enabled")
-        onSharedPreferenceChanged(application.prefs, "genre_colors_for_program_guide_enabled")
-        onSharedPreferenceChanged(application.prefs, "hours_of_epg_data_per_screen")
-        onSharedPreferenceChanged(application.prefs, "days_of_epg_data")
-        onSharedPreferenceChanged(application.prefs, "empty_channel_tags_enabled")
-
-        application.prefs.registerOnSharedPreferenceChangeListener(this)
     }
 
     private fun updateViewProperties() {
@@ -221,41 +183,8 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
         Timber.d("Updated pixels per minute to $pixelsPerMinute")
     }
 
-    override fun onCleared() {
-        application.prefs.unregisterOnSharedPreferenceChangeListener(this)
-        super.onCleared()
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        Timber.d("Shared preference $key has changed")
-        if (sharedPreferences == null) return
-        when (key) {
-            "channel_sort_order" -> channelSortOrder.value = Integer.valueOf(sharedPreferences.getString("channel_sort_order", defaultChannelSortOrder)
-                    ?: defaultChannelSortOrder)
-            "channel_number_enabled" -> showChannelNumber.value = sharedPreferences.getBoolean(key, defaultShowChannelNumber)
-            "program_subtitle_enabled" -> showProgramSubtitle.value = sharedPreferences.getBoolean(key, defaultShowProgramSubtitle)
-            "genre_colors_for_program_guide_enabled" -> showGenreColor.value = sharedPreferences.getBoolean(key, defaultShowGenreColor)
-            "hours_of_epg_data_per_screen" -> hoursOfEpgDataPerScreen.value = Integer.parseInt(sharedPreferences.getString(key, defaultHoursOfEpgDataPerScreen)!!)
-            "days_of_epg_data" -> daysOfEpgData.value = Integer.parseInt(sharedPreferences.getString(key, defaultDaysOfEpgData)!!)
-            "empty_channel_tags_enabled" -> showAllChannelTags.value = sharedPreferences.getBoolean(key, defaultShowAllChannelTags)
-        }
-    }
-
     fun getProgramsByChannelAndBetweenTimeSync(channelId: Int, fragmentId: Int): List<EpgProgram> {
         return application.programDataSource.getItemByChannelIdAndBetweenTime(channelId, startTimes[fragmentId], endTimes[fragmentId])
-    }
-
-    internal class EpgChannelLiveData(selectedChannelSortOrder: LiveData<Int>,
-                                            selectedChannelTagIds: LiveData<List<Int>?>) : MediatorLiveData<Pair<Int, List<Int>?>>() {
-
-        init {
-            addSource(selectedChannelSortOrder) { order ->
-                value = Pair.create(order, selectedChannelTagIds.value)
-            }
-            addSource(selectedChannelTagIds) { integers ->
-                value = Pair.create(selectedChannelSortOrder.value, integers)
-            }
-        }
     }
 
     fun getStartTime(fragmentId: Int): Long {

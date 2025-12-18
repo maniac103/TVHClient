@@ -102,7 +102,7 @@ class SettingsAdvancedFragment : BaseSettingsFragment(), Preference.OnPreference
     }
 
     private fun handlePreferenceDebugModeSelected() {
-        if (requireContext().prefs.getBoolean("debug_mode_enabled", resources.getBoolean(R.bool.pref_default_debug_mode_enabled))) {
+        if (requireContext().prefs.debugModeEnabled) {
             Timber.d("Debug mode is enabled")
             for (tree in Timber.forest()) {
                 if (tree.javaClass.name == FileLoggingTree::class.java.name) {

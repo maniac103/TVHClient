@@ -16,8 +16,7 @@ class ChannelTagDataSource(private val db: AppRoomDatabase) : DataSourceInterfac
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    val liveDataSelectedItemIds: LiveData<List<Int>?>
-        get() = db.channelTagDao.loadAllSelectedItemIds()
+    val liveDataSelectedItemIds get() = db.channelTagDao.loadAllSelectedItemIds()
 
     val itemCount: Int
         get() {

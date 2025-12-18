@@ -22,6 +22,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.getCastSession
+import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
 class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProgramVisibleListener, SearchRequestInterface, Filter.FilterListener, ClearSearchResultsOrPopBackStackInterface {
@@ -134,9 +135,8 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         val ctx = context ?: return
-        val showGenreColors = sharedPreferences.getBoolean("genre_colors_for_programs_enabled", resources.getBoolean(R.bool.pref_default_genre_colors_for_programs_enabled))
         // Hide the genre color menu in dual pane mode or if no genre colors shall be shown
-        menu.findItem(R.id.menu_genre_color_information)?.isVisible = !isDualPane && showGenreColors
+        menu.findItem(R.id.menu_genre_color_information)?.isVisible = !isDualPane && requireActivity().prefs.genreColorsForProgramsEnabled
 
         if (!baseViewModel.isSearchActive && isConnectionToServerAvailable) {
             menu.findItem(R.id.menu_play)?.isVisible = true

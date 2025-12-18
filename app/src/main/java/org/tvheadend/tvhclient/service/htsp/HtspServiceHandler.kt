@@ -54,12 +54,12 @@ import kotlin.math.max
 
 class HtspServiceHandler(val context: Context, val connection: Connection) : ConnectionService.ServiceInterface, ServerConnectionStateListener, ServerMessageListener<HtspMessage> {
     private var htspConnectionData: HtspConnectionData = HtspConnectionData(
-            connection.username,
-            connection.password,
-            connection.serverUrl,
-            BuildConfig.VERSION_NAME,
-            BuildConfig.VERSION_CODE,
-            context.prefs.getString("connection_timeout", context.resources.getString(R.string.pref_default_connection_timeout))!!.toInt() * 1000
+        connection.username,
+        connection.password,
+        connection.serverUrl,
+        BuildConfig.VERSION_NAME,
+        BuildConfig.VERSION_CODE,
+        context.prefs.connectionTimeoutMs
     )
     private var htspVersion: Int = 13
     private var htspConnection: HtspConnection? = null
@@ -220,7 +220,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
         val enableAsyncMetadataRequest = HtspMessage()
         enableAsyncMetadataRequest.method = "enableAsyncMetadata"
 
-        val epgMaxTime = context.prefs.getString("epg_max_time", context.resources.getString(R.string.pref_default_epg_max_time))!!.toLong()
+        val epgMaxTime = context.prefs.maxEpgTimeSeconds
         val currentTimeInSeconds = System.currentTimeMillis() / 1000L
         val lastUpdateTime = connection.lastUpdate
 
@@ -653,7 +653,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
         context.recordingDataSource.updateItem(updatedRecording)
 
         removeNotificationById(context, recording.id)
-        if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
+        if (context.prefs.notificationsEnabled) {
             if (!recording.isScheduled && !recording.isRecording) {
                 Timber.d("Removing notification for recording ${recording.title}")
                 (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(recording.id)

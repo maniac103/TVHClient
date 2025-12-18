@@ -396,10 +396,6 @@
             type="org.tvheadend.tvhclient.ui.features.programs.ProgramViewModel" />
 
         <variable
-            name="isProgramArtworkEnabled"
-            type="boolean" />
-
-        <variable
             name="viewWidth"
             type="int" />
     </data>

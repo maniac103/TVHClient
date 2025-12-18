@@ -2,10 +2,7 @@ package org.tvheadend.tvhclient.ui.features.channels
 
 import android.app.Application
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import org.tvheadend.data.entity.ChannelTag
 import org.tvheadend.data.entity.Program
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.ServerProfile
@@ -18,33 +15,20 @@ import org.tvheadend.tvhclient.util.extensions.programDataSource
 import org.tvheadend.tvhclient.util.extensions.recordingDataSource
 import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
 import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
+import org.tvheadend.tvhclient.util.livedata.CombinedPairLiveData
 import timber.log.Timber
 import java.util.*
 
 open class BaseChannelViewModel(private val application: Application) : BaseViewModel(application) {
+    val channelTags = CombinedPairLiveData(
+        application.channelTagDataSource.getLiveDataItems(),
+        application.prefs.showAllChannelTagsLiveData()
+    ) { tags, showAllTags -> tags.filter { showAllTags || it.channelCount > 0 } }
 
-    var showAllChannelTags = MutableLiveData<Boolean>()
-    val channelTags = MediatorLiveData<List<ChannelTag>>()
-    val recordings: LiveData<List<Recording>> = application.recordingDataSource.getLiveDataItems()
-    val selectedChannelTagIds: LiveData<List<Int>?> = application.channelTagDataSource.liveDataSelectedItemIds
-    val channelCount: LiveData<Int> = application.channelDataSource.getLiveDataItemCount()
+    val recordings = application.recordingDataSource.getLiveDataItems()
+    val selectedChannelTagIds = application.channelTagDataSource.liveDataSelectedItemIds
+    val channelCount = application.channelDataSource.getLiveDataItemCount()
     val selectedTime = MutableLiveData(Date().time)
-
-    val defaultChannelSortOrder: String = application.applicationContext.resources.getString(R.string.pref_default_channel_sort_order)
-    private val defaultShowEmptyChannelTags = application.applicationContext.resources.getBoolean(R.bool.pref_default_empty_channel_tags_enabled)
-
-    init {
-        showAllChannelTags.value = application.prefs.getBoolean("empty_channel_tags_enabled", defaultShowEmptyChannelTags)
-        // Reload the channel tag list depending on the preference
-        channelTags.addSource(showAllChannelTags) { allTags ->
-            channelTags.value = application.channelTagDataSource.getNonEmptyItems(allTags)
-        }
-        // Reload the channel tag list when the tags have changed to
-        // get the updated selection status which is saved for each tag
-        channelTags.addSource(application.channelTagDataSource.getLiveDataItems()) {
-            channelTags.value = application.channelTagDataSource.getNonEmptyItems(showAllChannelTags.value!!)
-        }
-    }
 
     fun setSelectedTime(time: Long) {
         if (selectedTime.value != time) {

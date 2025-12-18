@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit
  */
 fun getNotificationTime(context: Context, startTime: Long): Long {
 
-    val offset = context.prefs.getString("notification_lead_time", context.resources.getString(R.string.pref_default_notification_lead_time))!!.toInt()
+    val offset = context.prefs.notificationLeadTimeMinutes
     val notificationTime = startTime - (offset * 1000 * 60)
     val currentTime = Calendar.getInstance().timeInMillis
     val sdf = SimpleDateFormat("HH:mm", Locale.US)
@@ -75,7 +75,7 @@ fun getNotificationBuilder(context: Context): NotificationCompat.Builder {
  * @param recording The recording for which the notification shall be created
  */
 fun addNotificationScheduledRecordingStarts(context: Context, recording: Recording) {
-    if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))
+    if (context.prefs.notificationsEnabled
             && recording.isScheduled
             && recording.start > System.currentTimeMillis()
             && !recording.title.isNullOrEmpty()) {
@@ -104,7 +104,7 @@ fun addNotificationScheduledRecordingStarts(context: Context, recording: Recordi
  * @param id      The id of the program or recording
  */
 fun removeNotificationById(context: Context, id: Int) {
-    if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
+    if (context.prefs.notificationsEnabled) {
         Timber.d("Removing notification for id $id")
 
         val uniqueWorkName = "${RecordingNotificationWorker.WORK_NAME}_Notification_$id"
@@ -125,7 +125,7 @@ fun removeNotificationById(context: Context, id: Int) {
 fun addNotificationProgramIsAboutToStart(context: Context, program: ProgramInterface?, profile: ServerProfile?): Boolean {
     if (program == null) return false
 
-    if (context.prefs.getBoolean("notifications_enabled", context.resources.getBoolean(R.bool.pref_default_notifications_enabled))) {
+    if (context.prefs.notificationsEnabled) {
         val data = Data.Builder()
                 .putString("eventTitle", program.title)
                 .putInt("eventId", program.eventId)

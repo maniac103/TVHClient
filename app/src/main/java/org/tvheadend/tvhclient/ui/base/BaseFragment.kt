@@ -1,6 +1,5 @@
 package org.tvheadend.tvhclient.ui.base
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -12,11 +11,9 @@ import org.tvheadend.data.entity.Connection
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
-import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
 abstract class BaseFragment : Fragment() {
-    protected lateinit var sharedPreferences: SharedPreferences
     protected lateinit var baseViewModel: BaseViewModel
     protected lateinit var toolbarInterface: ToolbarInterface
     protected var isDualPane: Boolean = false
@@ -31,7 +28,6 @@ abstract class BaseFragment : Fragment() {
             toolbarInterface = activity as ToolbarInterface
         }
 
-        sharedPreferences = requireContext().prefs
         baseViewModel = ViewModelProvider(requireActivity())[BaseViewModel::class.java]
         baseViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { isAvailable ->
             Timber.d("Received live data, connection to server availability changed to $isAvailable")

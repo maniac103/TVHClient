@@ -54,12 +54,12 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat(), SharedPreferen
 
     override fun onResume() {
         super.onResume()
-        requireActivity().prefs.registerOnSharedPreferenceChangeListener(this)
+        requireActivity().prefs.prefs.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        requireActivity().prefs.unregisterOnSharedPreferenceChangeListener(this)
+        requireActivity().prefs.prefs.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {

@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDexApplication
-import androidx.preference.PreferenceManager
 import com.google.android.gms.cast.framework.CastOptions
 import com.google.android.gms.cast.framework.OptionsProvider
 import com.google.android.gms.cast.framework.SessionProvider
@@ -27,9 +26,9 @@ import org.tvheadend.data.source.ServerStatusDataSource
 import org.tvheadend.data.source.SubscriptionDataSource
 import org.tvheadend.data.source.TagAndChannelDataSource
 import org.tvheadend.data.source.TimerRecordingDataSource
-import org.tvheadend.tvhclient.ui.common.onAttach
 import org.tvheadend.tvhclient.ui.features.playback.external.ExpandedControlsActivity
 import org.tvheadend.tvhclient.util.MigrateUtils
+import org.tvheadend.tvhclient.util.Preferences
 import org.tvheadend.tvhclient.util.logging.DebugTree
 import org.tvheadend.tvhclient.util.logging.FileLoggingTree
 import timber.log.Timber
@@ -58,8 +57,8 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
         )
     }
 
-    val sharedPreferences: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(this)
+    val preferences: Preferences by lazy {
+        Preferences(this)
     }
 
     override fun onCreate() {
@@ -71,7 +70,7 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
         Timber.plant(DebugTree())
 
         // Log to a file when in release mode and the user has activated the setting
-        if (!BuildConfig.DEBUG && sharedPreferences.getBoolean("debug_mode_enabled", resources.getBoolean(R.bool.pref_default_debug_mode_enabled))) {
+        if (!BuildConfig.DEBUG && preferences.debugModeEnabled) {
             Timber.plant(FileLoggingTree(applicationContext))
         }
 
@@ -80,8 +79,8 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
         // Execute some additional tasks before starting the application.
         // These tasks are for example migrating connections, updating or
         // removing preferences, removing old information from the database and others
-        MigrateUtils(applicationContext, appRepository, sharedPreferences).doMigrate()
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        MigrateUtils(applicationContext, appRepository, preferences.prefs).doMigrate()
+        preferences.prefs.registerOnSharedPreferenceChangeListener(this)
         updateDefaultNightMode()
     }
 
@@ -123,7 +122,7 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
     }
 
     private fun updateDefaultNightMode() {
-        val selected = sharedPreferences.getString("selected_theme", getString(R.string.pref_default_theme))
+        val selected = preferences.prefs.getString("selected_theme", getString(R.string.pref_default_theme))
         val mode = when (selected) {
             "light" -> AppCompatDelegate.MODE_NIGHT_NO
             "dark" -> AppCompatDelegate.MODE_NIGHT_YES

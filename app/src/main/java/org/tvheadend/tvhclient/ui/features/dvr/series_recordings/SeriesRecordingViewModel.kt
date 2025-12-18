@@ -3,10 +3,9 @@ package org.tvheadend.tvhclient.ui.features.dvr.series_recordings
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
+import androidx.lifecycle.map
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.SeriesRecording
 import org.tvheadend.data.entity.ServerProfile
@@ -14,6 +13,7 @@ import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.filter
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.seriesRecordingDataSource
 import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
@@ -26,13 +26,13 @@ class SeriesRecordingViewModel(application: Application) : BaseViewModel(applica
     var selectedListPosition = 0
     val currentIdLiveData = MutableLiveData("")
     var recording = SeriesRecording()
-    var recordingLiveData = MediatorLiveData<SeriesRecording>()
-    val recordings: LiveData<List<SeriesRecording>> = application.seriesRecordingDataSource.getLiveDataItems()
+    val recordingLiveData = currentIdLiveData
+        .filter { it.isNotEmpty() }
+        .map { application.seriesRecordingDataSource.getItemById(it) }
+    val recordings = application.seriesRecordingDataSource.getLiveDataItems()
     var recordingProfileNameId = 0
 
-    var duplicateDetectionList: Array<String> = application.resources.getStringArray(R.array.duplicate_detection_list)
-
-    private val defaultChannelSortOrder = application.applicationContext.resources.getString(R.string.pref_default_channel_sort_order)
+    var duplicateDetectionList = application.resources.getStringArray(R.array.duplicate_detection_list)
 
     /**
      * Returns an intent with the recording data
@@ -77,14 +77,6 @@ class SeriesRecordingViewModel(application: Application) : BaseViewModel(applica
             }
         }
 
-    init {
-        recordingLiveData.addSource(currentIdLiveData) { value ->
-            if (value.isNotEmpty()) {
-                recordingLiveData.value = application.seriesRecordingDataSource.getItemById(value)
-            }
-        }
-    }
-
     fun loadRecordingByIdSync(id: String) {
         recording = application.seriesRecordingDataSource.getItemById(id) ?: SeriesRecording()
         // In case one of the values is negative the time setting shall be disabled
@@ -128,9 +120,7 @@ class SeriesRecordingViewModel(application: Application) : BaseViewModel(applica
     }
 
     fun getChannelList(): List<Channel> {
-        val channelSortOrder = Integer.valueOf(application.prefs.getString("channel_sort_order", defaultChannelSortOrder)
-                ?: defaultChannelSortOrder)
-        return application.channelDataSource.getChannels(channelSortOrder)
+        return application.channelDataSource.getChannels(application.prefs.channelSortOrder.ordinal)
     }
 
     fun getRecordingProfileNames(): Array<String> {

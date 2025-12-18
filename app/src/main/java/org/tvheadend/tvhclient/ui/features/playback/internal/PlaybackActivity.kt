@@ -65,7 +65,6 @@ class PlaybackActivity : AppCompatActivity() {
     private lateinit var playerPause: ImageButton
     private lateinit var playerRewind: ImageButton
 
-    private var timeshiftSupported: Boolean = false
     private lateinit var viewModel: PlayerViewModel
 
     private val videoAspectRatioNameList = listOf("5:4", "4:3", "16:9", "16:10", "18:9")
@@ -109,8 +108,6 @@ class PlaybackActivity : AppCompatActivity() {
         playerToggleFullscreen = findViewById<View>(R.id.player_toggle_fullscreen) as ImageButton
         playerInformation = findViewById<View>(R.id.player_information) as ImageButton
         playerSettings = findViewById<View>(R.id.player_settings) as ImageButton
-
-        timeshiftSupported = prefs.getBoolean("timeshift_enabled", resources.getBoolean(R.bool.pref_default_timeshift_enabled))
 
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager?
         orientation = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -238,6 +235,7 @@ class PlaybackActivity : AppCompatActivity() {
 
         Timber.d("Observing player is playing state")
         viewModel.playerIsPlaying.observe(this) { isPlaying ->
+            val timeshiftSupported = prefs.timeshiftEnabled
             Timber.d("Received player is playing $isPlaying")
             playerPlay.isInvisible = isPlaying
             playerPause.isInvisible = !isPlaying

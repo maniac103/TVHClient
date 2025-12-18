@@ -63,7 +63,7 @@ class StartupPrivacyPolicyFragment : WebViewFragment(), BackPressedInterface, Hi
     private fun acceptPrivacyPolicy() {
         Timber.d("Privacy policy was accepted")
 
-        requireContext().prefs.edit {
+        requireContext().prefs.prefs.edit {
             putBoolean("showPrivacyPolicy", false)
         }
 

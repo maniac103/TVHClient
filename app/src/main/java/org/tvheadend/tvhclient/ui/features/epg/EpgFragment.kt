@@ -23,6 +23,8 @@ import org.tvheadend.tvhclient.databinding.EpgFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
 import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.*
+import org.tvheadend.tvhclient.util.Preferences
+import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
 class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterface, ChannelTimeSelectedInterface, ChannelTagIdsSelectedInterface, Filter.FilterListener, SearchRequestInterface, ShowProgramListFragmentInterface {
@@ -183,14 +185,11 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        val showGenreColors = sharedPreferences.getBoolean("genre_colors_for_channels_enabled", resources.getBoolean(R.bool.pref_default_genre_colors_for_channels_enabled))
-        val showChannelTagMenu = sharedPreferences.getBoolean("channel_tag_menu_enabled", resources.getBoolean(R.bool.pref_default_channel_tag_menu_enabled))
-
-        menu.findItem(R.id.menu_genre_color_information)?.isVisible = showGenreColors
+        menu.findItem(R.id.menu_genre_color_information)?.isVisible = requireActivity().prefs.genreColorsForChannelsEnabled
         menu.findItem(R.id.menu_search_channels)?.isVisible = false
 
         // Prevent the channel tag menu item from going into the overlay menu
-        if (showChannelTagMenu) {
+        if (requireActivity().prefs.channelTagMenuEnabled) {
             menu.findItem(R.id.menu_channel_tags)?.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
     }
@@ -236,11 +235,12 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
     }
 
     override fun onClick(view: View, position: Int) {
-        if ((view.id == R.id.icon || view.id == R.id.icon_text)
-                && Integer.valueOf(sharedPreferences.getString("channel_icon_action", resources.getString(R.string.pref_default_channel_icon_action))!!) > 0
-                && isConnectionToServerAvailable) {
-            channelListRecyclerViewAdapter.getItem(position)?.let {
-                playOrCastChannel(view.context, it.id)
+        val item = channelListRecyclerViewAdapter.getItem(position)
+        if ((view.id == R.id.icon || view.id == R.id.icon_text) && isConnectionToServerAvailable && item != null) {
+            when (requireActivity().prefs.channelIconAction) {
+                Preferences.IconAction.Play -> playSelectedChannel(view.context, item.id)
+                Preferences.IconAction.CastOrPlay -> playOrCastChannel(view.context, item.id)
+                Preferences.IconAction.DoNothing -> {}
             }
         }
     }

@@ -126,7 +126,7 @@ class ChangeLogFragment : Fragment(), BackPressedInterface, HideNavigationDrawer
 
     override fun onBackPressed() {
         // Save the information that the changelog was shown
-        requireContext().prefs.edit {
+        requireContext().prefs.prefs.edit {
             putString("versionNameForChangelog", BuildConfig.VERSION_NAME)
         }
 

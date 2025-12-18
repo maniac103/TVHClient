@@ -18,6 +18,7 @@ import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
+import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -106,7 +107,7 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, S
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         // Enable the remove all recordings menu if there are at least 2 recordings available
-        if (sharedPreferences.getBoolean("delete_all_recordings_menu_enabled", resources.getBoolean(R.bool.pref_default_delete_all_recordings_menu_enabled))
+        if (requireActivity().prefs.deleteAllRecordingsMenuEnabled
                 && recyclerViewAdapter.itemCount > 1
                 && isConnectionToServerAvailable) {
             menu.findItem(R.id.menu_remove_all_recordings)?.isVisible = true

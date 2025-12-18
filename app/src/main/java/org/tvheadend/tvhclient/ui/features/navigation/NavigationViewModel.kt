@@ -3,7 +3,6 @@ package org.tvheadend.tvhclient.ui.features.navigation
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
 import org.tvheadend.tvhclient.ui.features.navigation.NavigationDrawer.Companion.MENU_SETTINGS
 import org.tvheadend.tvhclient.util.extensions.connectionDataSource
@@ -17,11 +16,10 @@ class NavigationViewModel(private val application: Application) : BaseViewModel(
     val connectionLiveData = application.connectionDataSource.liveDataActiveItem
     private val navigationMenuId = MutableLiveData<Event<Long>>()
     var currentNavigationMenuId: Long
-    private val defaultStartScreen = application.applicationContext.resources.getString(R.string.pref_default_start_screen)
 
     init {
         Timber.d("Initializing")
-        currentNavigationMenuId = application.prefs.getString("start_screen", defaultStartScreen)?.toLong() ?: 0L
+        currentNavigationMenuId = application.prefs.startScreenMenuId
         navigationMenuId.value = Event(currentNavigationMenuId)
     }
 

@@ -53,8 +53,8 @@ class StartupFragment : Fragment(), HideNavigationDrawerInterface {
 
             if (status != null) {
                 loadingDone = true
-                connectionCount = status.first!!
-                isConnectionActive = status.second!!
+                connectionCount = status.first
+                isConnectionActive = status.second
                 Timber.d("connection count is $connectionCount and connection is active is $isConnectionActive")
                 showStartupStatus()
             } else {

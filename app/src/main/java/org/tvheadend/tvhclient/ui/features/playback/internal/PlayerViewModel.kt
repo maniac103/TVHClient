@@ -20,7 +20,6 @@ import org.tvheadend.api.ServerConnectionStateListener
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.htsp.*
 import org.tvheadend.tvhclient.BuildConfig
-import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
 import org.tvheadend.tvhclient.ui.features.playback.internal.utils.CustomEventLogger
 import org.tvheadend.tvhclient.ui.features.playback.internal.utils.VideoAspect
@@ -82,11 +81,6 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
 
     var pipModeActive: Boolean = false
 
-    private val defaultForceAspectRatio = application.applicationContext.resources.getBoolean(R.bool.pref_default_force_aspect_ratio_for_sd_content_enabled)
-    private val defaultChannelSortOrder = application.applicationContext.resources.getString(R.string.pref_default_channel_sort_order)
-    private val defaultAudioTunnelingEnabled = application.applicationContext.resources.getBoolean(R.bool.pref_default_audio_tunneling_enabled)
-    private val defaultConnectionTimeout = application.resources.getString(R.string.pref_default_connection_timeout)
-
     init {
         Timber.d("Initializing view model")
 
@@ -94,20 +88,18 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         playerIsPlaying.postValue(false)
         playerState.postValue(Player.STATE_IDLE)
 
-        val channelSortOrder = Integer.valueOf(application.prefs.getString("channel_sort_order", defaultChannelSortOrder) ?: defaultChannelSortOrder)
-        channelList = application.channelDataSource.getChannels(channelSortOrder)
+        channelList = application.channelDataSource.getChannels(application.prefs.channelSortOrder.ordinal)
 
         Timber.d("Starting connection")
         val connection = application.connectionDataSource.activeItem
-        val connectionTimeout = Integer.valueOf(application.prefs.getString("connection_timeout", defaultConnectionTimeout)!!) * 1000
 
         val htspConnectionData = HtspConnectionData(
-                connection.username,
-                connection.password,
-                connection.serverUrl,
-                BuildConfig.VERSION_NAME,
-                BuildConfig.VERSION_CODE,
-                connectionTimeout
+            connection.username,
+            connection.password,
+            connection.serverUrl,
+            BuildConfig.VERSION_NAME,
+            BuildConfig.VERSION_CODE,
+            application.prefs.connectionTimeoutMs
         )
         htspConnection = HtspConnection(htspConnectionData, this, null)
 
@@ -118,17 +110,16 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
 
         trackSelector = DefaultTrackSelector(application.applicationContext, AdaptiveTrackSelection.Factory())
         trackSelector.buildUponParameters().setRendererDisabled(C.TRACK_TYPE_TEXT, true)
-        if (application.prefs.getBoolean("audio_tunneling_enabled", defaultAudioTunnelingEnabled)) {
+        if (application.prefs.audioTunnelingEnabled) {
             trackSelector.buildUponParameters().setTunnelingAudioSessionId(C.generateAudioSessionIdV21(application.applicationContext))
         }
 
         Timber.d("Creating load control")
-        val bufferTime = Integer.valueOf(application.prefs.getString("buffer_playback_ms", application.applicationContext.resources.getString(R.string.pref_default_buffer_playback_ms))!!)
         val loadControl = DefaultLoadControl.Builder()
                 .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE))
                 .setBufferDurationsMs(DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
                         DefaultLoadControl.DEFAULT_MAX_BUFFER_MS,
-                        bufferTime,
+                        application.prefs.bufferPlaybackMs,
                         DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS)
                 .setTargetBufferBytes(C.DEFAULT_BUFFER_SEGMENT_SIZE)
                 .setPrioritizeTimeOverSizeThresholds(true)
@@ -301,8 +292,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         Timber.d("Video size changed to width $width, height $height, pixel aspect ratio $pixelWidthHeightRatio")
         var newPixelWidthHeightRatio = pixelWidthHeightRatio
 
-        val forceAspectRatio = application.prefs.getBoolean("force_aspect_ratio_for_sd_content_enabled", defaultForceAspectRatio)
-        if (forceAspectRatio) {
+        if (application.prefs.forceAspectRatioForSdContent) {
             Timber.d("Video aspect shall be forced, checking original video aspect ratio")
 
             val aspectRatio = DecimalFormat("#.##").format(width.toFloat() / height.toFloat())

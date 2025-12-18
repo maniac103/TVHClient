@@ -15,7 +15,6 @@ import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.data.entity.ServerStatus
 import org.tvheadend.htsp.*
 import org.tvheadend.tvhclient.BuildConfig
-import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
 import timber.log.Timber
 import java.net.InetAddress
@@ -48,14 +47,13 @@ class ExternalPlayerViewModel(application: Application) : BaseViewModel(applicat
 
     init {
         Timber.d("Initializing")
-        val connectionTimeout = application.prefs.getString("connection_timeout", application.resources.getString(R.string.pref_default_connection_timeout))!!.toInt() * 1000
         val htspConnectionData = HtspConnectionData(
-                connection.username,
-                connection.password,
-                connection.serverUrl,
-                BuildConfig.VERSION_NAME,
-                BuildConfig.VERSION_CODE,
-                connectionTimeout
+            connection.username,
+            connection.password,
+            connection.serverUrl,
+            BuildConfig.VERSION_NAME,
+            BuildConfig.VERSION_CODE,
+            application.prefs.connectionTimeoutMs
         )
         htspConnection = HtspConnection(htspConnectionData, this, null)
 

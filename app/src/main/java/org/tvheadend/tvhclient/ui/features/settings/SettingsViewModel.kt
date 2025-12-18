@@ -11,7 +11,6 @@ import org.tvheadend.data.entity.Connection
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.data.entity.ServerStatus
 import org.tvheadend.data.source.MiscDataSource
-import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.interfaces.SnackbarMessageInterface
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.connectionDataSource
@@ -24,7 +23,6 @@ import timber.log.Timber
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application), SnackbarMessageInterface {
     private val sharedPreferences = application.prefs
-    private val defaultChannelSortOrder = application.applicationContext.resources.getString(R.string.pref_default_channel_sort_order)
 
     /**
      * The currently active connection. It is also used to hold the current
@@ -94,9 +92,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun getChannelList(): List<Channel> {
-        val channelSortOrder = Integer.valueOf(sharedPreferences.getString("channel_sort_order", defaultChannelSortOrder)
-                ?: defaultChannelSortOrder)
-        return application.channelDataSource.getChannels(channelSortOrder)
+        return application.channelDataSource.getChannels(application.prefs.channelSortOrder.ordinal)
     }
 
     /**

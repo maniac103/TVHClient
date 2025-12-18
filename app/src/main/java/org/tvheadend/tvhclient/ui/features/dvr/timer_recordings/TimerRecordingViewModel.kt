@@ -3,17 +3,16 @@ package org.tvheadend.tvhclient.ui.features.dvr.timer_recordings
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
+import androidx.lifecycle.map
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.data.entity.TimerRecording
-import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.filter
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
 import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
@@ -26,11 +25,11 @@ class TimerRecordingViewModel(application: Application) : BaseViewModel(applicat
     var selectedListPosition = 0
     val currentIdLiveData = MutableLiveData("")
     var recording = TimerRecording()
-    var recordingLiveData = MediatorLiveData<TimerRecording>()
-    val recordings: LiveData<List<TimerRecording>> = application.timerRecordingDataSource.getLiveDataItems()
+    val recordingLiveData = currentIdLiveData
+        .filter { it.isNotEmpty() }
+        .map { application.timerRecordingDataSource.getItemById(it) }
+    val recordings = application.timerRecordingDataSource.getLiveDataItems()
     var recordingProfileNameId = 0
-
-    private val defaultChannelSortOrder = application.applicationContext.resources.getString(R.string.pref_default_channel_sort_order)
 
     /**
      * Returns an intent with the recording data
@@ -66,14 +65,6 @@ class TimerRecordingViewModel(application: Application) : BaseViewModel(applicat
                 stopTimeInMillis = Calendar.getInstance().timeInMillis
             }
         }
-
-    init {
-        recordingLiveData.addSource(currentIdLiveData) { value ->
-            if (value.isNotEmpty()) {
-                recordingLiveData.value = application.timerRecordingDataSource.getItemById(value)
-            }
-        }
-    }
 
     fun loadRecordingByIdSync(id: String) {
         recording = application.timerRecordingDataSource.getItemById(id) ?: TimerRecording()
@@ -115,8 +106,7 @@ class TimerRecordingViewModel(application: Application) : BaseViewModel(applicat
     }
 
     fun getChannelList(): List<Channel> {
-        val channelSortOrder = Integer.valueOf(application.prefs.getString("channel_sort_order", defaultChannelSortOrder) ?: defaultChannelSortOrder)
-        return application.channelDataSource.getChannels(channelSortOrder)
+        return application.channelDataSource.getChannels(application.prefs.channelSortOrder.ordinal)
     }
 
     fun getRecordingProfileNames(): Array<String> {
