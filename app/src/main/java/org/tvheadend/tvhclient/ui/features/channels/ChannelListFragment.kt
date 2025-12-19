@@ -284,7 +284,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
     private fun showProgramListOfSelectedChannelInSinglePane(position: Int) {
         channelViewModel.selectedListPosition = position
         recyclerViewAdapter.setPosition(position)
-        val channel = recyclerViewAdapter.getItem(position)
+        val channel = recyclerViewAdapter.getItem(position)?.channel
         if (channel == null || !isVisible) {
             return
         }
@@ -301,7 +301,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
     private fun showProgramListOfSelectedChannelInDualPane(position: Int) {
         channelViewModel.selectedListPosition = position
         recyclerViewAdapter.setPosition(position)
-        val channel = recyclerViewAdapter.getItem(position)
+        val channel = recyclerViewAdapter.getItem(position)?.channel
         if (channel == null || !isVisible) {
             return
         }
@@ -333,7 +333,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
     }
 
     private fun showPopupMenu(view: View, position: Int) {
-        val channel = recyclerViewAdapter.getItem(position) ?: return
+        val channel = recyclerViewAdapter.getItem(position)?.channel ?: return
         val ctx = context ?: return
 
         val program = channelViewModel.getProgramById(channel.programId)
@@ -395,7 +395,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
     }
 
     override fun onClick(view: View, position: Int) {
-        val item = recyclerViewAdapter.getItem(position)
+        val item = recyclerViewAdapter.getItem(position)?.channel
         if ((view.id == R.id.icon || view.id == R.id.icon_text) && isConnectionToServerAvailable && item != null) {
             when (requireActivity().prefs.channelIconAction) {
                 Preferences.IconAction.Play -> playSelectedChannel(view.context, item.id)

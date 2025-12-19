@@ -51,17 +51,14 @@ fun convertMessageToChannelModel(channel: Channel, msg: HtspMessage): Channel {
         channel.id = msg.getInteger("channelId")
     }
     if (msg.containsKey("channelNumber") && msg.containsKey("channelNumberMinor")) {
-        val channelNumber = msg.getInteger("channelNumber")
-        val channelNumberMinor = msg.getInteger("channelNumberMinor")
-        channel.number = channelNumber
-        channel.numberMinor = channelNumberMinor
-        channel.displayNumber = "$channelNumber.$channelNumberMinor"
-
+        channel.number = msg.getInteger("channelNumber")
+        channel.numberMinor = msg.getInteger("channelNumberMinor")
     } else if (msg.containsKey("channelNumber")) {
-        val channelNumber = msg.getInteger("channelNumber")
-        channel.number = channelNumber
-        channel.displayNumber = "$channelNumber.0"
+        channel.number = msg.getInteger("channelNumber")
+        channel.numberMinor = 0
     }
+    channel.displayNumber = "${channel.number}.${channel.numberMinor}"
+
     if (msg.containsKey("channelName")) {
         channel.name = msg.getString("channelName")
     }

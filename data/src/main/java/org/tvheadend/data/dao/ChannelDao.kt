@@ -2,8 +2,9 @@ package org.tvheadend.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import org.tvheadend.data.entity.ChannelEntity
-import org.tvheadend.data.entity.EpgChannelEntity
+import org.tvheadend.data.entity.Channel
+import org.tvheadend.data.entity.ChannelWithProgram
+import org.tvheadend.data.entity.EpgChannel
 
 @Dao
 internal interface ChannelDao {
@@ -19,7 +20,7 @@ internal interface ChannelDao {
     @Query("SELECT c.* FROM channels AS c " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND c.id = :id")
-    fun loadChannelByIdSync(id: Int): ChannelEntity?
+    fun loadChannelByIdSync(id: Int): Channel?
 
     @Transaction
     @Query(CHANNEL_BASE_QUERY +
@@ -27,13 +28,13 @@ internal interface ChannelDao {
             " LEFT JOIN programs AS next_program ON next_program.start = program.stop AND next_program.channel_id = c.id " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND c.id = :id")
-    fun loadChannelByIdWithProgramsSync(id: Int, time: Long): ChannelEntity?
+    fun loadChannelByIdWithProgramsSync(id: Int, time: Long): ChannelWithProgram?
 
     @Query("SELECT c.* FROM channels AS c " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " GROUP BY c.id " +
             ORDER_BY)
-    fun loadAllChannelsSync(sortOrder: Int): List<ChannelEntity>
+    fun loadAllChannelsSync(sortOrder: Int): List<Channel>
 
     @Transaction
     @Query(CHANNEL_BASE_QUERY +
@@ -42,7 +43,7 @@ internal interface ChannelDao {
             " WHERE $CONNECTION_IS_ACTIVE" +
             " GROUP BY c.id " +
             ORDER_BY)
-    fun loadAllChannelsByTime(time: Long, sortOrder: Int): LiveData<List<ChannelEntity>>
+    fun loadAllChannelsByTime(time: Long, sortOrder: Int): LiveData<List<ChannelWithProgram>>
 
     @Transaction
     @Query(CHANNEL_BASE_QUERY +
@@ -52,21 +53,21 @@ internal interface ChannelDao {
             " AND c.id IN (SELECT channel_id FROM tags_and_channels WHERE tag_id IN (:tagIds)) " +
             " GROUP BY c.id " +
             ORDER_BY)
-    fun loadAllChannelsByTimeAndTag(time: Long, sortOrder: Int, tagIds: List<Int>): LiveData<List<ChannelEntity>>
+    fun loadAllChannelsByTimeAndTag(time: Long, sortOrder: Int, tagIds: List<Int>): LiveData<List<ChannelWithProgram>>
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(channel: ChannelEntity)
+    fun insert(channel: Channel)
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(channels: List<ChannelEntity>)
+    fun insert(channels: List<Channel>)
 
     @Update
-    fun update(channel: ChannelEntity)
+    fun update(channel: Channel)
 
     @Delete
-    fun delete(channel: ChannelEntity)
+    fun delete(channel: Channel)
 
     @Query("DELETE FROM channels " +
             " WHERE id = :id " +
@@ -79,19 +80,17 @@ internal interface ChannelDao {
     @Query(EPG_CHANNEL_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             ORDER_BY)
-    fun loadAllEpgChannels(sortOrder: Int): LiveData<List<EpgChannelEntity>>
+    fun loadAllEpgChannels(sortOrder: Int): LiveData<List<EpgChannel>>
 
     @Query(EPG_CHANNEL_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND c.id IN (SELECT channel_id FROM tags_and_channels WHERE tag_id IN (:tagIds)) " +
             ORDER_BY)
-    fun loadAllEpgChannelsByTag(sortOrder: Int, tagIds: List<Int>): LiveData<List<EpgChannelEntity>>
+    fun loadAllEpgChannelsByTag(sortOrder: Int, tagIds: List<Int>): LiveData<List<EpgChannel>>
 
     companion object {
 
-        const val CHANNEL_BASE_QUERY = "SELECT DISTINCT " +
-                "c.id, c.name, c.icon, c.number, c.number_minor, c.display_number, " +
-                "c.event_id, c.next_event_id, c.connection_id, c.server_order, " +
+        const val CHANNEL_BASE_QUERY = "SELECT DISTINCT c.*, " +
                 "program.id AS program_id, " +
                 "program.title AS program_title, " +
                 "program.subtitle AS program_subtitle, " +

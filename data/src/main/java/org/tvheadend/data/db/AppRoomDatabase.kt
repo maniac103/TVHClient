@@ -1,6 +1,8 @@
 package org.tvheadend.data.db
 
 import android.content.Context
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getStringOrNull
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -14,14 +16,14 @@ import org.tvheadend.data.entity.*
             SeriesRecordingEntity::class,
             RecordingEntity::class,
             ProgramEntity::class,
-            ChannelEntity::class,
+            Channel::class,
             ChannelTagEntity::class,
             TagAndChannelEntity::class,
             ConnectionEntity::class,
             ServerProfileEntity::class,
             ServerStatusEntity::class],
         exportSchema = false,
-        version = 14)
+        version = 15)
 abstract class AppRoomDatabase : RoomDatabase() {
 
     internal abstract val timerRecordingDao: TimerRecordingDao
@@ -52,24 +54,26 @@ abstract class AppRoomDatabase : RoomDatabase() {
             if (instance == null) {
                 synchronized(AppRoomDatabase::class.java) {
                     instance = Room.databaseBuilder(context, AppRoomDatabase::class.java, "tvhclient")
-                            .addMigrations(MIGRATION_1_2)
-                            .addMigrations(MIGRATION_2_3)
-                            .addMigrations(MIGRATION_3_4)
-                            .addMigrations(MIGRATION_4_5)
-                            .addMigrations(MIGRATION_5_6)
-                            .addMigrations(MIGRATION_6_7)
-                            .addMigrations(MIGRATION_7_8)
-                            .addMigrations(MIGRATION_8_9)
-                            .addMigrations(MIGRATION_9_10)
-                            .addMigrations(MIGRATION_10_11)
-                            .addMigrations(MIGRATION_11_12)
-                            .addMigrations(MIGRATION_12_13)
-                            .addMigrations(MIGRATION_13_14)
-                            .build()
+                        .addMigrations(MIGRATION_1_2)
+                        .addMigrations(MIGRATION_2_3)
+                        .addMigrations(MIGRATION_3_4)
+                        .addMigrations(MIGRATION_4_5)
+                        .addMigrations(MIGRATION_5_6)
+                        .addMigrations(MIGRATION_6_7)
+                        .addMigrations(MIGRATION_7_8)
+                        .addMigrations(MIGRATION_8_9)
+                        .addMigrations(MIGRATION_9_10)
+                        .addMigrations(MIGRATION_10_11)
+                        .addMigrations(MIGRATION_11_12)
+                        .addMigrations(MIGRATION_12_13)
+                        .addMigrations(MIGRATION_13_14)
+                        .addMigrations(MIGRATION_14_15)
+                        .build()
                 }
             }
             return instance!!
         }
+
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
@@ -165,6 +169,50 @@ abstract class AppRoomDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE server_status ADD COLUMN series_recording_server_profile_id INTEGER NOT NULL DEFAULT 0;")
                 database.execSQL("ALTER TABLE server_status ADD COLUMN timer_recording_server_profile_id INTEGER NOT NULL DEFAULT 0;")
             }
+        }
+
+        private val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.removeColumns(
+                    "channels",
+                    listOf(
+                        "display_number",
+                        "program_id",
+                        "program_title",
+                        "program_subtitle",
+                        "program_start",
+                        "program_stop",
+                        "program_content_type",
+                        "next_program_id",
+                        "next_program_title"
+                    ),
+                    listOf("id", "connection_id")
+                )
+            }
+        }
+
+        private fun SupportSQLiteDatabase.removeColumns(table: String, columns: List<String>, primaryKeys: List<String>) {
+            val newTableStr = StringBuilder()
+            val valuesStr = StringBuilder()
+            query("PRAGMA table_info($table)").use { columnInfo ->
+                val nameIndex = columnInfo.getColumnIndexOrThrow("name")
+                val typeIndex = columnInfo.getColumnIndexOrThrow("type")
+                val nullableIndex = columnInfo.getColumnIndexOrThrow("notnull")
+                while (columnInfo.moveToNext()) {
+                    val name = columnInfo.getStringOrNull(nameIndex)
+                    val type = columnInfo.getStringOrNull(typeIndex)
+                    val isNullable = columnInfo.getIntOrNull(nullableIndex)
+                    if (name !in columns && name != null && type != null && isNullable != null) {
+                        newTableStr.append("`$name` $type ${if (isNullable == 0) "" else "NOT NULL"},")
+                        valuesStr.append("`$name`,")
+                    }
+                }
+            }
+            val primaryKeysString = primaryKeys.joinToString(", ") { "`$it`" }
+            execSQL("CREATE TABLE IF NOT EXISTS ${table}_new (${newTableStr} PRIMARY KEY($primaryKeysString)) ")
+            execSQL("INSERT INTO ${table}_new SELECT ${valuesStr.dropLast(1)} FROM $table")
+            execSQL("DROP TABLE $table")
+            execSQL("ALTER TABLE ${table}_new RENAME TO $table")
         }
     }
 }

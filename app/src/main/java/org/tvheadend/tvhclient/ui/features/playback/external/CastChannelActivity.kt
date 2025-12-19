@@ -25,8 +25,8 @@ class CastChannelActivity : BasePlaybackActivity() {
         }
 
         val channel = viewModel.channel ?: return
-        val programTitle : String = channel.programTitle ?: ""
-        val programSubtitle : String = channel.programSubtitle ?: ""
+        val programTitle = "" // FIXME  : String = channel.programTitle ?: ""
+        val programSubtitle = "" // FIXME : String = channel.programSubtitle ?: ""
         val movieMetadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE)
         movieMetadata.putString(MediaMetadata.KEY_TITLE, programTitle)
         movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, programSubtitle)

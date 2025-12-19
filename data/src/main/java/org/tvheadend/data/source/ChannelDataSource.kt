@@ -2,36 +2,34 @@ package org.tvheadend.data.source
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.Channel
-import org.tvheadend.data.entity.ChannelEntity
+import org.tvheadend.data.entity.ChannelWithProgram
 import org.tvheadend.data.entity.EpgChannel
 import timber.log.Timber
-import java.util.*
 
 class ChannelDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Channel> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     override fun addItem(item: Channel) {
-        ioScope.launch { db.channelDao.insert(ChannelEntity.from(item)) }
+        ioScope.launch { db.channelDao.insert(item) }
     }
 
     fun addItems(items: List<Channel>) {
-        ioScope.launch { db.channelDao.insert(ArrayList(items.map { ChannelEntity.from(it) })) }
+        ioScope.launch { db.channelDao.insert(items) }
     }
 
     override fun updateItem(item: Channel) {
-        ioScope.launch { db.channelDao.update(ChannelEntity.from(item)) }
+        ioScope.launch { db.channelDao.update(item) }
     }
 
     override fun removeItem(item: Channel) {
-        ioScope.launch { db.channelDao.delete(ChannelEntity.from(item)) }
+        ioScope.launch { db.channelDao.delete(item) }
     }
 
     fun removeItemById(id: Int) {
@@ -50,56 +48,37 @@ class ChannelDataSource(private val db: AppRoomDatabase) : DataSourceInterface<C
         return MutableLiveData()
     }
 
-    override fun getItemById(id: Any): Channel? {
-        var channel: Channel?
-        runBlocking(Dispatchers.IO) {
-            channel = db.channelDao.loadChannelByIdSync(id as Int)?.toChannel()
-        }
-        return channel
+    override fun getItemById(id: Any): Channel? = runBlocking(Dispatchers.IO) {
+        db.channelDao.loadChannelByIdSync(id as Int)
     }
 
-    fun getChannels(sortOrder: Int = 0): List<Channel> {
-        val channels = ArrayList<Channel>()
-        runBlocking(Dispatchers.IO) {
-            channels.addAll(db.channelDao.loadAllChannelsSync(sortOrder).map { it.toChannel() })
-        }
-        return channels
+    fun getChannels(sortOrder: Int = 0): List<Channel> = runBlocking(Dispatchers.IO) {
+        db.channelDao.loadAllChannelsSync(sortOrder)
     }
 
     override fun getItems(): List<Channel> {
         return getChannels()
     }
 
-    fun getItemByIdWithPrograms(id: Int, selectedTime: Long): Channel? {
-        var channel: Channel?
-        runBlocking(Dispatchers.IO) {
-            channel = db.channelDao.loadChannelByIdWithProgramsSync(id, selectedTime)?.toChannel()
-        }
-        return channel
+    fun getItemByIdWithPrograms(id: Int, selectedTime: Long): ChannelWithProgram? = runBlocking(Dispatchers.IO) {
+        db.channelDao.loadChannelByIdWithProgramsSync(id, selectedTime)
     }
 
     fun getAllEpgChannels(channelSortOrder: Int, tagIds: List<Int>): LiveData<List<EpgChannel>> {
         Timber.d("Loading epg channels with sort order $channelSortOrder and ${tagIds.size} tags")
         return if (tagIds.isEmpty()) {
-            db.channelDao.loadAllEpgChannels(channelSortOrder).map { entities ->
-                entities.map { it.toEpgChannel() }
-            }
+            db.channelDao.loadAllEpgChannels(channelSortOrder)
         } else {
-            db.channelDao.loadAllEpgChannelsByTag(channelSortOrder, tagIds).map { entities ->
-                entities.map { it.toEpgChannel() }
-            }
+            db.channelDao.loadAllEpgChannelsByTag(channelSortOrder, tagIds)
         }
     }
 
-    fun getAllChannelsByTime(selectedTime: Long, channelSortOrder: Int, tagIds: List<Int>): LiveData<List<Channel>> {
+    fun getAllChannelsByTime(selectedTime: Long, channelSortOrder: Int, tagIds: List<Int>): LiveData<List<ChannelWithProgram>> {
         Timber.d("Loading channels from time $selectedTime with sort order $channelSortOrder and ${tagIds.size} tags")
-        val channels = if (tagIds.isEmpty()) {
+        return if (tagIds.isEmpty()) {
             db.channelDao.loadAllChannelsByTime(selectedTime, channelSortOrder)
         } else {
             db.channelDao.loadAllChannelsByTimeAndTag(selectedTime, channelSortOrder, tagIds)
-        }
-        return channels.map { entities ->
-            entities.map { it.toChannel() }
         }
     }
 }

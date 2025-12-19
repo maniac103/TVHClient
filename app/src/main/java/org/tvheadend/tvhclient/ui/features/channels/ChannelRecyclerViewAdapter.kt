@@ -7,20 +7,18 @@ import android.widget.Filterable
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import org.tvheadend.data.entity.Channel
+import org.tvheadend.data.entity.ChannelWithProgram
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ChannelListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.util.extensions.isEqualTo
-import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
 
 class ChannelRecyclerViewAdapter internal constructor(private val viewModel: ChannelViewModel, private val isDualPane: Boolean, private val clickCallback: RecyclerViewClickInterface, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<ChannelRecyclerViewAdapter.ChannelViewHolder>(), Filterable {
 
     private val recordingList = ArrayList<Recording>()
-    private val channelList = ArrayList<Channel>()
-    private var channelListFiltered: MutableList<Channel> = ArrayList()
+    private val channelList = ArrayList<ItemModel>()
+    private var channelListFiltered: MutableList<ItemModel> = ArrayList()
     private var selectedPosition = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChannelViewHolder {
@@ -33,8 +31,8 @@ class ChannelRecyclerViewAdapter internal constructor(private val viewModel: Cha
 
     override fun onBindViewHolder(holder: ChannelViewHolder, position: Int) {
         if (channelListFiltered.size > position) {
-            val channel = channelListFiltered[position]
-            holder.bind(channel, position, selectedPosition == position, clickCallback)
+            val item = channelListFiltered[position]
+            holder.bind(item, position, selectedPosition == position, clickCallback)
         }
     }
 
@@ -42,11 +40,12 @@ class ChannelRecyclerViewAdapter internal constructor(private val viewModel: Cha
         onBindViewHolder(holder, position)
     }
 
-    internal fun addItems(newItems: MutableList<Channel>) {
+    internal fun addItems(items: MutableList<ChannelWithProgram>) {
+        val newItems = items.map { ItemModel(it) }.toMutableList()
         updateRecordingState(newItems, recordingList)
 
         val oldItems = ArrayList(channelListFiltered)
-        val diffResult = DiffUtil.calculateDiff(ChannelListDiffCallback(oldItems, newItems))
+        val diffResult = DiffUtil.calculateDiff(DiffCallback(oldItems, newItems))
 
         channelList.clear()
         channelListFiltered.clear()
@@ -73,28 +72,21 @@ class ChannelRecyclerViewAdapter internal constructor(private val viewModel: Cha
         notifyItemChanged(pos)
     }
 
-    fun getItem(position: Int): Channel? {
-        return if (channelListFiltered.size > position && position >= 0) {
-            channelListFiltered[position]
-        } else {
-            null
-        }
+    fun getItem(position: Int) = if (channelListFiltered.size > position && position >= 0) {
+        channelListFiltered[position]
+    } else {
+        null
     }
 
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSequence: CharSequence): FilterResults {
                 val charString = charSequence.toString()
-                val filteredList: MutableList<Channel> = ArrayList()
-                if (charString.isNotEmpty()) {
-                    for (channel in CopyOnWriteArrayList(channelList)) {
-                        val name = channel.name ?: ""
-                        when {
-                            name.lowercase().contains(charString.lowercase()) -> filteredList.add(channel)
-                        }
-                    }
+                val origList = channelList
+                val filteredList = if (charString.isNotEmpty()) {
+                    origList.filter { model -> model.channel.name.equals(charString, ignoreCase = true) }
                 } else {
-                    filteredList.addAll(channelList)
+                    origList
                 }
 
                 val filterResults = FilterResults()
@@ -105,7 +97,7 @@ class ChannelRecyclerViewAdapter internal constructor(private val viewModel: Cha
             override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
                 channelListFiltered.clear()
                 @Suppress("UNCHECKED_CAST")
-                channelListFiltered.addAll(filterResults.values as ArrayList<Channel>)
+                channelListFiltered.addAll(filterResults.values as ArrayList<ItemModel>)
                 notifyDataSetChanged()
             }
         }
@@ -125,15 +117,14 @@ class ChannelRecyclerViewAdapter internal constructor(private val viewModel: Cha
         updateRecordingState(channelListFiltered, recordingList)
     }
 
-    private fun updateRecordingState(channels: MutableList<Channel>, recordings: List<Recording>) {
-        for (i in channels.indices) {
-            val channel = channels[i]
+    private fun updateRecordingState(items: MutableList<ItemModel>, recordings: List<Recording>) {
+        items.forEachIndexed { index, model ->
             var recordingExists = false
 
             for (recording in recordings) {
-                if (channel.programId > 0 && channel.programId == recording.eventId) {
-                    val oldRecording = channel.recording
-                    channel.recording = recording
+                if (model.channel.programId > 0 && model.channel.programId == recording.eventId) {
+                    val oldRecording = model.recording
+                    model.recording = recording
 
                     // Do a full update only when a new recording was added or the recording
                     // state has changed which results in a different recording state icon
@@ -141,17 +132,36 @@ class ChannelRecyclerViewAdapter internal constructor(private val viewModel: Cha
                     if (oldRecording == null
                             || !oldRecording.error.isEqualTo(recording.error)
                             || !oldRecording.state.isEqualTo(recording.state)) {
-                        notifyItemChanged(i)
+                        notifyItemChanged(index)
                     }
                     recordingExists = true
                     break
                 }
             }
-            if (!recordingExists && channel.recording != null) {
-                channel.recording = null
-                notifyItemChanged(i)
+            if (!recordingExists && model.recording != null) {
+                model.recording = null
+                notifyItemChanged(index)
             }
-            channels[i] = channel
+        }
+    }
+
+    data class ItemModel(val channel: ChannelWithProgram, var recording: Recording? = null)
+
+    private class DiffCallback(private val oldList: List<ItemModel>, private val newList: List<ItemModel>) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return newList[newItemPosition].channel.id == oldList[oldItemPosition].channel.id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return newList[newItemPosition] == oldList[oldItemPosition]
         }
     }
 
@@ -159,8 +169,8 @@ class ChannelRecyclerViewAdapter internal constructor(private val viewModel: Cha
                             private val viewModel: ChannelViewModel,
                             private val isDualPane: Boolean) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(channel: Channel, position: Int, isSelected: Boolean, clickCallback: RecyclerViewClickInterface) {
-            binding.channel = channel
+        fun bind(item: ItemModel, position: Int, isSelected: Boolean, clickCallback: RecyclerViewClickInterface) {
+            binding.model = item
             binding.position = position
             binding.isSelected = isSelected
             binding.viewModel = viewModel

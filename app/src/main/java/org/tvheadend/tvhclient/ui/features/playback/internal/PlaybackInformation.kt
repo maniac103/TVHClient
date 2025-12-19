@@ -1,13 +1,13 @@
 package org.tvheadend.tvhclient.ui.features.playback.internal
 
-import org.tvheadend.data.entity.Channel
+import org.tvheadend.data.entity.ChannelWithProgram
 import org.tvheadend.data.entity.Recording
 
 class PlaybackInformation {
 
     constructor()
 
-    constructor(channel: Channel?) {
+    constructor(channel: ChannelWithProgram?) {
         channelIcon = channel?.icon ?: ""
         channelName = channel?.name ?: ""
         title = channel?.programTitle ?: ""
