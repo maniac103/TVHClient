@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecyclerviewFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
@@ -21,7 +22,6 @@ import org.tvheadend.tvhclient.ui.features.dvr.recordings.download.DownloadPermi
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
-import java.util.concurrent.CopyOnWriteArrayList
 
 abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterface, SearchRequestInterface, DownloadPermissionGrantedInterface, Filter.FilterListener {
 
@@ -67,7 +67,10 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         val ctx = context ?: return super.onOptionsItemSelected(item)
         return when (item.itemId) {
             R.id.menu_add_recording -> return addNewRecording(requireActivity())
-            R.id.menu_remove_all_recordings -> showConfirmationToRemoveAllRecordings(ctx, CopyOnWriteArrayList(recyclerViewAdapter.items))
+            R.id.menu_remove_all_recordings -> showConfirmationToRemoveAllRecordings(
+                ctx,
+                recyclerViewAdapter.items.map { it.base }
+            )
             R.id.menu_genre_color_information -> showGenreColorDialog(ctx)
             else -> super.onOptionsItemSelected(item)
         }
@@ -137,7 +140,7 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
 
     private fun showPopupMenu(view: View, position: Int) {
         val ctx = context ?: return
-        val recording = recyclerViewAdapter.getItem(position) ?: return
+        val recording = recyclerViewAdapter.getItem(position)?.base ?: return
 
         val popupMenu = PopupMenu(ctx, view)
         popupMenu.menuInflater.inflate(R.menu.recordings_popup_menu, popupMenu.menu)
@@ -189,7 +192,7 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         return true
     }
 
-    fun addRecordingsAndUpdateUI(recordings: List<Recording>?) {
+    fun addRecordingsAndUpdateUI(recordings: List<RecordingWithChannel>?) {
         // Prevent updating the recording list and any calls to the filter in the adapter.
         // Without this the active search view would be closed before the user has a chance
         // to enter a complete search term or submit the query.
@@ -215,9 +218,8 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
 
     override fun downloadRecording() {
         //DownloadRecordingManager(activity, connection, recyclerViewAdapter.getItem(recordingViewModel.selectedListPosition))
-        val id = recyclerViewAdapter.getItem(recordingViewModel.selectedListPosition)?.id
-        if (id != null) {
-            downloadSelectedRecording(requireContext(), id)
+        recyclerViewAdapter.getItem(recordingViewModel.selectedListPosition)?.id?.let {
+            downloadSelectedRecording(requireContext(), it)
         }
     }
 

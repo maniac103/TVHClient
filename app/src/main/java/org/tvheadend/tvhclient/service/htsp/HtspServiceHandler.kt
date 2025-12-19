@@ -635,7 +635,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
                 context.sendSyncStateMessage(SyncStateResult.Syncing(SyncState.InProgress("Received ${pendingRecordingOps.size} recordings")))
             }
         } else {
-            context.recordingDataSource.addItem(recording)
+            context.recordingDataSource.addItem(RecordingWithChannel(recording))
         }
 
         addNotificationScheduledRecordingStarts(context, recording)
@@ -648,9 +648,9 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
      * @param msg The message with the updated recording data
      */
     private fun onDvrEntryUpdate(msg: HtspMessage) {
-        val recording = context.recordingDataSource.getItemById(msg.getInteger("id")) ?: return
+        val recording = context.recordingDataSource.getItemById(msg.getInteger("id"))?.base ?: return
         val updatedRecording = convertMessageToRecordingModel(recording, msg)
-        context.recordingDataSource.updateItem(updatedRecording)
+        context.recordingDataSource.updateItem(RecordingWithChannel(updatedRecording))
 
         removeNotificationById(context, recording.id)
         if (context.prefs.notificationsEnabled) {
@@ -683,7 +683,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
     private fun onAutorecEntryAdd(msg: HtspMessage) {
         val seriesRecording = convertMessageToSeriesRecordingModel(SeriesRecording(), msg)
         seriesRecording.connectionId = connection.id
-        context.seriesRecordingDataSource.addItem(seriesRecording)
+        context.seriesRecordingDataSource.addItem(SeriesRecordingWithChannel(seriesRecording))
     }
 
     /**
@@ -698,9 +698,9 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
             Timber.d("Could not find a series recording with id $id in the database")
             return
         }
-        val recording = context.seriesRecordingDataSource.getItemById(msg.getString("id")) ?: return
+        val recording = context.seriesRecordingDataSource.getItemById(msg.getString("id"))?.base ?: return
         val updatedRecording = convertMessageToSeriesRecordingModel(recording, msg)
-        context.seriesRecordingDataSource.updateItem(updatedRecording)
+        context.seriesRecordingDataSource.updateItem(SeriesRecordingWithChannel(updatedRecording))
     }
 
     /**
@@ -726,7 +726,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
     private fun onTimerRecEntryAdd(msg: HtspMessage) {
         val recording = convertMessageToTimerRecordingModel(TimerRecording(), msg)
         recording.connectionId = connection.id
-        context.timerRecordingDataSource.addItem(recording)
+        context.timerRecordingDataSource.addItem(TimerRecordingWithChannel(recording))
     }
 
     /**
@@ -741,9 +741,9 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
             Timber.d("Could not find a timer recording with id $id in the database")
             return
         }
-        val recording = context.timerRecordingDataSource.getItemById(id) ?: return
+        val recording = context.timerRecordingDataSource.getItemById(id)?.base ?: return
         val updatedRecording = convertMessageToTimerRecordingModel(recording, msg)
-        context.timerRecordingDataSource.updateItem(updatedRecording)
+        context.timerRecordingDataSource.updateItem(TimerRecordingWithChannel(updatedRecording))
     }
 
     /**

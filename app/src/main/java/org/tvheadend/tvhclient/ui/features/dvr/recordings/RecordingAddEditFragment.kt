@@ -57,35 +57,36 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
 
     private fun updateUI() {
         val ctx = context ?: return
+        val recording = recordingViewModel.recording
 
         binding.titleLabel.isVisible = htspVersion >= 21
         binding.title.isVisible = htspVersion >= 21
-        binding.title.setText(recordingViewModel.recording.title)
+        binding.title.setText(recording.title)
 
         binding.subtitleLabel.isVisible = htspVersion >= 21
         binding.subtitle.isVisible = htspVersion >= 21
-        binding.subtitle.setText(recordingViewModel.recording.subtitle)
+        binding.subtitle.setText(recording.subtitle)
 
         binding.summaryLabel.isVisible = htspVersion >= 21
         binding.summary.isVisible = htspVersion >= 21
-        binding.summary.setText(recordingViewModel.recording.summary)
+        binding.summary.setText(recording.summary)
 
         binding.descriptionLabel.isVisible = htspVersion >= 21
         binding.description.isVisible = htspVersion >= 21
-        binding.description.setText(recordingViewModel.recording.description)
+        binding.description.setText(recording.description)
 
-        binding.stopTime.text = getTimeStringFromTimeInMillis(recordingViewModel.recording.stop)
-        binding.stopTime.setOnClickListener { handleTimeSelection(activity, recordingViewModel.recording.stop, this@RecordingAddEditFragment, "stopTime") }
+        binding.stopTime.text = getTimeStringFromTimeInMillis(recording.stop)
+        binding.stopTime.setOnClickListener { handleTimeSelection(activity, recording.stop, this@RecordingAddEditFragment, "stopTime") }
 
-        binding.stopDate.text = getDateStringFromTimeInMillis(recordingViewModel.recording.stop)
-        binding.stopDate.setOnClickListener { handleDateSelection(activity, recordingViewModel.recording.stop, this@RecordingAddEditFragment, "stopDate") }
+        binding.stopDate.text = getDateStringFromTimeInMillis(recording.stop)
+        binding.stopDate.setOnClickListener { handleDateSelection(activity, recording.stop, this@RecordingAddEditFragment, "stopDate") }
 
-        binding.stopExtra.setText(recordingViewModel.recording.stopExtra.toString())
+        binding.stopExtra.setText(recording.stopExtra.toString())
 
-        binding.channelNameLabel.isVisible = !recordingViewModel.recording.isRecording
-        binding.channelName.isVisible = !recordingViewModel.recording.isRecording
+        binding.channelNameLabel.isVisible = !recording.isRecording
+        binding.channelName.isVisible = !recording.isRecording
 
-        if (!recordingViewModel.recording.isRecording) {
+        if (!recording.isRecording) {
             binding.channelName.text = recordingViewModel.recording.channelName ?: getString(R.string.all_channels)
             binding.channelName.setOnClickListener {
                 // Determine if the server supports recording on all channels
@@ -94,54 +95,54 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
             }
         }
 
-        binding.isEnabled.isVisible = htspVersion >= 23 && !recordingViewModel.recording.isRecording
-        binding.isEnabled.isChecked = recordingViewModel.recording.isEnabled
+        binding.isEnabled.isVisible = htspVersion >= 23 && !recording.isRecording
+        binding.isEnabled.isChecked = recording.isEnabled
 
-        binding.priority.isVisible = !recordingViewModel.recording.isRecording
-        binding.priority.text = getPriorityName(ctx, recordingViewModel.recording.priority)
-        binding.priority.setOnClickListener { handlePrioritySelection(ctx, recordingViewModel.recording.priority, this@RecordingAddEditFragment) }
+        binding.priority.isVisible = !recording.isRecording
+        binding.priority.text = getPriorityName(ctx, recording.priority)
+        binding.priority.setOnClickListener { handlePrioritySelection(ctx, recording.priority, this@RecordingAddEditFragment) }
 
-        binding.dvrConfig.isVisible = !recordingProfilesList.isEmpty() && !recordingViewModel.recording.isRecording
-        binding.dvrConfigLabel.isVisible = !recordingProfilesList.isEmpty() && !recordingViewModel.recording.isRecording
+        binding.dvrConfig.isVisible = !recordingProfilesList.isEmpty() && !recording.isRecording
+        binding.dvrConfigLabel.isVisible = !recordingProfilesList.isEmpty() && !recording.isRecording
 
-        if (recordingProfilesList.isNotEmpty() && !recordingViewModel.recording.isRecording) {
+        if (recordingProfilesList.isNotEmpty() && !recording.isRecording) {
             binding.dvrConfig.text = recordingProfilesList[recordingViewModel.recordingProfileNameId]
             binding.dvrConfig.setOnClickListener { handleRecordingProfileSelection(ctx, recordingProfilesList, recordingViewModel.recordingProfileNameId, this@RecordingAddEditFragment) }
         }
 
-        if (recordingViewModel.recording.isRecording) {
+        if (recording.isRecording) {
             binding.startTimeLabel.isVisible = false
             binding.startTime.isVisible = false
             binding.startDate.isVisible = false
             binding.startExtraLabel.isVisible = false
             binding.startExtra.isVisible = false
         } else {
-            binding.startTime.text = getTimeStringFromTimeInMillis(recordingViewModel.recording.start)
-            binding.startTime.setOnClickListener { handleTimeSelection(activity, recordingViewModel.recording.start, this@RecordingAddEditFragment, "startTime") }
-            binding.startDate.text = getDateStringFromTimeInMillis(recordingViewModel.recording.start)
-            binding.startDate.setOnClickListener { handleDateSelection(activity, recordingViewModel.recording.start, this@RecordingAddEditFragment, "startDate") }
-            binding.startExtra.setText(recordingViewModel.recording.startExtra.toString())
+            binding.startTime.text = getTimeStringFromTimeInMillis(recording.start)
+            binding.startTime.setOnClickListener { handleTimeSelection(activity, recording.start, this@RecordingAddEditFragment, "startTime") }
+            binding.startDate.text = getDateStringFromTimeInMillis(recording.start)
+            binding.startDate.setOnClickListener { handleDateSelection(activity, recording.start, this@RecordingAddEditFragment, "startDate") }
+            binding.startExtra.setText(recording.startExtra.toString())
         }
 
-        binding.title.afterTextChanged { recordingViewModel.recording.title = it }
-        binding.subtitle.afterTextChanged { recordingViewModel.recording.subtitle = it }
-        binding.description.afterTextChanged { recordingViewModel.recording.description = it }
+        binding.title.afterTextChanged { recording.title = it }
+        binding.subtitle.afterTextChanged { recording.subtitle = it }
+        binding.description.afterTextChanged { recording.description = it }
         binding.startExtra.afterTextChanged {
             try {
-                recordingViewModel.recording.startExtra = java.lang.Long.valueOf(it)
+                recording.startExtra = java.lang.Long.valueOf(it)
             } catch (ex: NumberFormatException) {
-                recordingViewModel.recording.startExtra = 2
+                recording.startExtra = 2
             }
         }
         binding.stopExtra.afterTextChanged {
             try {
-                recordingViewModel.recording.stopExtra = java.lang.Long.valueOf(it)
+                recording.stopExtra = java.lang.Long.valueOf(it)
             } catch (ex: NumberFormatException) {
-                recordingViewModel.recording.stopExtra = 2
+                recording.stopExtra = 2
             }
         }
         binding.isEnabled.setOnCheckedChangeListener { _, isChecked ->
-            recordingViewModel.recording.isEnabled = isChecked
+            recording.isEnabled = isChecked
         }
     }
 
@@ -195,7 +196,7 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
             return
         }
 
-        val intent = recordingViewModel.getIntentData(requireContext(), recordingViewModel.recording)
+        val intent = recordingViewModel.getIntentData(requireContext(), recordingViewModel.recording.base)
         if (profile != null && htspVersion >= 16 && binding.dvrConfig.text.isNotEmpty()) {
             intent.putExtra("configName", binding.dvrConfig.text.toString())
         }

@@ -94,7 +94,7 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, S
         val ctx = context ?: return super.onOptionsItemSelected(item)
         return when (item.itemId) {
             R.id.menu_add_recording -> return addNewTimerRecording(requireActivity())
-            R.id.menu_remove_all_recordings -> showConfirmationToRemoveAllTimerRecordings(ctx, CopyOnWriteArrayList(recyclerViewAdapter.items))
+            R.id.menu_remove_all_recordings -> showConfirmationToRemoveAllTimerRecordings(ctx, recyclerViewAdapter.items.map { it.base })
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -156,7 +156,7 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, S
 
     private fun showPopupMenu(view: View, position: Int) {
         val ctx = context ?: return
-        val timerRecording = recyclerViewAdapter.getItem(position) ?: return
+        val timerRecording = recyclerViewAdapter.getItem(position)?.base ?: return
 
         val popupMenu = PopupMenu(ctx, view)
         popupMenu.menuInflater.inflate(R.menu.timer_recordings_popup_menu, popupMenu.menu)
@@ -168,17 +168,17 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, S
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.menu_edit_recording -> return@setOnMenuItemClickListener editSelectedTimerRecording(requireActivity(), timerRecording.id)
-                R.id.menu_remove_recording -> return@setOnMenuItemClickListener showConfirmationToRemoveSelectedTimerRecording(ctx, timerRecording, null)
-                R.id.menu_disable_recording -> return@setOnMenuItemClickListener enableTimerRecording(timerRecording, false)
-                R.id.menu_enable_recording -> return@setOnMenuItemClickListener enableTimerRecording(timerRecording, true)
+                R.id.menu_edit_recording -> editSelectedTimerRecording(requireActivity(), timerRecording.id)
+                R.id.menu_remove_recording -> showConfirmationToRemoveSelectedTimerRecording(ctx, timerRecording, null)
+                R.id.menu_disable_recording -> enableTimerRecording(timerRecording, false)
+                R.id.menu_enable_recording -> enableTimerRecording(timerRecording, true)
 
-                R.id.menu_search_imdb -> return@setOnMenuItemClickListener searchTitleOnImdbWebsite(ctx, timerRecording.title)
-                R.id.menu_search_fileaffinity -> return@setOnMenuItemClickListener searchTitleOnFileAffinityWebsite(ctx, timerRecording.title)
-                R.id.menu_search_youtube -> return@setOnMenuItemClickListener searchTitleOnYoutube(ctx, timerRecording.title)
-                R.id.menu_search_google -> return@setOnMenuItemClickListener searchTitleOnGoogle(ctx, timerRecording.title)
-                R.id.menu_search_epg -> return@setOnMenuItemClickListener searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, timerRecording.title)
-                else -> return@setOnMenuItemClickListener false
+                R.id.menu_search_imdb -> searchTitleOnImdbWebsite(ctx, timerRecording.title)
+                R.id.menu_search_fileaffinity -> searchTitleOnFileAffinityWebsite(ctx, timerRecording.title)
+                R.id.menu_search_youtube -> searchTitleOnYoutube(ctx, timerRecording.title)
+                R.id.menu_search_google -> searchTitleOnGoogle(ctx, timerRecording.title)
+                R.id.menu_search_epg -> searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, timerRecording.title)
+                else -> false
             }
         }
         popupMenu.show()

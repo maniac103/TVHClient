@@ -9,6 +9,7 @@ import androidx.lifecycle.map
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.data.entity.TimerRecording
+import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
@@ -24,7 +25,7 @@ class TimerRecordingViewModel(application: Application) : BaseViewModel(applicat
 
     var selectedListPosition = 0
     val currentIdLiveData = MutableLiveData("")
-    var recording = TimerRecording()
+    var recording = TimerRecordingWithChannel(TimerRecording())
     val recordingLiveData = currentIdLiveData
         .filter { it.isNotEmpty() }
         .map { application.timerRecordingDataSource.getItemById(it) }
@@ -67,7 +68,7 @@ class TimerRecordingViewModel(application: Application) : BaseViewModel(applicat
         }
 
     fun loadRecordingByIdSync(id: String) {
-        recording = application.timerRecordingDataSource.getItemById(id) ?: TimerRecording()
+        recording = application.timerRecordingDataSource.getItemById(id) ?: TimerRecordingWithChannel(TimerRecording())
         isTimeEnabled = recording.start > 0 && recording.stop > 0
     }
 

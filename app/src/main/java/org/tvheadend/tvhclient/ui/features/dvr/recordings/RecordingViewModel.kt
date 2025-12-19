@@ -8,6 +8,7 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
@@ -38,7 +39,7 @@ class RecordingViewModel(private val application: Application) : BaseViewModel(a
         .filter { it > 0 }
         .map { application.recordingDataSource.getItemById(it) }
 
-    var recording = Recording()
+    var recording = RecordingWithChannel(Recording())
     var recordingProfileNameId = 0
 
     fun getIntentData(context: Context, recording: Recording): Intent {
@@ -61,7 +62,7 @@ class RecordingViewModel(private val application: Application) : BaseViewModel(a
     }
 
     fun loadRecordingByIdSync(id: Int) {
-        recording = application.recordingDataSource.getItemById(id) ?: Recording()
+        recording = application.recordingDataSource.getItemById(id) ?: RecordingWithChannel(Recording())
     }
 
     fun getChannelList(): List<Channel> {

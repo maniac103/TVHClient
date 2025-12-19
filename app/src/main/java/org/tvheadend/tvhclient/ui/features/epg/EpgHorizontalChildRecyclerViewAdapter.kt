@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgHorizontalChildRecyclerviewAdapterBinding
 import org.tvheadend.tvhclient.util.extensions.isEqualTo

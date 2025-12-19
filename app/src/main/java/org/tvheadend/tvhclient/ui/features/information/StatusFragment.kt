@@ -138,15 +138,14 @@ class StatusFragment : BaseFragment() {
         recordingViewModel.scheduledRecordings.observe(viewLifecycleOwner) { recordings ->
             if (recordings != null) {
                 val currentRecText = StringBuilder()
-                for (rec in recordings) {
-                    if (rec.isRecording) {
+                recordings
+                    .filter { it.isRecording }
+                    .forEach { rec ->
                         currentRecText.append(getString(R.string.currently_recording)).append(": ").append(rec.title)
-                        val channel = statusViewModel.getChannelById(rec.channelId)
-                        if (channel != null) {
+                        statusViewModel.getChannelById(rec.channelId)?.let { channel ->
                             currentRecText.append(" (").append(getString(R.string.channel)).append(" ").append(channel.name).append(")\n")
                         }
                     }
-                }
                 // Show which programs are being recorded
                 binding.currentlyRecordingView.text = if (currentRecText.isNotEmpty()) currentRecText.toString() else getString(R.string.nothing)
             }

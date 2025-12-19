@@ -59,16 +59,17 @@ class TimerRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Reco
 
     private fun updateUI() {
         val ctx = context ?: return
+        val recording = timerRecordingViewModel.recording
 
         binding.isEnabled.isVisible = htspVersion >= 19
-        binding.isEnabled.isChecked = timerRecordingViewModel.recording.isEnabled
+        binding.isEnabled.isChecked = recording.isEnabled
 
-        binding.title.setText(timerRecordingViewModel.recording.title)
-        binding.name.setText(timerRecordingViewModel.recording.name)
+        binding.title.setText(recording.title)
+        binding.name.setText(recording.name)
 
         binding.directoryLabel.isVisible = htspVersion >= 19
         binding.directory.isVisible = htspVersion >= 19
-        binding.directory.setText(timerRecordingViewModel.recording.directory)
+        binding.directory.setText(recording.directory)
 
         binding.channelName.text = timerRecordingViewModel.recording.channelName ?: getString(R.string.all_channels)
         binding.channelName.setOnClickListener {
@@ -77,9 +78,9 @@ class TimerRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Reco
             handleChannelListSelection(ctx, timerRecordingViewModel.getChannelList(), allowRecordingOnAllChannels, this@TimerRecordingAddEditFragment)
         }
 
-        binding.priority.text = getPriorityName(ctx, timerRecordingViewModel.recording.priority)
+        binding.priority.text = getPriorityName(ctx, recording.priority)
         binding.priority.setOnClickListener {
-            handlePrioritySelection(ctx, timerRecordingViewModel.recording.priority, this@TimerRecordingAddEditFragment)
+            handlePrioritySelection(ctx, recording.priority, this@TimerRecordingAddEditFragment)
         }
 
         binding.dvrConfig.isVisible = recordingProfilesList.isNotEmpty()
@@ -102,9 +103,9 @@ class TimerRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Reco
             handleTimeSelection(activity, timerRecordingViewModel.stopTimeInMillis, this@TimerRecordingAddEditFragment, "stopTime")
         }
 
-        binding.daysOfWeek.text = getSelectedDaysOfWeekText(ctx, timerRecordingViewModel.recording.daysOfWeek)
+        binding.daysOfWeek.text = getSelectedDaysOfWeekText(ctx, recording.daysOfWeek)
         binding.daysOfWeek.setOnClickListener {
-            handleDayOfWeekSelection(ctx, timerRecordingViewModel.recording.daysOfWeek, this@TimerRecordingAddEditFragment)
+            handleDayOfWeekSelection(ctx, recording.daysOfWeek, this@TimerRecordingAddEditFragment)
         }
 
         binding.timeEnabled.isChecked = timerRecordingViewModel.isTimeEnabled
@@ -114,11 +115,11 @@ class TimerRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Reco
             handleTimeEnabledClick(binding.timeEnabled.isChecked)
         }
 
-        binding.title.afterTextChanged { timerRecordingViewModel.recording.title = it }
-        binding.name.afterTextChanged { timerRecordingViewModel.recording.name = it }
-        binding.directory.afterTextChanged { timerRecordingViewModel.recording.directory = it }
+        binding.title.afterTextChanged { recording.title = it }
+        binding.name.afterTextChanged { recording.name = it }
+        binding.directory.afterTextChanged { recording.directory = it }
         binding.isEnabled.setOnCheckedChangeListener { _, isChecked ->
-            timerRecordingViewModel.recording.isEnabled = isChecked
+            recording.isEnabled = isChecked
         }
     }
 
@@ -171,7 +172,7 @@ class TimerRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Reco
             return
         }
 
-        val intent = timerRecordingViewModel.getIntentData(requireContext(), timerRecordingViewModel.recording)
+        val intent = timerRecordingViewModel.getIntentData(requireContext(), timerRecordingViewModel.recording.base)
 
         // Add the recording profile if available and enabled
         if (profile != null && htspVersion >= 16 && binding.dvrConfig.text.isNotEmpty()) {

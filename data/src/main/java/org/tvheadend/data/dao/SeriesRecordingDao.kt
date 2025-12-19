@@ -2,7 +2,8 @@ package org.tvheadend.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import org.tvheadend.data.entity.SeriesRecordingEntity
+import org.tvheadend.data.entity.SeriesRecording
+import org.tvheadend.data.entity.SeriesRecordingWithChannel
 
 @Dao
 internal interface SeriesRecordingDao {
@@ -19,28 +20,28 @@ internal interface SeriesRecordingDao {
     @Query(RECORDING_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " ORDER BY rec.start, rec.title ASC")
-    fun loadAllRecordings(): LiveData<List<SeriesRecordingEntity>>
+    fun loadAllRecordings(): LiveData<List<SeriesRecordingWithChannel>>
 
     @Transaction
     @Query(RECORDING_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND rec.id = :id")
-    fun loadRecordingById(id: String): LiveData<SeriesRecordingEntity>
+    fun loadRecordingById(id: String): LiveData<SeriesRecordingWithChannel>
 
     @Transaction
     @Query(RECORDING_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND rec.id = :id")
-    fun loadRecordingByIdSync(id: String): SeriesRecordingEntity?
+    fun loadRecordingByIdSync(id: String): SeriesRecordingWithChannel?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(recording: SeriesRecordingEntity)
+    fun insert(recording: SeriesRecording)
 
     @Update
-    fun update(recording: SeriesRecordingEntity)
+    fun update(recording: SeriesRecording)
 
     @Delete
-    fun delete(recording: SeriesRecordingEntity)
+    fun delete(recording: SeriesRecording)
 
     @Query("DELETE FROM series_recordings " +
             " WHERE connection_id IN (SELECT id FROM connections WHERE active = 1)" +
@@ -52,11 +53,7 @@ internal interface SeriesRecordingDao {
 
     companion object {
 
-        const val RECORDING_BASE_QUERY = "SELECT DISTINCT " +
-                "rec.id, rec.enabled, rec.name, rec.min_duration, rec.max_duration, rec.retention, " +
-                "rec.days_of_week, rec.priority, rec.approx_time, rec.start, rec.start_window, " +
-                "rec.start_extra, rec.stop_extra, rec.title, rec.fulltext, rec.directory, rec.channel_id, " +
-                "rec.owner, rec.creator, rec.dup_detect, rec.removal, rec.max_count, rec.connection_id, " +
+        const val RECORDING_BASE_QUERY = "SELECT DISTINCT rec.*, " +
                 "c.name AS channel_name, " +
                 "c.icon AS channel_icon " +
                 "FROM series_recordings AS rec " +

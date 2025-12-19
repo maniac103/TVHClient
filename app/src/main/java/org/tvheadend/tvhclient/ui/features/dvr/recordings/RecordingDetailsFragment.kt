@@ -5,7 +5,7 @@ import android.view.*
 import androidx.core.view.isVisible
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
-import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecordingDetailsFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
@@ -18,7 +18,7 @@ import timber.log.Timber
 class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, DownloadPermissionGrantedInterface, ClearSearchResultsOrPopBackStackInterface {
 
     private lateinit var recordingViewModel: RecordingViewModel
-    private var recording: Recording? = null
+    private var recording: RecordingWithChannel? = null
     private lateinit var binding: RecordingDetailsFragmentBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -68,7 +68,7 @@ class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, Down
         val ctx = context ?: return
         val recording = recording ?: return
         preparePopupOrToolbarMiscMenu(ctx, binding.nestedToolbar.menu, null, isConnectionToServerAvailable)
-        preparePopupOrToolbarRecordingMenu(ctx, binding.nestedToolbar.menu, recording, isConnectionToServerAvailable, htspVersion)
+        preparePopupOrToolbarRecordingMenu(ctx, binding.nestedToolbar.menu, recording.base, isConnectionToServerAvailable, htspVersion)
         preparePopupOrToolbarSearchMenu(menu, recording.title, isConnectionToServerAvailable)
     }
 
@@ -81,7 +81,7 @@ class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, Down
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val ctx = context ?: return super.onOptionsItemSelected(item)
-        val recording = this.recording ?: return super.onOptionsItemSelected(item)
+        val recording = this.recording?.base ?: return super.onOptionsItemSelected(item)
 
         when (item.itemId) {
             R.id.menu_stop_recording -> return showConfirmationToStopSelectedRecording(ctx, recording, this)
@@ -116,10 +116,7 @@ class RecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, Down
 
     override fun downloadRecording() {
         //DownloadRecordingManager(activity, connection, recording)
-        val id = recording?.id
-        if (id != null) {
-            downloadSelectedRecording(requireContext(), id)
-        }
+        recording?.id?.let { downloadSelectedRecording(requireContext(), it) }
     }
 
     companion object {

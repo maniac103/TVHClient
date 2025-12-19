@@ -337,7 +337,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
         val ctx = context ?: return
 
         val program = channelViewModel.getProgramById(channel.programId)
-        val recording = channelViewModel.getRecordingById(channel.programId)
+        val recording = channelViewModel.getRecordingById(channel.programId)?.base
 
         val popupMenu = PopupMenu(ctx, view)
         popupMenu.menuInflater.inflate(R.menu.program_popup_and_toolbar_menu, popupMenu.menu)

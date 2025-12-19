@@ -54,7 +54,7 @@
                     android:scaleType="fitCenter"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:stateIcon="@{recording}" />
+                    app:stateIcon="@{recording.base}" />
 
                 <TextView
                     android:id="@+id/disabled"
@@ -63,7 +63,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="8dp"
-                    app:disabledText="@{recording}"
+                    app:disabledText="@{recording.base}"
                     app:htspVersion="@{htspVersion}"
                     app:layout_constraintEnd_toStartOf="@+id/state"
                     app:layout_constraintStart_toStartOf="parent"
@@ -380,7 +380,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/comment"
-                    app:statusLabelVisibility="@{recording}" />
+                    app:statusLabelVisibility="@{recording.base}" />
 
                 <TextView
                     android:id="@+id/data_size"
@@ -390,7 +390,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
-                    app:dataSizeText="@{recording}"
+                    app:dataSizeText="@{recording.base}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/status_label"
@@ -407,7 +407,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/data_size"
-                    app:subscriptionErrorText="@{recording}"
+                    app:subscriptionErrorText="@{recording.base}"
                     tools:text="@string/subscription_error" />
 
                 <TextView
@@ -421,7 +421,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/subscription_error"
-                    app:streamErrorText="@{recording}"
+                    app:streamErrorText="@{recording.base}"
                     tools:text="@string/stream_errors" />
 
                 <TextView
@@ -433,7 +433,7 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="16dp"
-                    app:dataErrorText="@{recording}"
+                    app:dataErrorText="@{recording.base}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -457,7 +457,7 @@
 
         <variable
             name="recording"
-            type="org.tvheadend.data.entity.Recording" />
+            type="org.tvheadend.data.entity.RecordingWithChannel" />
 
         <variable
             name="viewModel"

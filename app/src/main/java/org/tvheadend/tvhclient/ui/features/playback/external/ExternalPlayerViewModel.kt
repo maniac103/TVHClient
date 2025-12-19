@@ -24,6 +24,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import androidx.core.net.toUri
 import androidx.lifecycle.application
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.recordingDataSource
@@ -37,7 +38,7 @@ class ExternalPlayerViewModel(application: Application) : BaseViewModel(applicat
     private val htspConnection: HtspConnection
 
     var channel: Channel? = null
-    var recording: Recording? = null
+    var recording: RecordingWithChannel? = null
     private var path = ""
     private var ticket = ""
 

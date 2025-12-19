@@ -2,78 +2,61 @@ package org.tvheadend.data.source
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.Recording
-import org.tvheadend.data.entity.RecordingEntity
-import java.util.*
+import org.tvheadend.data.entity.RecordingWithChannel
 
-class RecordingDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Recording> {
+class RecordingDataSource(private val db: AppRoomDatabase) : DataSourceInterface<RecordingWithChannel> {
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    override fun addItem(item: Recording) {
-        scope.launch { db.recordingDao.insert(RecordingEntity.from(item)) }
+    override fun addItem(item: RecordingWithChannel) {
+        scope.launch { db.recordingDao.insert(item.base) }
     }
 
-    fun addItems(items: List<Recording>) {
-        scope.launch { db.recordingDao.insert(ArrayList(items.map { RecordingEntity.from(it) })) }
+    fun addItems(items: List<RecordingWithChannel>) {
+        scope.launch { db.recordingDao.insert(items.map { it.base }) }
     }
 
-    override fun updateItem(item: Recording) {
-        scope.launch { db.recordingDao.update(RecordingEntity.from(item)) }
+    override fun updateItem(item: RecordingWithChannel) {
+        scope.launch { db.recordingDao.update(item.base) }
     }
 
-    override fun removeItem(item: Recording) {
-        scope.launch { db.recordingDao.delete(RecordingEntity.from(item)) }
+    override fun removeItem(item: RecordingWithChannel) {
+        scope.launch { db.recordingDao.delete(item.base) }
     }
 
     override fun getLiveDataItemCount(): LiveData<Int> {
         return MutableLiveData()
     }
 
-    override fun getLiveDataItems(): LiveData<List<Recording>> =
-        db.recordingDao.loadRecordings().map { entities ->
-            entities.map { it.toRecording() }
-        }
+    override fun getLiveDataItems(): LiveData<List<RecordingWithChannel>> =
+        db.recordingDao.loadRecordings()
 
-    override fun getLiveDataItemById(id: Any): LiveData<Recording> =
-        db.recordingDao.loadRecordingById(id as Int).map { it.toRecording() }
+    override fun getLiveDataItemById(id: Any): LiveData<RecordingWithChannel> =
+        db.recordingDao.loadRecordingById(id as Int)
 
-    fun getLiveDataItemsByChannelId(channelId: Int): LiveData<List<Recording>> =
-        db.recordingDao.loadRecordingsByChannelId(channelId).map { entities ->
-            entities.map { it.toRecording() }
-        }
+    fun getLiveDataItemsByChannelId(channelId: Int): LiveData<List<RecordingWithChannel>> =
+        db.recordingDao.loadRecordingsByChannelId(channelId)
 
-    fun getCompletedRecordings(sortOrder: Int): LiveData<List<Recording>> =
-        db.recordingDao.loadCompletedRecordings(sortOrder).map { entities ->
-            entities.map { it.toRecording() }
-        }
+    fun getCompletedRecordings(sortOrder: Int): LiveData<List<RecordingWithChannel>> =
+        db.recordingDao.loadCompletedRecordings(sortOrder)
 
-    fun getScheduledRecordings(hideDuplicates: Boolean): LiveData<List<Recording>> {
-        val recordings = if (hideDuplicates) {
+    fun getScheduledRecordings(hideDuplicates: Boolean): LiveData<List<RecordingWithChannel>> = if (hideDuplicates) {
             db.recordingDao.loadUniqueScheduledRecordings()
         } else {
             db.recordingDao.loadScheduledRecordings()
         }
-        return recordings.map { entities ->
-            entities.map { it.toRecording() }
-        }
-    }
 
-    fun getFailedRecordings(): LiveData<List<Recording>> =
-        db.recordingDao.loadFailedRecordings().map { entities ->
-            entities.map { it.toRecording() }
-        }
+    fun getFailedRecordings(): LiveData<List<RecordingWithChannel>> =
+        db.recordingDao.loadFailedRecordings()
 
-    fun getRemovedRecordings(): LiveData<List<Recording>> =
-        db.recordingDao.loadRemovedRecordings().map { entities ->
-            entities.map { it.toRecording() }
-        }
+    fun getRemovedRecordings(): LiveData<List<RecordingWithChannel>> =
+        db.recordingDao.loadRemovedRecordings()
 
     fun getLiveDataCountByType(type: String): LiveData<Int> {
         return when (type) {
@@ -86,34 +69,30 @@ class RecordingDataSource(private val db: AppRoomDatabase) : DataSourceInterface
         }
     }
 
-    override fun getItemById(id: Any): Recording? {
-        var recording: Recording? = null
-        if ((id as Int) > 0) {
+    override fun getItemById(id: Any): RecordingWithChannel? = id
+        .takeIf { it is Int && it > 0 }
+        ?.let {
             runBlocking(Dispatchers.IO) {
-                recording = db.recordingDao.loadRecordingByIdSync(id)?.toRecording()
+                db.recordingDao.loadRecordingByIdSync(it as Int)
             }
         }
-        return recording
-    }
 
-    override fun getItems(): List<Recording> {
+    override fun getItems(): List<RecordingWithChannel> {
         return ArrayList()
     }
 
-    fun getItemByEventId(id: Int): Recording? {
-        var recording: Recording? = null
-        if (id > 0) {
+    fun getItemByEventId(id: Int): RecordingWithChannel? = id
+        .takeIf { id > 0 }
+        ?.let {
             runBlocking(Dispatchers.IO) {
-                recording = db.recordingDao.loadRecordingByEventIdSync(id)?.toRecording()
+                db.recordingDao.loadRecordingByEventIdSync(id)
             }
         }
-        return recording
-    }
 
     fun removeAndAddItems(items: ArrayList<Recording>) {
         scope.launch {
             db.recordingDao.deleteAll()
-            db.recordingDao.insert(items.map { RecordingEntity.from(it) })
+            db.recordingDao.insert(items)
         }
     }
 }

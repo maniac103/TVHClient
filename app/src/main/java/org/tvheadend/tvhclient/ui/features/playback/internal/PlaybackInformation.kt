@@ -2,6 +2,7 @@ package org.tvheadend.tvhclient.ui.features.playback.internal
 
 import org.tvheadend.data.entity.ChannelWithProgram
 import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingWithChannel
 
 class PlaybackInformation {
 
@@ -17,7 +18,7 @@ class PlaybackInformation {
         stopTime = channel?.programStop ?: 0
     }
 
-    constructor(recording: Recording?) {
+    constructor(recording: RecordingWithChannel?) {
         channelIcon = recording?.channelIcon ?: ""
         channelName = recording?.channelName ?: ""
         title = recording?.title ?: ""

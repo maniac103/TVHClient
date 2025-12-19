@@ -85,7 +85,7 @@ internal class EpgVerticalRecyclerViewAdapter(private val activity: FragmentActi
 
             epgViewModel.recordings.observe(activity) { recordings ->
                 if (recordings != null) {
-                    recyclerViewAdapter.addRecordings(recordings)
+                    recyclerViewAdapter.addRecordings(recordings.map { it.base })
                 }
             }
         }

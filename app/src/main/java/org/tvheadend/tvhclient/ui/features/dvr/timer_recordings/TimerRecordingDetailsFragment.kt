@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.TimerRecording
+import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.TimerRecordingDetailsFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
@@ -17,7 +18,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
 class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, ClearSearchResultsOrPopBackStackInterface {
 
     private lateinit var timerRecordingViewModel: TimerRecordingViewModel
-    private var recording: TimerRecording? = null
+    private var recording: TimerRecordingWithChannel? = null
     private lateinit var binding: TimerRecordingDetailsFragmentBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -77,7 +78,7 @@ class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface,
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val ctx = context ?: return super.onOptionsItemSelected(item)
-        val recording = this.recording ?: return super.onOptionsItemSelected(item)
+        val recording = this.recording?.base ?: return super.onOptionsItemSelected(item)
 
         return when (item.itemId) {
             R.id.menu_edit_recording -> editSelectedTimerRecording(requireActivity(), recording.id)

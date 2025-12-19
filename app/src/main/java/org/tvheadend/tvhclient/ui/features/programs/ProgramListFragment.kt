@@ -87,10 +87,8 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
     private fun observeRecordings() {
         Timber.d("Observing recordings")
         programViewModel.recordings.observe(viewLifecycleOwner) { recs ->
-            if (recs != null) {
-                Timber.d("View model returned ${recs.size} recordings")
-                handleObservedRecordings(recs)
-            }
+            Timber.d("View model returned ${recs.size} recordings")
+            handleObservedRecordings(recs.map { it.base })
         }
     }
 

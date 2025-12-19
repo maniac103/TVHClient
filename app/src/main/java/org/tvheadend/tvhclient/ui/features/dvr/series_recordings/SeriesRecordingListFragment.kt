@@ -20,7 +20,6 @@ import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
-import java.util.concurrent.CopyOnWriteArrayList
 
 class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, SearchRequestInterface, Filter.FilterListener {
 
@@ -92,7 +91,7 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, 
         val ctx = context ?: return super.onOptionsItemSelected(item)
         return when (item.itemId) {
             R.id.menu_add_recording -> return addNewSeriesRecording(requireActivity())
-            R.id.menu_remove_all_recordings -> showConfirmationToRemoveAllSeriesRecordings(ctx, CopyOnWriteArrayList(recyclerViewAdapter.items))
+            R.id.menu_remove_all_recordings -> showConfirmationToRemoveAllSeriesRecordings(ctx, recyclerViewAdapter.items.map { it.base })
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -155,7 +154,7 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, 
 
     private fun showPopupMenu(view: View, position: Int) {
         val ctx = context ?: return
-        val seriesRecording = recyclerViewAdapter.getItem(position) ?: return
+        val seriesRecording = recyclerViewAdapter.getItem(position)?.base ?: return
 
         val popupMenu = PopupMenu(ctx, view)
         popupMenu.menuInflater.inflate(R.menu.series_recordings_popup_menu, popupMenu.menu)
@@ -168,17 +167,17 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, 
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.menu_edit_recording -> return@setOnMenuItemClickListener editSelectedSeriesRecording(requireActivity(), seriesRecording.id)
-                R.id.menu_remove_recording -> return@setOnMenuItemClickListener showConfirmationToRemoveSelectedSeriesRecording(ctx, seriesRecording, null)
-                R.id.menu_disable_recording -> return@setOnMenuItemClickListener enableSeriesRecording(seriesRecording, false)
-                R.id.menu_enable_recording -> return@setOnMenuItemClickListener enableSeriesRecording(seriesRecording, true)
+                R.id.menu_edit_recording -> editSelectedSeriesRecording(requireActivity(), seriesRecording.id)
+                R.id.menu_remove_recording -> showConfirmationToRemoveSelectedSeriesRecording(ctx, seriesRecording, null)
+                R.id.menu_disable_recording -> enableSeriesRecording(seriesRecording, false)
+                R.id.menu_enable_recording -> enableSeriesRecording(seriesRecording, true)
 
-                R.id.menu_search_imdb -> return@setOnMenuItemClickListener searchTitleOnImdbWebsite(ctx, seriesRecording.title)
-                R.id.menu_search_fileaffinity -> return@setOnMenuItemClickListener searchTitleOnFileAffinityWebsite(ctx, seriesRecording.title)
-                R.id.menu_search_youtube -> return@setOnMenuItemClickListener searchTitleOnYoutube(ctx, seriesRecording.title)
-                R.id.menu_search_google -> return@setOnMenuItemClickListener searchTitleOnGoogle(ctx, seriesRecording.title)
-                R.id.menu_search_epg -> return@setOnMenuItemClickListener searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, seriesRecording.title)
-                else -> return@setOnMenuItemClickListener false
+                R.id.menu_search_imdb -> searchTitleOnImdbWebsite(ctx, seriesRecording.title)
+                R.id.menu_search_fileaffinity -> searchTitleOnFileAffinityWebsite(ctx, seriesRecording.title)
+                R.id.menu_search_youtube -> searchTitleOnYoutube(ctx, seriesRecording.title)
+                R.id.menu_search_google -> searchTitleOnGoogle(ctx, seriesRecording.title)
+                R.id.menu_search_epg -> searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, seriesRecording.title)
+                else -> false
             }
         }
         popupMenu.show()

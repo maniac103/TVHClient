@@ -6,6 +6,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecordingListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
@@ -14,11 +15,11 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class RecordingRecyclerViewAdapter internal constructor(private val viewModel: RecordingViewModel, private val isDualPane: Boolean, private val clickCallback: RecyclerViewClickInterface, private val htspVersion: Int) : RecyclerView.Adapter<RecordingRecyclerViewAdapter.RecordingViewHolder>(), Filterable {
 
-    private val recordingList = ArrayList<Recording>()
-    private var recordingListFiltered: MutableList<Recording> = ArrayList()
+    private val recordingList = ArrayList<RecordingWithChannel>()
+    private var recordingListFiltered: MutableList<RecordingWithChannel> = ArrayList()
     private var selectedPosition = 0
 
-    val items: List<Recording>
+    val items: List<RecordingWithChannel>
         get() = recordingListFiltered
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordingViewHolder {
@@ -32,7 +33,7 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
         holder.bind(recording, position, selectedPosition == position, htspVersion, clickCallback)
     }
 
-    internal fun addItems(newItems: List<Recording>) {
+    internal fun addItems(newItems: List<RecordingWithChannel>) {
         recordingList.clear()
         recordingListFiltered.clear()
         recordingList.addAll(newItems)
@@ -59,7 +60,7 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
         notifyItemChanged(pos)
     }
 
-    fun getItem(position: Int): Recording? {
+    fun getItem(position: Int): RecordingWithChannel? {
         return if (recordingListFiltered.size > position && position >= 0) {
             recordingListFiltered[position]
         } else {
@@ -71,7 +72,7 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
         return object : Filter() {
             override fun performFiltering(charSequence: CharSequence): FilterResults {
                 val charString = charSequence.toString()
-                val filteredList: MutableList<Recording> = ArrayList()
+                val filteredList: MutableList<RecordingWithChannel> = ArrayList()
                 if (charString.isNotEmpty()) {
                     // Iterate over the available channels. Use a copy on write
                     // array in case the channel list changes during filtering.
@@ -95,7 +96,7 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
             override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
                 recordingListFiltered.clear()
                 @Suppress("UNCHECKED_CAST")
-                recordingListFiltered.addAll(filterResults.values as ArrayList<Recording>)
+                recordingListFiltered.addAll(filterResults.values as ArrayList<RecordingWithChannel>)
                 notifyDataSetChanged()
             }
         }
@@ -105,7 +106,7 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
                               private val viewModel: RecordingViewModel,
                               private val isDualPane: Boolean) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(recording: Recording, position: Int, isSelected: Boolean, htspVersion: Int, clickCallback: RecyclerViewClickInterface) {
+        fun bind(recording: RecordingWithChannel, position: Int, isSelected: Boolean, htspVersion: Int, clickCallback: RecyclerViewClickInterface) {
             binding.recording = recording
             binding.position = position
             binding.htspVersion = htspVersion

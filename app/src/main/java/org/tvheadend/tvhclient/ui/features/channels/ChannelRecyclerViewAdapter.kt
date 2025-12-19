@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.ChannelWithProgram
 import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ChannelListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
@@ -16,7 +17,7 @@ import org.tvheadend.tvhclient.util.extensions.isEqualTo
 
 class ChannelRecyclerViewAdapter internal constructor(private val viewModel: ChannelViewModel, private val isDualPane: Boolean, private val clickCallback: RecyclerViewClickInterface, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<ChannelRecyclerViewAdapter.ChannelViewHolder>(), Filterable {
 
-    private val recordingList = ArrayList<Recording>()
+    private val recordingList = ArrayList<RecordingWithChannel>()
     private val channelList = ArrayList<ItemModel>()
     private var channelListFiltered: MutableList<ItemModel> = ArrayList()
     private var selectedPosition = 0
@@ -111,20 +112,20 @@ class ChannelRecyclerViewAdapter internal constructor(private val viewModel: Cha
      *
      * @param list List of recordings
      */
-    internal fun addRecordings(list: List<Recording>) {
+    internal fun addRecordings(list: List<RecordingWithChannel>) {
         recordingList.clear()
         recordingList.addAll(list)
         updateRecordingState(channelListFiltered, recordingList)
     }
 
-    private fun updateRecordingState(items: MutableList<ItemModel>, recordings: List<Recording>) {
+    private fun updateRecordingState(items: MutableList<ItemModel>, recordings: List<RecordingWithChannel>) {
         items.forEachIndexed { index, model ->
             var recordingExists = false
 
             for (recording in recordings) {
                 if (model.channel.programId > 0 && model.channel.programId == recording.eventId) {
                     val oldRecording = model.recording
-                    model.recording = recording
+                    model.recording = recording.base
 
                     // Do a full update only when a new recording was added or the recording
                     // state has changed which results in a different recording state icon

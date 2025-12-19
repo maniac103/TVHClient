@@ -12,9 +12,10 @@ import org.tvheadend.data.dao.*
 import org.tvheadend.data.entity.*
 
 @Database(
-        entities = [TimerRecordingEntity::class,
-            SeriesRecordingEntity::class,
-            RecordingEntity::class,
+        entities = [
+            TimerRecording::class,
+            SeriesRecording::class,
+            Recording::class,
             ProgramEntity::class,
             Channel::class,
             ChannelTag::class,
@@ -185,6 +186,30 @@ abstract class AppRoomDatabase : RoomDatabase() {
                         "program_content_type",
                         "next_program_id",
                         "next_program_title"
+                    ),
+                    listOf("id", "connection_id")
+                )
+                database.removeColumns(
+                    "recordings",
+                    listOf(
+                        "channel_name",
+                        "channel_icon"
+                    ),
+                    listOf("id", "connection_id")
+                )
+                database.removeColumns(
+                    "series_recordings",
+                    listOf(
+                        "channel_name",
+                        "channel_icon"
+                    ),
+                    listOf("id", "connection_id")
+                )
+                database.removeColumns(
+                    "timer_recordings",
+                    listOf(
+                        "channel_name",
+                        "channel_icon"
                     ),
                     listOf("id", "connection_id")
                 )

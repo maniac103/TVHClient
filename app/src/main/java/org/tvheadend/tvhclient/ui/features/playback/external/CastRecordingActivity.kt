@@ -1,7 +1,6 @@
 package org.tvheadend.tvhclient.ui.features.playback.external
 
 import android.content.Intent
-import android.net.Uri
 import androidx.core.view.isVisible
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaLoadOptions

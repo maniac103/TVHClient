@@ -245,7 +245,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
             android:ellipsize="end"
-            app:failedReasonText="@{recording}"
+            app:failedReasonText="@{recording.base}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/title"
             app:layout_constraintTop_toBottomOf="@+id/is_timer_recording"
@@ -258,7 +258,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
-            app:disabledText="@{recording}"
+            app:disabledText="@{recording.base}"
             app:htspVersion="@{htspVersion}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/title"
@@ -272,7 +272,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
-            app:duplicateText="@{recording}"
+            app:duplicateText="@{recording.base}"
             app:htspVersion="@{htspVersion}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/title"
@@ -286,7 +286,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
-            app:dataSizeText="@{recording}"
+            app:dataSizeText="@{recording.base}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/title"
             app:layout_constraintTop_toBottomOf="@+id/duplicate"
@@ -298,7 +298,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            app:dataErrorText="@{recording}"
+            app:dataErrorText="@{recording.base}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/title"
             app:layout_constraintTop_toBottomOf="@+id/data_size"
@@ -313,7 +313,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/title"
             app:layout_constraintTop_toBottomOf="@+id/data_errors"
-            app:streamErrorText="@{recording}"
+            app:streamErrorText="@{recording.base}"
             tools:text="@string/stream_errors" />
 
         <View
@@ -337,7 +337,7 @@
 
         <variable
             name="recording"
-            type="org.tvheadend.data.entity.Recording" />
+            type="org.tvheadend.data.entity.RecordingWithChannel" />
 
         <variable
             name="viewModel"

@@ -253,7 +253,7 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
     internal fun showPopupMenu(view: View, program: EpgProgram?) {
         program ?: return
         val ctx = context ?: return
-        val recording = epgViewModel.getRecordingById(program.eventId)
+        val recording = epgViewModel.getRecordingById(program.eventId)?.base
 
         val popupMenu = PopupMenu(ctx, view)
         popupMenu.menuInflater.inflate(R.menu.program_popup_and_toolbar_menu, popupMenu.menu)
@@ -265,27 +265,35 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.menu_stop_recording -> return@setOnMenuItemClickListener showConfirmationToStopSelectedRecording(ctx, recording, null)
-                R.id.menu_cancel_recording -> return@setOnMenuItemClickListener showConfirmationToCancelSelectedRecording(ctx, recording, null)
-                R.id.menu_remove_recording -> return@setOnMenuItemClickListener showConfirmationToRemoveSelectedRecording(ctx, recording, null)
-                R.id.menu_record_program -> return@setOnMenuItemClickListener recordSelectedProgram(ctx, program.eventId, epgViewModel.getRecordingProfile(), htspVersion)
+                R.id.menu_stop_recording -> showConfirmationToStopSelectedRecording(ctx, recording, null)
+                R.id.menu_cancel_recording -> showConfirmationToCancelSelectedRecording(ctx, recording, null)
+                R.id.menu_remove_recording -> showConfirmationToRemoveSelectedRecording(ctx, recording, null)
+                R.id.menu_record_program -> recordSelectedProgram(ctx, program.eventId, epgViewModel.getRecordingProfile(), htspVersion)
                 R.id.menu_record_program_and_edit -> {
                     programIdToBeEditedWhenBeingRecorded = program.eventId
-                    return@setOnMenuItemClickListener recordSelectedProgram(ctx, program.eventId, epgViewModel.getRecordingProfile(), htspVersion)
+                    recordSelectedProgram(ctx, program.eventId, epgViewModel.getRecordingProfile(), htspVersion)
                 }
-                R.id.menu_record_program_with_custom_profile -> return@setOnMenuItemClickListener recordSelectedProgramWithCustomProfile(ctx, program.eventId, program.channelId, epgViewModel.getRecordingProfileNames(), epgViewModel.getRecordingProfile())
-                R.id.menu_record_program_as_series_recording -> return@setOnMenuItemClickListener recordSelectedProgramAsSeriesRecording(ctx, program.title, program.channelId, epgViewModel.getRecordingProfile(), htspVersion)
-                R.id.menu_play -> return@setOnMenuItemClickListener playSelectedChannel(ctx, program.channelId)
-                R.id.menu_cast -> return@setOnMenuItemClickListener castSelectedChannel(ctx, program.channelId)
+                R.id.menu_record_program_with_custom_profile ->
+                    recordSelectedProgramWithCustomProfile(
+                        ctx,
+                        program.eventId,
+                        program.channelId,
+                        epgViewModel.getRecordingProfileNames(),
+                        epgViewModel.getRecordingProfile()
+                    )
+                R.id.menu_record_program_as_series_recording ->
+                    recordSelectedProgramAsSeriesRecording(ctx, program.title, program.channelId, epgViewModel.getRecordingProfile(), htspVersion)
+                R.id.menu_play -> playSelectedChannel(ctx, program.channelId)
+                R.id.menu_cast -> castSelectedChannel(ctx, program.channelId)
 
-                R.id.menu_search_imdb -> return@setOnMenuItemClickListener searchTitleOnImdbWebsite(ctx, program.title)
-                R.id.menu_search_fileaffinity -> return@setOnMenuItemClickListener searchTitleOnFileAffinityWebsite(ctx, program.title)
-                R.id.menu_search_youtube -> return@setOnMenuItemClickListener searchTitleOnYoutube(ctx, program.title)
-                R.id.menu_search_google -> return@setOnMenuItemClickListener searchTitleOnGoogle(ctx, program.title)
-                R.id.menu_search_epg -> return@setOnMenuItemClickListener searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, program.title, program.channelId)
+                R.id.menu_search_imdb -> searchTitleOnImdbWebsite(ctx, program.title)
+                R.id.menu_search_fileaffinity -> searchTitleOnFileAffinityWebsite(ctx, program.title)
+                R.id.menu_search_youtube -> searchTitleOnYoutube(ctx, program.title)
+                R.id.menu_search_google -> searchTitleOnGoogle(ctx, program.title)
+                R.id.menu_search_epg -> searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, program.title, program.channelId)
 
-                R.id.menu_add_notification -> return@setOnMenuItemClickListener addNotificationProgramIsAboutToStart(ctx, program, epgViewModel.getRecordingProfile())
-                else -> return@setOnMenuItemClickListener false
+                R.id.menu_add_notification -> addNotificationProgramIsAboutToStart(ctx, program, epgViewModel.getRecordingProfile())
+                else -> false
             }
         }
         popupMenu.show()

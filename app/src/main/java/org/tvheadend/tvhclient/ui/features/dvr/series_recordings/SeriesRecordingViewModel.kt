@@ -8,6 +8,7 @@ import androidx.lifecycle.application
 import androidx.lifecycle.map
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.SeriesRecording
+import org.tvheadend.data.entity.SeriesRecordingWithChannel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionService
@@ -25,7 +26,7 @@ class SeriesRecordingViewModel(application: Application) : BaseViewModel(applica
 
     var selectedListPosition = 0
     val currentIdLiveData = MutableLiveData("")
-    var recording = SeriesRecording()
+    var recording = SeriesRecordingWithChannel(SeriesRecording())
     val recordingLiveData = currentIdLiveData
         .filter { it.isNotEmpty() }
         .map { application.seriesRecordingDataSource.getItemById(it) }
@@ -78,7 +79,7 @@ class SeriesRecordingViewModel(application: Application) : BaseViewModel(applica
         }
 
     fun loadRecordingByIdSync(id: String) {
-        recording = application.seriesRecordingDataSource.getItemById(id) ?: SeriesRecording()
+        recording = application.seriesRecordingDataSource.getItemById(id) ?: SeriesRecordingWithChannel(SeriesRecording())
         // In case one of the values is negative the time setting shall be disabled
         isTimeEnabled = recording.start >= 0 && recording.startWindow >= 0
     }

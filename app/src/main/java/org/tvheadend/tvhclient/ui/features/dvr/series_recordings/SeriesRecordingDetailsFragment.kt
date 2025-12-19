@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.SeriesRecording
+import org.tvheadend.data.entity.SeriesRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.SeriesRecordingDetailsFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
@@ -17,7 +18,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
 class SeriesRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, ClearSearchResultsOrPopBackStackInterface {
 
     private lateinit var seriesRecordingViewModel: SeriesRecordingViewModel
-    private var recording: SeriesRecording? = null
+    private var recording: SeriesRecordingWithChannel? = null
     private lateinit var binding: SeriesRecordingDetailsFragmentBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -82,7 +83,7 @@ class SeriesRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val ctx = context ?: return super.onOptionsItemSelected(item)
-        val recording = this.recording ?: return super.onOptionsItemSelected(item)
+        val recording = this.recording?.base ?: return super.onOptionsItemSelected(item)
 
         return when (item.itemId) {
             R.id.menu_edit_recording -> editSelectedSeriesRecording(requireActivity(), recording.id)

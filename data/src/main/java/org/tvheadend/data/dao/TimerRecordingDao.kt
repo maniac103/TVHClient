@@ -2,7 +2,8 @@ package org.tvheadend.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import org.tvheadend.data.entity.TimerRecordingEntity
+import org.tvheadend.data.entity.TimerRecording
+import org.tvheadend.data.entity.TimerRecordingWithChannel
 
 @Dao
 internal interface TimerRecordingDao {
@@ -19,28 +20,28 @@ internal interface TimerRecordingDao {
     @Query(RECORDING_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " ORDER BY rec.start, rec.title ASC")
-    fun loadAllRecordings(): LiveData<List<TimerRecordingEntity>>
+    fun loadAllRecordings(): LiveData<List<TimerRecordingWithChannel>>
 
     @Transaction
     @Query(RECORDING_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND rec.id = :id")
-    fun loadRecordingById(id: String): LiveData<TimerRecordingEntity>
+    fun loadRecordingById(id: String): LiveData<TimerRecordingWithChannel>
 
     @Transaction
     @Query(RECORDING_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND rec.id = :id")
-    fun loadRecordingByIdSync(id: String): TimerRecordingEntity?
+    fun loadRecordingByIdSync(id: String): TimerRecordingWithChannel?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(recording: TimerRecordingEntity)
+    fun insert(recording: TimerRecording)
 
     @Update
-    fun update(recording: TimerRecordingEntity)
+    fun update(recording: TimerRecording)
 
     @Delete
-    fun delete(recording: TimerRecordingEntity)
+    fun delete(recording: TimerRecording)
 
     @Query("DELETE FROM timer_recordings " +
             " WHERE connection_id IN (SELECT id FROM connections WHERE active = 1) " +
@@ -52,10 +53,7 @@ internal interface TimerRecordingDao {
 
     companion object {
 
-        const val RECORDING_BASE_QUERY = "SELECT DISTINCT " +
-                "rec.id, rec.title, rec.directory, rec.enabled, rec.name, rec.config_name, rec.channel_id, " +
-                "rec.days_of_week, rec.priority, rec.start, rec.stop, rec.retention, rec.owner, rec.creator, " +
-                "rec.removal, rec.connection_id, " +
+        const val RECORDING_BASE_QUERY = "SELECT DISTINCT rec.*, " +
                 "c.name AS channel_name, " +
                 "c.icon AS channel_icon " +
                 "FROM timer_recordings AS rec " +

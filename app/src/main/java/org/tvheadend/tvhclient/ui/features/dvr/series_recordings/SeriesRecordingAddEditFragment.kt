@@ -225,7 +225,7 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
             seriesRecordingViewModel.recording.maxDuration = seriesRecordingViewModel.recording.minDuration
         }
 
-        val intent = seriesRecordingViewModel.getIntentData(requireContext(), seriesRecordingViewModel.recording)
+        val intent = seriesRecordingViewModel.getIntentData(requireContext(), seriesRecordingViewModel.recording.base)
 
         // Add the recording profile if available and enabled
         if (profile != null && htspVersion >= 16 && binding.dvrConfig.text.isNotEmpty()) {

@@ -6,6 +6,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.TimerRecording
+import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.TimerRecordingListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
@@ -14,11 +15,11 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class TimerRecordingRecyclerViewAdapter internal constructor(private val isDualPane: Boolean, private val clickCallback: RecyclerViewClickInterface, private val htspVersion: Int) : RecyclerView.Adapter<TimerRecordingRecyclerViewAdapter.TimerRecordingViewHolder>(), Filterable {
 
-    private val recordingList = ArrayList<TimerRecording>()
-    private var recordingListFiltered: MutableList<TimerRecording> = ArrayList()
+    private val recordingList = ArrayList<TimerRecordingWithChannel>()
+    private var recordingListFiltered: MutableList<TimerRecordingWithChannel> = ArrayList()
     private var selectedPosition = 0
 
-    val items: List<TimerRecording>
+    val items: List<TimerRecordingWithChannel>
         get() = recordingListFiltered
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TimerRecordingViewHolder {
@@ -38,7 +39,7 @@ class TimerRecordingRecyclerViewAdapter internal constructor(private val isDualP
         onBindViewHolder(holder, position)
     }
 
-    internal fun addItems(newItems: List<TimerRecording>) {
+    internal fun addItems(newItems: List<TimerRecordingWithChannel>) {
         recordingList.clear()
         recordingListFiltered.clear()
         recordingList.addAll(newItems)
@@ -64,7 +65,7 @@ class TimerRecordingRecyclerViewAdapter internal constructor(private val isDualP
         notifyItemChanged(pos)
     }
 
-    fun getItem(position: Int): TimerRecording? {
+    fun getItem(position: Int): TimerRecordingWithChannel? {
         return if (recordingListFiltered.size > position && position >= 0) {
             recordingListFiltered[position]
         } else {
@@ -76,7 +77,7 @@ class TimerRecordingRecyclerViewAdapter internal constructor(private val isDualP
         return object : Filter() {
             override fun performFiltering(charSequence: CharSequence): FilterResults {
                 val charString = charSequence.toString()
-                val filteredList: MutableList<TimerRecording> = ArrayList()
+                val filteredList: MutableList<TimerRecordingWithChannel> = ArrayList()
                 if (charString.isNotEmpty()) {
                     for (recording in CopyOnWriteArrayList(recordingList)) {
                         val title = recording.title ?: ""
@@ -98,7 +99,7 @@ class TimerRecordingRecyclerViewAdapter internal constructor(private val isDualP
             override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
                 recordingListFiltered.clear()
                 @Suppress("UNCHECKED_CAST")
-                recordingListFiltered.addAll(filterResults.values as ArrayList<TimerRecording>)
+                recordingListFiltered.addAll(filterResults.values as ArrayList<TimerRecordingWithChannel>)
                 notifyDataSetChanged()
             }
         }
@@ -106,7 +107,7 @@ class TimerRecordingRecyclerViewAdapter internal constructor(private val isDualP
 
     class TimerRecordingViewHolder(private val binding: TimerRecordingListAdapterBinding, private val isDualPane: Boolean) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(recording: TimerRecording, position: Int, isSelected: Boolean, htspVersion: Int, clickCallback: RecyclerViewClickInterface) {
+        fun bind(recording: TimerRecordingWithChannel, position: Int, isSelected: Boolean, htspVersion: Int, clickCallback: RecyclerViewClickInterface) {
             binding.recording = recording
             binding.position = position
             binding.htspVersion = htspVersion

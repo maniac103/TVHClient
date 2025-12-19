@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import org.tvheadend.data.entity.Program
-import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
@@ -66,7 +66,7 @@ open class BaseChannelViewModel(private val application: Application) : BaseView
         }
     }
 
-    fun getRecordingById(id: Int): Recording? {
+    fun getRecordingById(id: Int): RecordingWithChannel? {
         return application.recordingDataSource.getItemByEventId(id)
     }
 
