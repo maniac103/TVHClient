@@ -1,28 +1,28 @@
 package org.tvheadend.data.dao
 
 import androidx.room.*
-import org.tvheadend.data.entity.TagAndChannelEntity
+import org.tvheadend.data.entity.TagAndChannel
 
 @Dao
 internal abstract class TagAndChannelDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insert(tagAndChannel: TagAndChannelEntity)
+    abstract fun insert(tagAndChannel: TagAndChannel)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insert(tagAndChannel: List<TagAndChannelEntity>)
+    abstract fun insert(tagAndChannel: List<TagAndChannel>)
 
     @Update
-    abstract fun update(tagAndChannel: TagAndChannelEntity)
+    abstract fun update(tagAndChannel: TagAndChannel)
 
     @Delete
-    abstract fun delete(tagAndChannel: TagAndChannelEntity)
+    abstract fun delete(tagAndChannel: TagAndChannel)
 
     @Delete
-    abstract fun delete(tagAndChannel: List<TagAndChannelEntity>)
+    abstract fun delete(tagAndChannel: List<TagAndChannel>)
 
     @Transaction
-    open fun insertAndDelete(newTagAndChannels: List<TagAndChannelEntity>, oldTagAndChannels: List<TagAndChannelEntity>) {
+    open fun insertAndDelete(newTagAndChannels: List<TagAndChannel>, oldTagAndChannels: List<TagAndChannel>) {
         delete(oldTagAndChannels)
         insert(newTagAndChannels)
     }

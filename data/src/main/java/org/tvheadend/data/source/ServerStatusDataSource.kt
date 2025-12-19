@@ -1,14 +1,12 @@
 package org.tvheadend.data.source
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.ServerStatus
-import org.tvheadend.data.entity.ServerStatusEntity
 import timber.log.Timber
 import java.util.*
 
@@ -17,62 +15,50 @@ class ServerStatusDataSource(private val db: AppRoomDatabase) : DataSourceInterf
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
     val liveDataActiveItem: LiveData<ServerStatus?>
-        get() = db.serverStatusDao.loadActiveServerStatus().map { it?.toServerStatus() }
+        get() = db.serverStatusDao.loadActiveServerStatus()
 
     val activeItem: ServerStatus
-        get() {
-            var serverStatus = ServerStatus()
-            runBlocking(Dispatchers.IO) {
-                val newServerStatus = db.serverStatusDao.loadActiveServerStatusSync()
-                if (newServerStatus == null) {
-                    Timber.d("Active server status is null")
-                    val connection = db.connectionDao.loadActiveConnectionSync()
-                    serverStatus.serverName = "Unknown"
-                    serverStatus.serverVersion = "Unknown"
-                    if (connection != null) {
-                        Timber.d("Loaded active connection for empty server status")
-                        serverStatus.connectionId = connection.id
-                        serverStatus.connectionName = connection.name
-                        Timber.d("Inserting new server status information for connection ${connection.name}")
-                        db.serverStatusDao.insert(ServerStatusEntity.from(serverStatus))
-                    }
-                } else {
-                    serverStatus = newServerStatus.toServerStatus()
+        get() = runBlocking(Dispatchers.IO) {
+            val activeStatus = db.serverStatusDao.loadActiveServerStatusSync()
+            if (activeStatus != null) {
+                activeStatus
+            } else {
+                Timber.d("Active server status is null")
+                val connection = db.connectionDao.loadActiveConnectionSync()
+                val serverStatus = ServerStatus()
+                serverStatus.serverName = "Unknown"
+                serverStatus.serverVersion = "Unknown"
+                if (connection != null) {
+                    Timber.d("Loaded active connection for empty server status")
+                    serverStatus.connectionId = connection.id
+                    serverStatus.connectionName = connection.name
+                    Timber.d("Inserting new server status information for connection ${connection.name}")
+                    db.serverStatusDao.insert(serverStatus)
                 }
+                serverStatus
             }
-            return serverStatus
         }
 
     override fun addItem(item: ServerStatus) {
-        ioScope.launch { db.serverStatusDao.insert(ServerStatusEntity.from(item)) }
+        ioScope.launch { db.serverStatusDao.insert(item) }
     }
 
     override fun updateItem(item: ServerStatus) {
-        ioScope.launch { db.serverStatusDao.update(ServerStatusEntity.from(item)) }
+        ioScope.launch { db.serverStatusDao.update(item) }
     }
 
     override fun removeItem(item: ServerStatus) {
-        ioScope.launch { db.serverStatusDao.delete(ServerStatusEntity.from(item)) }
+        ioScope.launch { db.serverStatusDao.delete(item) }
     }
 
-    override fun getLiveDataItemCount(): LiveData<Int> {
-        return db.serverStatusDao.serverStatusCount
-    }
+    override fun getLiveDataItemCount(): LiveData<Int> = db.serverStatusDao.serverStatusCount
 
-    override fun getLiveDataItems(): LiveData<List<ServerStatus>> =
-        db.serverStatusDao.loadAllServerStatus().map { entities ->
-            entities.map { it.toServerStatus() }
-        }
+    override fun getLiveDataItems(): LiveData<List<ServerStatus>> = db.serverStatusDao.loadAllServerStatus()
 
-    override fun getLiveDataItemById(id: Any): LiveData<ServerStatus> =
-        db.serverStatusDao.loadServerStatusById(id as Int).map { it.toServerStatus() }
+    override fun getLiveDataItemById(id: Any): LiveData<ServerStatus> = db.serverStatusDao.loadServerStatusById(id as Int)
 
-    override fun getItemById(id: Any): ServerStatus? {
-        var serverStatus: ServerStatus?
-        runBlocking(Dispatchers.IO) {
-            serverStatus = db.serverStatusDao.loadServerStatusByIdSync(id as Int)?.toServerStatus()
-        }
-        return serverStatus
+    override fun getItemById(id: Any): ServerStatus? = runBlocking(Dispatchers.IO) {
+        db.serverStatusDao.loadServerStatusByIdSync(id as Int)
     }
 
     override fun getItems(): List<ServerStatus> {

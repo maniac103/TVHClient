@@ -1,51 +1,38 @@
 package org.tvheadend.data.source
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.Connection
-import org.tvheadend.data.entity.ConnectionEntity
 import org.tvheadend.data.entity.ServerStatus
-import org.tvheadend.data.entity.ServerStatusEntity
 import timber.log.Timber
-import java.util.*
 
 class ConnectionDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Connection> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    val liveDataActiveItem: LiveData<Connection?>
-        get() = db.connectionDao.loadActiveConnection().map { entity -> entity?.toConnection() }
+    val liveDataActiveItem: LiveData<Connection?> get() = db.connectionDao.loadActiveConnection()
 
-    val activeItem: Connection
-        get() {
-            var connection = Connection().also { it.id = -1 }
-            runBlocking(Dispatchers.IO) {
-                val c = db.connectionDao.loadActiveConnectionSync()
-                if (c != null) {
-                    Timber.d("Loaded active connection ${c.name} with id ${c.id}")
-                    connection = c.toConnection()
-                }
-            }
-            Timber.d("Returning active connection ${connection.name} with id ${connection.id}")
-            return connection
-        }
+    val activeItem: Connection get() = runBlocking(Dispatchers.IO) {
+        val c = db.connectionDao.loadActiveConnectionSync() ?: Connection().also { it.id = -1 }
+        Timber.d("Returning active connection ${c.name} with id ${c.id}")
+        c
+    }
 
     override fun addItem(item: Connection) {
         ioScope.launch {
             if (item.isActive) {
                 db.connectionDao.disableActiveConnection()
             }
-            val newId = db.connectionDao.insert(ConnectionEntity.from(item))
+            val newId = db.connectionDao.insert(item)
             // Create a new server status row in the database
             // that is linked to the newly added connection
             val serverStatus = ServerStatus()
             serverStatus.connectionId = newId.toInt()
-            db.serverStatusDao.insert(ServerStatusEntity.from(serverStatus))
+            db.serverStatusDao.insert(serverStatus)
         }
     }
 
@@ -54,13 +41,13 @@ class ConnectionDataSource(private val db: AppRoomDatabase) : DataSourceInterfac
             if (item.isActive) {
                 db.connectionDao.disableActiveConnection()
             }
-            db.connectionDao.update(ConnectionEntity.from(item))
+            db.connectionDao.update(item)
         }
     }
 
     override fun removeItem(item: Connection) {
         ioScope.launch {
-            db.connectionDao.delete(ConnectionEntity.from(item))
+            db.connectionDao.delete(item)
             db.serverStatusDao.deleteByConnectionId(item.id)
         }
     }
@@ -69,28 +56,16 @@ class ConnectionDataSource(private val db: AppRoomDatabase) : DataSourceInterfac
         return db.connectionDao.connectionCount
     }
 
-    override fun getLiveDataItems(): LiveData<List<Connection>> =
-        db.connectionDao.loadAllConnections().map { entities ->
-            entities.map { it.toConnection() }
-        }
+    override fun getLiveDataItems(): LiveData<List<Connection>> = db.connectionDao.loadAllConnections()
 
-    override fun getLiveDataItemById(id: Any): LiveData<Connection> =
-        db.connectionDao.loadConnectionById(id as Int).map { entity -> entity.toConnection() }
+    override fun getLiveDataItemById(id: Any): LiveData<Connection> = db.connectionDao.loadConnectionById(id as Int)
 
-    override fun getItemById(id: Any): Connection? {
-        var connection: Connection?
-        runBlocking(Dispatchers.IO) {
-            connection = db.connectionDao.loadConnectionByIdSync(id as Int)?.toConnection()
-        }
-        return connection
+    override fun getItemById(id: Any): Connection? = runBlocking(Dispatchers.IO) {
+        db.connectionDao.loadConnectionByIdSync(id as Int)
     }
 
-    override fun getItems(): List<Connection> {
-        val connections = ArrayList<Connection>()
-        runBlocking(Dispatchers.IO) {
-            connections.addAll(db.connectionDao.loadAllConnectionsSync().map { it.toConnection() })
-        }
-        return connections
+    override fun getItems(): List<Connection> = runBlocking(Dispatchers.IO) {
+        db.connectionDao.loadAllConnectionsSync()
     }
 
     fun setSyncRequiredForActiveConnection() {

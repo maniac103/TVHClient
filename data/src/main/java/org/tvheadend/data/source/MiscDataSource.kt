@@ -5,8 +5,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tvheadend.data.db.AppRoomDatabase
-import org.tvheadend.data.entity.ServerStatus
-import org.tvheadend.data.entity.ServerStatusEntity
 import timber.log.Timber
 import java.lang.ref.WeakReference
 
@@ -47,17 +45,16 @@ class MiscDataSource(private val db: AppRoomDatabase) {
             connection.isSyncRequired = true
             db.connectionDao.update(connection)
 
-            val serverStatus: ServerStatus? = db.serverStatusDao.loadServerStatusByIdSync(connection.id)?.toServerStatus()
             // Crashlytics reported that the server status was null, even though this should
             // not happen because the server status is always added with a new connection.
-            if (serverStatus != null) {
+            db.serverStatusDao.loadServerStatusByIdSync(connection.id)?.let { serverStatus ->
                 serverStatus.htspPlaybackServerProfileId = 0
                 serverStatus.httpPlaybackServerProfileId = 0
                 serverStatus.castingServerProfileId = 0
                 serverStatus.recordingServerProfileId = 0
                 serverStatus.seriesRecordingServerProfileId = 0
                 serverStatus.timerRecordingServerProfileId = 0
-                db.serverStatusDao.update(ServerStatusEntity.from(serverStatus))
+                db.serverStatusDao.update(serverStatus)
             }
         }
 

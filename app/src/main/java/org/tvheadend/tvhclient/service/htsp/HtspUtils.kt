@@ -31,17 +31,7 @@ fun convertMessageToChannelTagModel(tag: ChannelTag, msg: HtspMessage, channels:
     if (msg.containsKey("members")) {
         val members = msg.getIntegerList("members")
         tag.members = members
-
-        var channelCount = 0
-        for (channelId in members) {
-            for ((id) in channels) {
-                if (id == channelId) {
-                    channelCount++
-                    break
-                }
-            }
-        }
-        tag.channelCount = channelCount
+        tag.channelCount = members.filter { id -> channels.any { it.id == id } }.size
     }
     return tag
 }

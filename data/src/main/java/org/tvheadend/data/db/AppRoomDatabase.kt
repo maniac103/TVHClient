@@ -17,11 +17,11 @@ import org.tvheadend.data.entity.*
             RecordingEntity::class,
             ProgramEntity::class,
             Channel::class,
-            ChannelTagEntity::class,
-            TagAndChannelEntity::class,
-            ConnectionEntity::class,
-            ServerProfileEntity::class,
-            ServerStatusEntity::class],
+            ChannelTag::class,
+            TagAndChannel::class,
+            Connection::class,
+            ServerProfile::class,
+            ServerStatus::class],
         exportSchema = false,
         version = 15)
 abstract class AppRoomDatabase : RoomDatabase() {

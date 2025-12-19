@@ -1,10 +1,10 @@
 package org.tvheadend.data.dao
 
 import androidx.room.*
+import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.data.entity.ServerProfile.Companion.HTSP_PROFILE
 import org.tvheadend.data.entity.ServerProfile.Companion.HTTP_PROFILE
 import org.tvheadend.data.entity.ServerProfile.Companion.RECORDING_PROFILE
-import org.tvheadend.data.entity.ServerProfileEntity
 
 @Dao
 interface ServerProfileDao {
@@ -16,29 +16,29 @@ interface ServerProfileDao {
     @Query("SELECT p.* FROM server_profiles AS p " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.type = '" + HTSP_PROFILE + "'")
-    fun loadHtspPlaybackProfilesSync(): List<ServerProfileEntity>
+    fun loadHtspPlaybackProfilesSync(): List<ServerProfile>
 
     @Query("SELECT p.* FROM server_profiles AS p " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.type = '" + HTTP_PROFILE + "'")
-    fun loadHttpPlaybackProfilesSync(): List<ServerProfileEntity>
+    fun loadHttpPlaybackProfilesSync(): List<ServerProfile>
 
     @Query("SELECT p.* FROM server_profiles AS p " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.type = '" + RECORDING_PROFILE + "'")
-    fun loadAllRecordingProfilesSync(): List<ServerProfileEntity>
+    fun loadAllRecordingProfilesSync(): List<ServerProfile>
 
     @Insert
-    fun insert(serverProfile: ServerProfileEntity)
+    fun insert(serverProfile: ServerProfile)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(serverProfiles: List<ServerProfileEntity>)
+    fun insert(serverProfiles: List<ServerProfile>)
 
     @Update
-    fun update(serverProfile: ServerProfileEntity)
+    fun update(serverProfile: ServerProfile)
 
     @Delete
-    fun delete(serverProfile: ServerProfileEntity)
+    fun delete(serverProfile: ServerProfile)
 
     @Query("DELETE FROM server_profiles")
     fun deleteAll()
@@ -46,12 +46,12 @@ interface ServerProfileDao {
     @Query("SELECT p.* FROM server_profiles AS p " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.id = :id")
-    fun loadProfileByIdSync(id: Int): ServerProfileEntity?
+    fun loadProfileByIdSync(id: Int): ServerProfile?
 
     @Query("SELECT p.* FROM server_profiles AS p " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.uuid = :uuid")
-    fun loadProfileByUuidSync(uuid: String): ServerProfileEntity?
+    fun loadProfileByUuidSync(uuid: String): ServerProfile?
 
     companion object {
 

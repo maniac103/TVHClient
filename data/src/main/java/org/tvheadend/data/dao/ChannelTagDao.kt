@@ -2,7 +2,7 @@ package org.tvheadend.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import org.tvheadend.data.entity.ChannelTagEntity
+import org.tvheadend.data.entity.ChannelTag
 
 @Dao
 internal interface ChannelTagDao {
@@ -14,40 +14,40 @@ internal interface ChannelTagDao {
     @Query("SELECT DISTINCT * FROM channel_tags " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " ORDER BY tag_name")
-    fun loadAllChannelTags(): LiveData<List<ChannelTagEntity>>
+    fun loadAllChannelTags(): LiveData<List<ChannelTag>>
 
     @Query("SELECT DISTINCT * FROM channel_tags " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND channel_count > 0 " +
             " ORDER BY tag_name")
-    fun loadOnlyNonEmptyChannelTagsSync(): List<ChannelTagEntity>
+    fun loadOnlyNonEmptyChannelTagsSync(): List<ChannelTag>
 
     @Query("SELECT DISTINCT * FROM channel_tags " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " ORDER BY tag_name")
-    fun loadAllChannelTagsSync(): List<ChannelTagEntity>
+    fun loadAllChannelTagsSync(): List<ChannelTag>
 
     @Query("SELECT DISTINCT * FROM channel_tags " +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND id = :id ")
-    fun loadChannelTagByIdSync(id: Int): ChannelTagEntity?
+    fun loadChannelTagByIdSync(id: Int): ChannelTag?
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(channelTag: ChannelTagEntity)
+    fun insert(channelTag: ChannelTag)
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(items: List<ChannelTagEntity>)
+    fun insert(items: List<ChannelTag>)
 
     @Update
-    fun update(channelTags: List<ChannelTagEntity>)
+    fun update(channelTags: List<ChannelTag>)
 
     @Update
-    fun update(channelTags: ChannelTagEntity)
+    fun update(channelTags: ChannelTag)
 
     @Delete
-    fun delete(channelTag: ChannelTagEntity)
+    fun delete(channelTag: ChannelTag)
 
     @Query("DELETE FROM channel_tags")
     fun deleteAll()
