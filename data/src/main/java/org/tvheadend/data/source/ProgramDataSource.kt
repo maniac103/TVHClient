@@ -28,9 +28,8 @@ class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<P
     }
 
     fun addItems(items: List<Program>) {
-        ioScope.launch {
-            db.programDao.insert(items)
-        }
+        val itemsCopy = ArrayList(items)
+        ioScope.launch { db.programDao.insert(itemsCopy) }
     }
 
     override fun updateItem(item: Program) {

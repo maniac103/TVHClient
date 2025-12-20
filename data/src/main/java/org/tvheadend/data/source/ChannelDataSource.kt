@@ -21,7 +21,8 @@ class ChannelDataSource(private val db: AppRoomDatabase) : DataSourceInterface<C
     }
 
     fun addItems(items: List<Channel>) {
-        ioScope.launch { db.channelDao.insert(items) }
+        val itemsCopy = ArrayList(items)
+        ioScope.launch { db.channelDao.insert(itemsCopy) }
     }
 
     override fun updateItem(item: Channel) {

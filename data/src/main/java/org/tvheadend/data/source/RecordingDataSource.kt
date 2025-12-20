@@ -19,7 +19,8 @@ class RecordingDataSource(private val db: AppRoomDatabase) : DataSourceInterface
     }
 
     fun addItems(items: List<Recording>) {
-        scope.launch { db.recordingDao.insert(items) }
+        val itemsCopy = ArrayList(items)
+        scope.launch { db.recordingDao.insert(itemsCopy) }
     }
 
     override fun updateItem(item: Recording) {
