@@ -789,7 +789,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
             }
         } else {
             Timber.d("Adding event ${program.title}")
-            context.programDataSource.addItem(program)
+            context.programDataSource.addItem(ProgramWithChannel(program))
         }
     }
 
@@ -800,10 +800,10 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
      * @param msg The message with the updated epg event data
      */
     private fun onEventUpdate(msg: HtspMessage) {
-        val program = context.programDataSource.getItemById(msg.getInteger("eventId")) ?: return
+        val program = context.programDataSource.getItemById(msg.getInteger("eventId"))?.base ?: return
         val updatedProgram = convertMessageToProgramModel(program, msg)
         Timber.d("Updating event ${updatedProgram.title}")
-        context.programDataSource.updateItem(updatedProgram)
+        context.programDataSource.updateItem(ProgramWithChannel(updatedProgram))
     }
 
     /**
@@ -842,7 +842,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
                 pendingEventOps.addAll(programs)
             } else {
                 Timber.d("Saving ${programs.size} events for channel $channelName")
-                context.programDataSource.addItems(programs)
+                context.programDataSource.addItems(programs.map { ProgramWithChannel(it) })
             }
         }
     }
@@ -1113,7 +1113,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
     private fun saveAllReceivedEvents() {
         Timber.d("Saving ${pendingEventOps.size} new events")
         if (pendingEventOps.isNotEmpty()) {
-            context.programDataSource.addItems(pendingEventOps)
+            context.programDataSource.addItems(pendingEventOps.map { ProgramWithChannel(it) })
         }
     }
 
@@ -1253,7 +1253,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
         htspConnection?.sendMessage(request, object : ServerResponseListener<HtspMessage> {
             override fun handleResponse(response: HtspMessage) {
                 val program = convertMessageToProgramModel(Program(), response)
-                context.programDataSource.addItem(program)
+                context.programDataSource.addItem(ProgramWithChannel(program))
             }
         })
     }
@@ -1320,7 +1320,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
             getEvents(msgIntent)
         }
 
-        context.programDataSource.addItems(pendingEventOps)
+        context.programDataSource.addItems(pendingEventOps.map { ProgramWithChannel(it) })
         Timber.d("Saved ${pendingEventOps.size} events for all channels. Database contains ${context.programDataSource.itemCount} events")
         pendingEventOps.clear()
     }

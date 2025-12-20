@@ -2,8 +2,9 @@ package org.tvheadend.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import org.tvheadend.data.entity.EpgProgramEntity
-import org.tvheadend.data.entity.ProgramEntity
+import org.tvheadend.data.entity.EpgProgram
+import org.tvheadend.data.entity.Program
+import org.tvheadend.data.entity.ProgramWithChannel
 
 @Dao
 internal interface ProgramDao {
@@ -22,8 +23,8 @@ internal interface ProgramDao {
             " AND ((p.start >= :time) " +
             "  OR (p.start <= :time AND p.stop >= :time)) " +
             " GROUP BY p.id " +
-            " ORDER BY p.start, p.channel_name ASC")
-    fun loadProgramsFromTime(time: Long): LiveData<List<ProgramEntity>>
+            " ORDER BY p.start, channel_name ASC")
+    fun loadProgramsFromTime(time: Long): LiveData<List<ProgramWithChannel>>
 
     @Transaction
     @Query(PROGRAM_BASE_QUERY +
@@ -33,7 +34,7 @@ internal interface ProgramDao {
             "  OR (p.start <= :time AND p.stop >= :time)) " +
             " GROUP BY p.id " +
             " ORDER BY p.start ASC")
-    fun loadProgramsFromChannelFromTime(channelId: Int, time: Long): LiveData<List<ProgramEntity>>
+    fun loadProgramsFromChannelFromTime(channelId: Int, time: Long): LiveData<List<ProgramWithChannel>>
 
     @Transaction
     @Query(EPG_PROGRAM_BASE_QUERY +
@@ -47,7 +48,7 @@ internal interface ProgramDao {
             "  OR (start < :endTime AND stop >= :endTime)) " +
             " GROUP BY p.id " +
             " ORDER BY start ASC")
-    fun loadEpgProgramsFromChannelBetweenTimeSync(channelId: Int, startTime: Long, endTime: Long): List<EpgProgramEntity>
+    fun loadEpgProgramsFromChannelBetweenTimeSync(channelId: Int, startTime: Long, endTime: Long): List<EpgProgram>
 
     @Transaction
     @Query(PROGRAM_BASE_QUERY +
@@ -61,75 +62,75 @@ internal interface ProgramDao {
             "  OR (start < :endTime AND stop >= :endTime)) " +
             " GROUP BY p.id " +
             " ORDER BY start ASC")
-    fun loadProgramsFromChannelBetweenTimeSync(channelId: Int, startTime: Long, endTime: Long): List<ProgramEntity>
+    fun loadProgramsFromChannelBetweenTimeSync(channelId: Int, startTime: Long, endTime: Long): List<ProgramWithChannel>
 
     @Transaction
     @Query(PROGRAM_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " GROUP BY p.id " +
-            " ORDER BY p.start, p.channel_name ASC")
-    fun loadPrograms(): LiveData<List<ProgramEntity>>
+            " ORDER BY p.start, channel_name ASC")
+    fun loadPrograms(): LiveData<List<ProgramWithChannel>>
 
     @Transaction
     @Query(PROGRAM_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " GROUP BY p.id " +
-            " ORDER BY p.start, p.channel_name ASC")
-    fun loadProgramsSync(): List<ProgramEntity>
+            " ORDER BY p.start, channel_name ASC")
+    fun loadProgramsSync(): List<ProgramWithChannel>
 
     @Transaction
     @Query(PROGRAM_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.id = :id")
-    fun loadProgramById(id: Int): LiveData<ProgramEntity>
+    fun loadProgramById(id: Int): LiveData<ProgramWithChannel>
 
     @Transaction
     @Query(PROGRAM_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.id = :id")
-    fun loadProgramByIdSync(id: Int): ProgramEntity?
+    fun loadProgramByIdSync(id: Int): ProgramWithChannel?
 
     @Query(PROGRAM_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.channel_id = :channelId " +
             " ORDER BY start DESC")
-    fun loadProgramsFromChannelSync(channelId: Int): List<ProgramEntity>
+    fun loadProgramsFromChannelSync(channelId: Int): List<ProgramWithChannel>
 
     @Query(PROGRAM_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.channel_id = :channelId " +
             " ORDER BY start DESC LIMIT 1")
-    fun loadLastProgramFromChannelSync(channelId: Int): ProgramEntity?
+    fun loadLastProgramFromChannelSync(channelId: Int): ProgramWithChannel?
 
     @Query(EPG_PROGRAM_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.channel_id = :channelId " +
             " GROUP BY title, subtitle" +
             " ORDER BY title, start DESC")
-    fun loadDuplicateProgramsSync(channelId: Int): List<EpgProgramEntity>
+    fun loadDuplicateProgramsSync(channelId: Int): List<EpgProgram>
 
     @Query("DELETE FROM programs " + "WHERE stop < :time")
     fun deleteProgramsByTime(time: Long)
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(programs: List<ProgramEntity>)
+    fun insert(programs: List<Program>)
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(program: ProgramEntity)
+    fun insert(program: Program)
 
     @Update
-    fun update(programs: List<ProgramEntity>)
+    fun update(programs: List<Program>)
 
     @Update
-    fun update(program: ProgramEntity)
+    fun update(program: Program)
 
     @Delete
-    fun delete(programs: List<ProgramEntity>)
+    fun delete(programs: List<Program>)
 
     @Delete
-    fun delete(program: ProgramEntity)
+    fun delete(program: Program)
 
     @Query("DELETE FROM programs " +
             "WHERE connection_id IN (SELECT id FROM connections WHERE active = 1) " +
@@ -141,14 +142,7 @@ internal interface ProgramDao {
 
     companion object {
 
-        const val PROGRAM_BASE_QUERY = "SELECT " +
-                "p.id, p.channel_id, p.start, p.stop, p.title, p.subtitle, p.summary, " +
-                "p.description, p.credits, p.category, p.keyword, p.series_link_id, " +
-                "p.episode_id, p.season_id, p.brand_id, p.content_type, p.age_rating, " +
-                "p.star_rating, p.copyright_year, p.first_aired, p.season_number, " +
-                "p.season_count, p.episode_number, p.episode_count, p.part_number, " +
-                "p.part_count, p.episode_on_screen, p.image, p.dvr_id, p.next_event_id, " +
-                "p.series_link_uri, p.episode_uri, p.modified_time, p.connection_id, " +
+        const val PROGRAM_BASE_QUERY = "SELECT p.*, " +
                 "c.name AS channel_name, " +
                 "c.icon AS channel_icon " +
                 "FROM programs AS p " +

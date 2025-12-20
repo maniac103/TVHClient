@@ -8,8 +8,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:attr/selectableItemBackground"
-        android:onClick="@{(view) -> viewModel.onClick(view, program)}"
-        android:onLongClick="@{(view) -> viewModel.onLongClick(view, program)}"
+        android:onClick="@{(view) -> viewModel.onClick(view, model.program)}"
+        android:onLongClick="@{(view) -> viewModel.onLongClick(view, model.program)}"
         app:layoutWidth="@{layoutWidth}">
 
         <ImageView
@@ -22,7 +22,7 @@
             android:scaleType="fitCenter"
             app:layout_constraintEnd_toStartOf="@+id/vertical_divider"
             app:layout_constraintTop_toTopOf="parent"
-            app:stateIcon="@{program.recording}" />
+            app:stateIcon="@{model.recording}" />
 
         <TextView
             android:id="@+id/title"
@@ -37,7 +37,7 @@
             app:layout_constraintEnd_toStartOf="@+id/state"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:optionalColoredText="@{program.title}"
+            app:optionalColoredText="@{model.program.title}"
             tools:text="@string/title" />
 
         <TextView
@@ -50,9 +50,9 @@
             android:layout_marginEnd="2dp"
             android:layout_marginRight="2dp"
             android:layout_marginBottom="2dp"
-            app:genreColor="@{program.contentType}"
+            app:genreColor="@{model.program.contentType}"
             app:genreColorAlphaOffset="@{25}"
-            app:genreColorItemName="@{program.title}"
+            app:genreColorItemName="@{model.program.title}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/vertical_divider"
             app:layout_constraintHorizontal_bias="0.0"
@@ -69,11 +69,11 @@
             android:layout_marginEnd="4dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:visibility="@{program.subtitle != null  &amp;&amp; safeUnbox(viewModel.showProgramSubtitle) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{model.program.subtitle != null  &amp;&amp; safeUnbox(viewModel.showProgramSubtitle) ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toStartOf="@+id/vertical_divider"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/title"
-            app:optionalColoredText="@{program.subtitle}"
+            app:optionalColoredText="@{model.program.subtitle}"
             tools:text="@string/subtitle" />
 
         <TextView
@@ -84,7 +84,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="4dp"
             android:maxLines="1"
-            android:text="@{@string/minutes(program.duration)}"
+            android:text="@{@string/minutes(model.program.duration)}"
             app:layout_constraintEnd_toStartOf="@+id/vertical_divider"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -109,8 +109,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="program"
-            type="org.tvheadend.data.entity.EpgProgram" />
+            name="model"
+            type="org.tvheadend.tvhclient.ui.features.epg.EpgHorizontalChildRecyclerViewAdapter.ItemModel" />
 
         <variable
             name="viewModel"

@@ -1,17 +1,15 @@
 package org.tvheadend.data.source
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.EpgProgram
-import org.tvheadend.data.entity.Program
-import org.tvheadend.data.entity.ProgramEntity
+import org.tvheadend.data.entity.ProgramWithChannel
 
-class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Program> {
+class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<ProgramWithChannel> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
@@ -24,26 +22,22 @@ class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<P
             return count
         }
 
-    override fun addItem(item: Program) {
-        ioScope.launch { db.programDao.insert(ProgramEntity.from(item)) }
+    override fun addItem(item: ProgramWithChannel) {
+        ioScope.launch { db.programDao.insert(item.base) }
     }
 
-    fun addItems(items: List<Program>) {
-        if (items.isNotEmpty()) {
-            ioScope.launch {
-                db.programDao.insert(ArrayList(items).mapNotNull { program -> program.let { item ->
-                    ProgramEntity.from(item) }
-                })
-            }
+    fun addItems(items: List<ProgramWithChannel>) {
+        ioScope.launch {
+            db.programDao.insert(items.map { it.base })
         }
     }
 
-    override fun updateItem(item: Program) {
-        ioScope.launch { db.programDao.update(ProgramEntity.from(item)) }
+    override fun updateItem(item: ProgramWithChannel) {
+        ioScope.launch { db.programDao.update(item.base) }
     }
 
-    override fun removeItem(item: Program) {
-        ioScope.launch { db.programDao.delete(ProgramEntity.from(item)) }
+    override fun removeItem(item: ProgramWithChannel) {
+        ioScope.launch { db.programDao.delete(item.base) }
     }
 
     fun removeItemsByTime(time: Long) {
@@ -54,82 +48,50 @@ class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<P
         ioScope.launch { db.programDao.deleteById(id) }
     }
 
-    override fun getLiveDataItemCount(): LiveData<Int> {
-        return db.programDao.itemCount
+    override fun getLiveDataItemCount(): LiveData<Int> = db.programDao.itemCount
+
+    override fun getLiveDataItems(): LiveData<List<ProgramWithChannel>> = db.programDao.loadPrograms()
+
+    override fun getLiveDataItemById(id: Any): LiveData<ProgramWithChannel> =
+        db.programDao.loadProgramById(id as Int)
+
+    override fun getItemById(id: Any): ProgramWithChannel? = runBlocking(Dispatchers.IO) {
+        db.programDao.loadProgramByIdSync(id as Int)
     }
 
-    override fun getLiveDataItems(): LiveData<List<Program>> =
-        db.programDao.loadPrograms().map { entities ->
-            entities.map { it.toProgram() }
-        }
-
-    override fun getLiveDataItemById(id: Any): LiveData<Program> =
-        db.programDao.loadProgramById(id as Int).map { entity -> entity.toProgram() }
-
-    override fun getItemById(id: Any): Program? {
-        var program: Program?
-        runBlocking(Dispatchers.IO) {
-            program = db.programDao.loadProgramByIdSync(id as Int)?.toProgram()
-        }
-        return program
+    override fun getItems(): List<ProgramWithChannel> = runBlocking(Dispatchers.IO) {
+        db.programDao.loadProgramsSync()
     }
 
-    override fun getItems(): List<Program> {
-        val programs = ArrayList<Program>()
-        runBlocking(Dispatchers.IO) {
-            programs.addAll(db.programDao.loadProgramsSync().map { it.toProgram() })
-        }
-        return programs
+    fun getLiveDataItemsFromTime(time: Long): LiveData<List<ProgramWithChannel>> =
+        db.programDao.loadProgramsFromTime(time)
+
+    fun getLiveDataItemByChannelIdAndTime(channelId: Int, time: Long): LiveData<List<ProgramWithChannel>> =
+        db.programDao.loadProgramsFromChannelFromTime(channelId, time)
+
+    fun getItemByChannelIdAndBetweenTime(channelId: Int, startTime: Long, endTime: Long): List<EpgProgram> = runBlocking(Dispatchers.IO) {
+            db.programDao.loadEpgProgramsFromChannelBetweenTimeSync(channelId, startTime, endTime)
     }
 
-    fun getLiveDataItemsFromTime(time: Long): LiveData<List<Program>> =
-        db.programDao.loadProgramsFromTime(time).map { entities ->
-            entities.map { it.toProgram() }
-        }
-
-    fun getLiveDataItemByChannelIdAndTime(channelId: Int, time: Long): LiveData<List<Program>> =
-        db.programDao.loadProgramsFromChannelFromTime(channelId, time).map { entities ->
-            entities.map { it.toProgram() }
-        }
-
-    fun getItemByChannelIdAndBetweenTime(channelId: Int, startTime: Long, endTime: Long): List<EpgProgram> {
-        val programs = ArrayList<EpgProgram>()
-        runBlocking(Dispatchers.IO) {
-            programs.addAll(db.programDao.loadEpgProgramsFromChannelBetweenTimeSync(channelId, startTime, endTime).map { it.toEpgProgram() })
-        }
-        return programs
+    fun getLastItemByChannelId(channelId: Int): ProgramWithChannel? = runBlocking(Dispatchers.IO) {
+        db.programDao.loadLastProgramFromChannelSync(channelId)
     }
 
-    fun getLastItemByChannelId(channelId: Int): Program? {
-        var program: Program?
-        runBlocking(Dispatchers.IO) {
-            program = db.programDao.loadLastProgramFromChannelSync(channelId)?.toProgram()
+    fun getItemsByChannelId(channelId: Int): List<ProgramWithChannel> = runBlocking(Dispatchers.IO) {
+        val programs = mutableListOf<ProgramWithChannel>()
+        val timeStep = 1000L * 3600 * 24 * 2
+        val lastProgram = db.programDao.loadLastProgramFromChannelSync(channelId)
+        val startTime = System.currentTimeMillis()
+        val endTime = lastProgram?.stop ?: startTime
+
+        // Load the programs in chunks to avoid a SQLiteBlobTooBigException
+        for (time in startTime until endTime step timeStep) {
+            programs += db.programDao.loadProgramsFromChannelBetweenTimeSync(channelId, time, time + timeStep)
         }
-        return program
+        programs
     }
 
-    fun getItemsByChannelId(channelId: Int): List<Program> {
-        val programs = ArrayList<Program>()
-        runBlocking(Dispatchers.IO) {
-
-            val timeStep = 1000L * 3600 * 24 * 2
-            val lastProgram = db.programDao.loadLastProgramFromChannelSync(channelId)?.toProgram()
-            val startTime = System.currentTimeMillis()
-            val endTime = lastProgram?.stop ?: startTime
-
-            // Load the programs in chunks to avoid a SQLiteBlobTooBigException
-            for (time in startTime until endTime step timeStep) {
-                programs.addAll(db.programDao.loadProgramsFromChannelBetweenTimeSync(channelId, time, time + timeStep).map { it.toProgram() })
-            }
-        }
-        return programs
-    }
-
-    fun getDuplicatePrograms(channelId: Int): List<EpgProgram> {
-        val programs = ArrayList<EpgProgram>()
-        runBlocking(Dispatchers.IO) {
-            programs.addAll(db.programDao.loadDuplicateProgramsSync(channelId).map { it.toEpgProgram() })
-        }
-        return programs
+    fun getDuplicatePrograms(channelId: Int): List<EpgProgram> = runBlocking(Dispatchers.IO) {
+        db.programDao.loadDuplicateProgramsSync(channelId)
     }
 }

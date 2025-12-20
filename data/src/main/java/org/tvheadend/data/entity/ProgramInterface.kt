@@ -1,14 +1,17 @@
 package org.tvheadend.data.entity
 
-interface ProgramInterface {
-
+interface ProgramBaseInterface {
     var eventId: Int                // u32   required   Event ID
-    var nextEventId: Int            // u32   optional   ID of next event on the same channel.
     var channelId: Int              // u32   required   The channel this event is related to.
     var start: Long                 // u64   required   Start time of event, UNIX time.
     var stop: Long                  // u64   required   Ending time of event, UNIX time.
     var title: String?              // str   optional   Title of event.
     var subtitle: String?           // str   optional   Subtitle of event.
+}
+
+interface ProgramInterface : ProgramBaseInterface {
+
+    var nextEventId: Int            // u32   optional   ID of next event on the same channel.
     var summary: String?            // str   optional   Short description of the event (Added in version 6).
     var description: String?        // str   optional   Long description of the event.
 
@@ -43,10 +46,6 @@ interface ProgramInterface {
     var modifiedTime: Long
 
     var connectionId: Int
-    var channelName: String?
-    var channelIcon: String?
-
-    var recording: Recording?
 
     val duration: Int
     val progress: Int

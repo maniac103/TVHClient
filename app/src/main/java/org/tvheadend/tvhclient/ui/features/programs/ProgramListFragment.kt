@@ -156,7 +156,7 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
     }
 
     private fun showProgramDetails(position: Int) {
-        val program = recyclerViewAdapter.getItem(position)
+        val program = recyclerViewAdapter.getItem(position)?.program
         if (program == null
                 || !isVisible
                 || !lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
@@ -173,39 +173,50 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
 
     private fun showPopupMenu(view: View, position: Int) {
         val ctx = context ?: return
-        val program = recyclerViewAdapter.getItem(position) ?: return
+        val model = recyclerViewAdapter.getItem(position) ?: return
+        val eventId = model.program.eventId
+        val channelId = model.program.channelId
+        val programTitle = model.program.title
 
         val popupMenu = PopupMenu(ctx, view)
         popupMenu.menuInflater.inflate(R.menu.program_popup_and_toolbar_menu, popupMenu.menu)
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
-        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, program.recording, isConnectionToServerAvailable, htspVersion)
-        preparePopupOrToolbarSearchMenu(popupMenu.menu, program.title, isConnectionToServerAvailable)
-        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, program, isConnectionToServerAvailable)
+        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, model.recording, isConnectionToServerAvailable, htspVersion)
+        preparePopupOrToolbarSearchMenu(popupMenu.menu, programTitle, isConnectionToServerAvailable)
+        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, model.program, isConnectionToServerAvailable)
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.menu_stop_recording -> return@setOnMenuItemClickListener showConfirmationToStopSelectedRecording(ctx, program.recording, null)
-                R.id.menu_cancel_recording -> return@setOnMenuItemClickListener showConfirmationToCancelSelectedRecording(ctx, program.recording, null)
-                R.id.menu_remove_recording -> return@setOnMenuItemClickListener showConfirmationToRemoveSelectedRecording(ctx, program.recording, null)
-                R.id.menu_record_program -> return@setOnMenuItemClickListener recordSelectedProgram(ctx, program.eventId, programViewModel.getRecordingProfile(), htspVersion)
+                R.id.menu_stop_recording -> showConfirmationToStopSelectedRecording(ctx, model.recording, null)
+                R.id.menu_cancel_recording -> showConfirmationToCancelSelectedRecording(ctx, model.recording, null)
+                R.id.menu_remove_recording -> showConfirmationToRemoveSelectedRecording(ctx, model.recording, null)
+                R.id.menu_record_program -> recordSelectedProgram(ctx, eventId, programViewModel.getRecordingProfile(), htspVersion)
                 R.id.menu_record_program_and_edit -> {
-                    programIdToBeEditedWhenBeingRecorded = program.eventId
-                    return@setOnMenuItemClickListener recordSelectedProgram(ctx, program.eventId, programViewModel.getRecordingProfile(), htspVersion)
+                    programIdToBeEditedWhenBeingRecorded = eventId
+                    recordSelectedProgram(ctx, eventId, programViewModel.getRecordingProfile(), htspVersion)
                 }
-                R.id.menu_record_program_with_custom_profile -> return@setOnMenuItemClickListener recordSelectedProgramWithCustomProfile(ctx, program.eventId, program.channelId, programViewModel.getRecordingProfileNames(), programViewModel.getRecordingProfile())
-                R.id.menu_record_program_as_series_recording -> return@setOnMenuItemClickListener recordSelectedProgramAsSeriesRecording(ctx, program.title, program.channelId, programViewModel.getRecordingProfile(), htspVersion)
-                R.id.menu_play -> return@setOnMenuItemClickListener playSelectedChannel(ctx, channelId)
-                R.id.menu_cast -> return@setOnMenuItemClickListener castSelectedChannel(ctx, channelId)
+                R.id.menu_record_program_with_custom_profile ->
+                    recordSelectedProgramWithCustomProfile(
+                        ctx,
+                        eventId,
+                        channelId,
+                        programViewModel.getRecordingProfileNames(),
+                        programViewModel.getRecordingProfile()
+                    )
+                R.id.menu_record_program_as_series_recording ->
+                    recordSelectedProgramAsSeriesRecording(ctx, programTitle, channelId, programViewModel.getRecordingProfile(), htspVersion)
+                R.id.menu_play -> playSelectedChannel(ctx, channelId)
+                R.id.menu_cast -> castSelectedChannel(ctx, channelId)
 
-                R.id.menu_search_imdb -> return@setOnMenuItemClickListener searchTitleOnImdbWebsite(ctx, program.title)
-                R.id.menu_search_fileaffinity -> return@setOnMenuItemClickListener searchTitleOnFileAffinityWebsite(ctx, program.title)
-                R.id.menu_search_youtube -> return@setOnMenuItemClickListener searchTitleOnYoutube(ctx, program.title)
-                R.id.menu_search_google -> return@setOnMenuItemClickListener searchTitleOnGoogle(ctx, program.title)
-                R.id.menu_search_epg -> return@setOnMenuItemClickListener searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, program.title, program.channelId)
+                R.id.menu_search_imdb -> searchTitleOnImdbWebsite(ctx, programTitle)
+                R.id.menu_search_fileaffinity -> searchTitleOnFileAffinityWebsite(ctx, programTitle)
+                R.id.menu_search_youtube -> searchTitleOnYoutube(ctx, programTitle)
+                R.id.menu_search_google -> searchTitleOnGoogle(ctx, programTitle)
+                R.id.menu_search_epg -> searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, programTitle, channelId)
 
-                R.id.menu_add_notification -> return@setOnMenuItemClickListener addNotificationProgramIsAboutToStart(ctx, program, programViewModel.getRecordingProfile())
-                else -> return@setOnMenuItemClickListener false
+                R.id.menu_add_notification -> addNotificationProgramIsAboutToStart(ctx, model.program, programViewModel.getRecordingProfile())
+                else -> false
             }
         }
         popupMenu.show()
@@ -233,7 +244,7 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
         }
         lastProgramItemCount = recyclerViewAdapter.itemCount
 
-        val lastProgram = recyclerViewAdapter.getItem(position)
+        val lastProgram = recyclerViewAdapter.getItem(position)?.program
         lastProgram?.let {
             Timber.d("Loading more programs after ${lastProgram.title}")
 

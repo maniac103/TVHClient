@@ -10,6 +10,7 @@ import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import org.tvheadend.data.entity.ProgramBaseInterface
 import org.tvheadend.data.entity.ProgramInterface
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.ServerProfile
@@ -122,7 +123,7 @@ fun removeNotificationById(context: Context, id: Int) {
  * @param program The program for which the notification shall be created
  * @param profile The selected recording profile
  */
-fun addNotificationProgramIsAboutToStart(context: Context, program: ProgramInterface?, profile: ServerProfile?): Boolean {
+fun addNotificationProgramIsAboutToStart(context: Context, program: ProgramBaseInterface?, profile: ServerProfile?): Boolean {
     if (program == null) return false
 
     if (context.prefs.notificationsEnabled) {

@@ -12,6 +12,7 @@ import org.tvheadend.api.ServerResponseListener
 import org.tvheadend.data.entity.Connection
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.data.entity.Program
+import org.tvheadend.data.entity.ProgramWithChannel
 import org.tvheadend.data.entity.ServerStatus
 import org.tvheadend.htsp.HtspConnection
 import org.tvheadend.htsp.HtspConnectionData
@@ -236,18 +237,10 @@ class HtspIntentServiceHandler(val context: Context, val connection: Connection)
             programs.forEach { program ->
                 if (lastProgram.title == program.title
                         && lastProgram.subtitle == program.subtitle
-                        && lastProgram.summary == program.summary
-                        && lastProgram.description == program.description
-                        && lastProgram.channelId == program.channelId
-                        && lastProgram.modifiedTime != program.modifiedTime) {
+                        && lastProgram.channelId == program.channelId) {
 
-                    if (lastProgram.modifiedTime < program.modifiedTime) {
-                        Timber.d("Channel: ${channel.name}, program id: ${lastProgram.eventId}, title: ${lastProgram.title} is a duplicate")
-                        duplicatePrograms.add(lastProgram.eventId)
-                    } else {
-                        Timber.d("Channel: ${channel.name}, program id: ${program.eventId}, title: ${program.title} is a duplicate")
-                        duplicatePrograms.add(program.eventId)
-                    }
+                    Timber.d("Channel: ${channel.name}, program id: ${program.eventId}, title: ${program.title} is a duplicate")
+                    duplicatePrograms.add(program.eventId)
                 }
                 lastProgram = program
             }
@@ -394,7 +387,7 @@ class HtspIntentServiceHandler(val context: Context, val connection: Connection)
         }
 
         Timber.d("Done loading more events")
-        context.programDataSource.addItems(pendingEventOps)
+        context.programDataSource.addItems(pendingEventOps.map { ProgramWithChannel(it) })
         Timber.d("Saved ${pendingEventOps.size} events for all channels. Database contains ${context.programDataSource.itemCount} events")
         pendingEventOps.clear()
     }

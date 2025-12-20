@@ -5,6 +5,7 @@ import android.view.*
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.Program
+import org.tvheadend.data.entity.ProgramWithChannel
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ProgramDetailsFragmentBinding
@@ -17,7 +18,7 @@ import timber.log.Timber
 class ProgramDetailsFragment : BaseFragment(), ClearSearchResultsOrPopBackStackInterface {
 
     private lateinit var programViewModel: ProgramViewModel
-    private var program: Program? = null
+    private var program: ProgramWithChannel? = null
     private var recording: Recording? = null
     private var programIdToBeEditedWhenBeingRecorded = 0
     private lateinit var binding: ProgramDetailsFragmentBinding
@@ -110,7 +111,7 @@ class ProgramDetailsFragment : BaseFragment(), ClearSearchResultsOrPopBackStackI
         }
         // Update the state of the recording (if there is one)
         // and also the menu items in the nested toolbar
-        program?.recording = recording
+        binding.recording = recording
         binding.program = program
         activity?.invalidateOptionsMenu()
     }
@@ -122,7 +123,7 @@ class ProgramDetailsFragment : BaseFragment(), ClearSearchResultsOrPopBackStackI
         menu.findItem(R.id.menu_play)?.isVisible = false
 
         preparePopupOrToolbarSearchMenu(menu, program?.title, isConnectionToServerAvailable)
-        preparePopupOrToolbarRecordingMenu(ctx, binding.nestedToolbar.menu, program?.recording, isConnectionToServerAvailable, htspVersion)
+        preparePopupOrToolbarRecordingMenu(ctx, binding.nestedToolbar.menu, recording, isConnectionToServerAvailable, htspVersion)
         preparePopupOrToolbarMiscMenu(ctx, binding.nestedToolbar.menu, program, isConnectionToServerAvailable)
     }
 

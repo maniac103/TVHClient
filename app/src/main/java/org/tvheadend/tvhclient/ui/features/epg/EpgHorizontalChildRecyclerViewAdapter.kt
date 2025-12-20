@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.data.entity.Recording
-import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgHorizontalChildRecyclerviewAdapterBinding
 import org.tvheadend.tvhclient.util.extensions.isEqualTo
@@ -15,7 +14,7 @@ import java.util.*
 
 internal class EpgHorizontalChildRecyclerViewAdapter(private val viewModel: EpgViewModel, private val fragmentId: Int, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<EpgHorizontalChildRecyclerViewAdapter.EpgProgramListViewHolder>() {
 
-    private val programList = ArrayList<EpgProgram>()
+    private val programList = ArrayList<ItemModel>()
     private val recordingList = ArrayList<Recording>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpgProgramListViewHolder {
@@ -28,13 +27,14 @@ internal class EpgHorizontalChildRecyclerViewAdapter(private val viewModel: EpgV
 
     override fun onBindViewHolder(holder: EpgProgramListViewHolder, position: Int) {
         if (programList.size > position) {
-            val program = programList[position]
+            val model = programList[position]
+            val program = model.program
 
             val startTime = if (program.start < viewModel.getStartTime(fragmentId)) viewModel.getStartTime(fragmentId) else program.start
             val stopTime = if (program.stop > viewModel.getEndTime(fragmentId)) viewModel.getEndTime(fragmentId) else program.stop
             val layoutWidth = ((stopTime - startTime) / 1000 / 60 * viewModel.pixelsPerMinute).toInt()
 
-            holder.bind(program, layoutWidth)
+            holder.bind(model, layoutWidth)
         }
     }
 
@@ -42,7 +42,8 @@ internal class EpgHorizontalChildRecyclerViewAdapter(private val viewModel: EpgV
         onBindViewHolder(holder, position)
     }
 
-    fun addItems(newItems: MutableList<EpgProgram>) {
+    fun addItems(items: MutableList<EpgProgram>) {
+        val newItems = items.map { ItemModel(it) }.toMutableList()
         updateRecordingState(newItems, recordingList)
 
         val oldItems = ArrayList(programList)
@@ -59,15 +60,14 @@ internal class EpgHorizontalChildRecyclerViewAdapter(private val viewModel: EpgV
         updateRecordingState(programList, recordingList)
     }
 
-    private fun updateRecordingState(programs: MutableList<EpgProgram>, recordings: List<Recording>) {
-        for (i in programs.indices) {
-            val program = programs[i]
+    private fun updateRecordingState(items: MutableList<ItemModel>, recordings: List<Recording>) {
+        items.forEachIndexed { index, model ->
             var recordingExists = false
 
             for (recording in recordings) {
-                if (program.eventId > 0 && program.eventId == recording.eventId) {
-                    val oldRecording = program.recording
-                    program.recording = recording
+                if (model.program.eventId > 0 && model.program.eventId == recording.eventId) {
+                    val oldRecording = model.recording
+                    model.recording = recording
 
                     // Do a full update only when a new recording was added or the recording
                     // state has changed which results in a different recording state icon
@@ -75,17 +75,16 @@ internal class EpgHorizontalChildRecyclerViewAdapter(private val viewModel: EpgV
                     if (oldRecording == null
                             || !oldRecording.error.isEqualTo(recording.error)
                             || !oldRecording.state.isEqualTo(recording.state)) {
-                        notifyItemChanged(i)
+                        notifyItemChanged(index)
                     }
                     recordingExists = true
                     break
                 }
             }
-            if (!recordingExists && program.recording != null) {
-                program.recording = null
-                notifyItemChanged(i)
+            if (!recordingExists && model.recording != null) {
+                model.recording = null
+                notifyItemChanged(index)
             }
-            programs[i] = program
         }
     }
 
@@ -97,10 +96,31 @@ internal class EpgHorizontalChildRecyclerViewAdapter(private val viewModel: EpgV
         return R.layout.epg_horizontal_child_recyclerview_adapter
     }
 
+    data class ItemModel(val program: EpgProgram, var recording: Recording? = null)
+
+    private class EpgProgramListDiffCallback(private val oldList: List<ItemModel>, private val newList: List<ItemModel>) : DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return newList[newItemPosition].program.eventId == oldList[oldItemPosition].program.eventId
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return newList[newItemPosition] == oldList[oldItemPosition]
+        }
+    }
+
     internal class EpgProgramListViewHolder(private val binding: EpgHorizontalChildRecyclerviewAdapterBinding,
                                             private val viewModel: EpgViewModel) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(program: EpgProgram, layoutWidth: Int) {
-            binding.program = program
+        fun bind(model: ItemModel, layoutWidth: Int) {
+            binding.model = model
             binding.layoutWidth = layoutWidth
             binding.viewModel = viewModel
             binding.executePendingBindings()

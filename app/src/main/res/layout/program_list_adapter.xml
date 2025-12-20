@@ -18,7 +18,7 @@
             android:layout_marginTop="16dp"
             android:contentDescription="@null"
             android:scaleType="fitStart"
-            app:iconUrl="@{program.channelIcon}"
+            app:iconUrl="@{model.program.channelIcon}"
             app:iconVisibility="@{safeUnbox(viewModel.showProgramChannelIcon)}"
             app:layout_constraintStart_toEndOf="@+id/genre"
             app:layout_constraintTop_toTopOf="parent" />
@@ -33,7 +33,7 @@
             android:scaleType="fitCenter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:stateIcon="@{program.recording}" />
+            app:stateIcon="@{model.recording}" />
 
         <TextView
             android:id="@+id/genre"
@@ -41,9 +41,9 @@
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            app:genreColor="@{program.contentType}"
+            app:genreColor="@{model.program.contentType}"
             app:genreColorAlphaOffset="@{0}"
-            app:genreColorItemName="@{program.title}"
+            app:genreColorItemName="@{model.program.title}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -57,8 +57,8 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp"
-            app:iconName="@{program.channelName}"
-            app:iconUrl="@{program.channelIcon}"
+            app:iconName="@{model.program.channelName}"
+            app:iconUrl="@{model.program.channelIcon}"
             app:iconVisibility="@{safeUnbox(viewModel.showProgramChannelIcon)}"
             app:layout_constraintStart_toEndOf="@+id/genre"
             app:layout_constraintTop_toTopOf="parent"
@@ -77,7 +77,7 @@
             app:layout_constraintStart_toEndOf="@+id/genre"
             app:layout_constraintTop_toTopOf="parent"
             app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:optionalColoredText="@{program.title}"
+            app:optionalColoredText="@{model.program.title}"
             tools:text="@string/title" />
 
         <TextView
@@ -92,12 +92,12 @@
             android:layout_marginRight="16dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:visibility="@{safeUnbox(viewModel.showProgramSubtitles) &amp;&amp; program.subtitle != null &amp;&amp; !program.subtitle.equals(program.title) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{safeUnbox(viewModel.showProgramSubtitles) &amp;&amp; model.program.subtitle != null &amp;&amp; !model.program.subtitle.equals(model.program.title) ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/genre"
             app:layout_constraintTop_toBottomOf="@+id/title"
             app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:optionalColoredText="@{program.subtitle}"
+            app:optionalColoredText="@{model.program.subtitle}"
             tools:text="@string/subtitle" />
 
         <TextView
@@ -112,8 +112,8 @@
             android:layout_marginRight="16dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="@{program.summary}"
-            android:visibility="@{(!safeUnbox(viewModel.showProgramSubtitles) &amp;&amp; program.summary != null) || (program.summary != null &amp;&amp; !program.summary.equals(program.subtitle)) ? View.VISIBLE : View.GONE}"
+            android:text="@{model.program.summary}"
+            android:visibility="@{(!safeUnbox(viewModel.showProgramSubtitles) &amp;&amp; model.program.summary != null) || (model.program.summary != null &amp;&amp; !model.program.summary.equals(model.program.subtitle)) ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/genre"
             app:layout_constraintTop_toBottomOf="@+id/subtitle"
@@ -131,7 +131,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:singleLine="true"
-            app:contentTypeText="@{program.contentType}"
+            app:contentTypeText="@{model.program.contentType}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/genre"
             app:layout_constraintTop_toBottomOf="@+id/summary"
@@ -148,7 +148,7 @@
             android:layout_marginBottom="8dp"
             android:gravity="start"
             android:textAlignment="viewStart"
-            app:dateText="@{program.start}"
+            app:dateText="@{model.program.start}"
             app:layout_constraintBottom_toTopOf="@+id/progress"
             app:layout_constraintStart_toEndOf="@+id/genre"
             app:layout_constraintTop_toBottomOf="@+id/content_type"
@@ -166,7 +166,7 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/date"
             app:layout_constraintTop_toTopOf="@+id/date"
-            app:timeText="@{program.start}"
+            app:timeText="@{model.program.start}"
             tools:text="@tools:sample/date/hhmm" />
 
         <TextView
@@ -177,7 +177,7 @@
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toStartOf="@+id/duration"
             app:layout_constraintTop_toTopOf="@+id/date"
-            app:timeText="@{program.stop}"
+            app:timeText="@{model.program.stop}"
             tools:text="@tools:sample/date/hhmm" />
 
         <TextView
@@ -188,7 +188,7 @@
             android:layout_marginEnd="16dp"
             android:layout_weight="0.3"
             android:gravity="end"
-            android:text="@{@string/minutes(program.duration)}"
+            android:text="@{@string/minutes(model.program.duration)}"
             android:textAlignment="textEnd"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/date"
@@ -205,8 +205,8 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="8dp"
             android:singleLine="true"
-            android:text="@{@string/progress(program.progress)}"
-            android:visibility="@{program.progress > 0 ? View.VISIBLE : View.GONE}"
+            android:text="@{@string/progress(model.program.progress)}"
+            android:visibility="@{model.program.progress > 0 ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@+id/series_info"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/genre"
@@ -228,7 +228,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/genre"
             app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:seriesInfoText="@{program}"
+            app:seriesInfoText="@{model.program}"
             tools:text="@tools:sample/lorem" />
 
         <TextView
@@ -247,7 +247,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/genre"
             app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:optionalColoredText="@{program.description}"
+            app:optionalColoredText="@{model.program.description}"
             tools:text="@tools:sample/lorem/random" />
 
         <View
@@ -270,8 +270,8 @@
         <import type="android.view.View" />
 
         <variable
-            name="program"
-            type="org.tvheadend.data.entity.ProgramInterface" />
+            name="model"
+            type="org.tvheadend.tvhclient.ui.features.programs.ProgramRecyclerViewAdapter.ItemModel" />
 
         <variable
             name="viewModel"

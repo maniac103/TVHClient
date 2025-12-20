@@ -8,18 +8,20 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.ProgramInterface
+import org.tvheadend.data.entity.ProgramWithChannel
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ProgramListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
+import org.tvheadend.tvhclient.ui.features.channels.ChannelRecyclerViewAdapter.ItemModel
 import org.tvheadend.tvhclient.util.extensions.isEqualTo
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 class ProgramRecyclerViewAdapter internal constructor(private val viewModel: ProgramViewModel, private val clickCallback: RecyclerViewClickInterface, private val onLastProgramVisibleListener: LastProgramVisibleListener, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<ProgramRecyclerViewAdapter.ProgramViewHolder>(), Filterable {
 
-    private val programList = ArrayList<ProgramInterface>()
-    private var programListFiltered: MutableList<ProgramInterface> = ArrayList()
+    private val programList = ArrayList<ItemModel>()
+    private var programListFiltered: MutableList<ItemModel> = ArrayList()
     private val recordingList = ArrayList<Recording>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProgramViewHolder {
@@ -32,8 +34,8 @@ class ProgramRecyclerViewAdapter internal constructor(private val viewModel: Pro
 
     override fun onBindViewHolder(holder: ProgramViewHolder, position: Int) {
         if (programListFiltered.size > position) {
-            val program = programListFiltered[position]
-            holder.bind(program, position, clickCallback)
+            val model = programListFiltered[position]
+            holder.bind(model, position, clickCallback)
             if (position == programList.size - 1) {
                 onLastProgramVisibleListener.onLastProgramVisible(position)
             }
@@ -44,7 +46,8 @@ class ProgramRecyclerViewAdapter internal constructor(private val viewModel: Pro
         onBindViewHolder(holder, position)
     }
 
-    internal fun addItems(newItems: MutableList<ProgramInterface>) {
+    internal fun addItems(items: MutableList<ProgramWithChannel>) {
+        val newItems = items.map { ItemModel(it) }.toMutableList()
         updateRecordingState(newItems, recordingList)
 
         val oldItems = ArrayList(programListFiltered)
@@ -65,7 +68,7 @@ class ProgramRecyclerViewAdapter internal constructor(private val viewModel: Pro
         return R.layout.program_list_adapter
     }
 
-    fun getItem(position: Int): ProgramInterface? {
+    fun getItem(position: Int): ItemModel? {
         return if (programListFiltered.size > position && position >= 0) {
             programListFiltered[position]
         } else {
@@ -76,17 +79,13 @@ class ProgramRecyclerViewAdapter internal constructor(private val viewModel: Pro
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(charSequence: CharSequence): FilterResults {
-                val charString = charSequence.toString()
-                val filteredList: MutableList<ProgramInterface> = ArrayList()
-                if (charString.isNotEmpty()) {
-                    for (program in CopyOnWriteArrayList(programList)) {
-                        val title = program.title ?: ""
-                        when {
-                            title.lowercase().contains(charString.lowercase()) -> filteredList.add(program)
-                        }
-                    }
+                val charString = charSequence.toString().lowercase()
+                val filteredList = if (charString.isNotEmpty()) {
+                    programList
+                        .filter { it.program.title?.lowercase()?.contains(charString) == true }
+                        .toMutableList()
                 } else {
-                    filteredList.addAll(programList)
+                    ArrayList(programList)
                 }
 
                 val filterResults = FilterResults()
@@ -97,7 +96,7 @@ class ProgramRecyclerViewAdapter internal constructor(private val viewModel: Pro
             override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
                 programListFiltered.clear()
                 @Suppress("UNCHECKED_CAST")
-                programListFiltered.addAll(filterResults.values as ArrayList<ProgramInterface>)
+                programListFiltered.addAll(filterResults.values as ArrayList<ItemModel>)
                 notifyDataSetChanged()
             }
         }
@@ -117,15 +116,14 @@ class ProgramRecyclerViewAdapter internal constructor(private val viewModel: Pro
         updateRecordingState(programListFiltered, recordingList)
     }
 
-    private fun updateRecordingState(programs: MutableList<ProgramInterface>, recordings: List<Recording>) {
-        for (i in programs.indices) {
-            val program = programs[i]
+    private fun updateRecordingState(items: MutableList<ItemModel>, recordings: List<Recording>) {
+        items.forEachIndexed { index, model ->
             var recordingExists = false
 
             for (recording in recordings) {
-                if (program.eventId > 0 && program.eventId == recording.eventId) {
-                    val oldRecording = program.recording
-                    program.recording = recording
+                if (model.program.eventId > 0 && model.program.eventId == recording.eventId) {
+                    val oldRecording = model.recording
+                    model.recording = recording
 
                     // Do a full update only when a new recording was added or the recording
                     // state has changed which results in a different recording state icon
@@ -133,24 +131,43 @@ class ProgramRecyclerViewAdapter internal constructor(private val viewModel: Pro
                     if (oldRecording == null
                             || !oldRecording.error.isEqualTo(recording.error)
                             || !oldRecording.state.isEqualTo(recording.state)) {
-                        notifyItemChanged(i)
+                        notifyItemChanged(index)
                     }
                     recordingExists = true
                     break
                 }
             }
-            if (!recordingExists && program.recording != null) {
-                program.recording = null
-                notifyItemChanged(i)
+            if (!recordingExists && model.recording != null) {
+                model.recording = null
+                notifyItemChanged(index)
             }
-            programs[i] = program
+        }
+    }
+
+    data class ItemModel(val program: ProgramWithChannel, var recording: Recording? = null)
+
+    private class ProgramListDiffCallback(private val oldList: List<ItemModel>, private val newList: List<ItemModel>) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return newList[newItemPosition].program.eventId == oldList[oldItemPosition].program.eventId
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return newList[newItemPosition] == oldList[oldItemPosition]
         }
     }
 
     class ProgramViewHolder(private val binding: ProgramListAdapterBinding, private val viewModel: ProgramViewModel) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(program: ProgramInterface, position: Int, clickCallback: RecyclerViewClickInterface) {
-            binding.program = program
+        fun bind(model: ItemModel, position: Int, clickCallback: RecyclerViewClickInterface) {
+            binding.model = model
             binding.position = position
             binding.viewModel = viewModel
             binding.callback = clickCallback

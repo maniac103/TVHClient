@@ -91,7 +91,7 @@ fun preparePopupOrToolbarRecordingMenu(context: Context,
 
 fun preparePopupOrToolbarMiscMenu(context: Context,
                                   menu: Menu,
-                                  program: ProgramInterface?,
+                                  program: ProgramBaseInterface?,
                                   isConnectionToServerAvailable: Boolean) {
 
     menu.findItem(R.id.menu_cast)?.isVisible = false

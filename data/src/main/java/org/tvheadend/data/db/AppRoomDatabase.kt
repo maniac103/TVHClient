@@ -16,7 +16,7 @@ import org.tvheadend.data.entity.*
             TimerRecording::class,
             SeriesRecording::class,
             Recording::class,
-            ProgramEntity::class,
+            Program::class,
             Channel::class,
             ChannelTag::class,
             TagAndChannel::class,
@@ -186,6 +186,14 @@ abstract class AppRoomDatabase : RoomDatabase() {
                         "program_content_type",
                         "next_program_id",
                         "next_program_title"
+                    ),
+                    listOf("id", "connection_id")
+                )
+                database.removeColumns(
+                    "programs",
+                    listOf(
+                        "channel_name",
+                        "channel_icon"
                     ),
                     listOf("id", "connection_id")
                 )

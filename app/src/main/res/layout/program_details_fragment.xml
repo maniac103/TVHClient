@@ -71,7 +71,7 @@
                     android:scaleType="fitCenter"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:stateIcon="@{program.recording}" />
+                    app:stateIcon="@{recording}" />
 
                 <RatingBar
                     android:id="@+id/star_rating"
@@ -389,7 +389,11 @@
 
         <variable
             name="program"
-            type="org.tvheadend.data.entity.Program" />
+            type="org.tvheadend.data.entity.ProgramWithChannel" />
+
+        <variable
+            name="recording"
+            type="org.tvheadend.data.entity.Recording" />
 
         <variable
             name="viewModel"

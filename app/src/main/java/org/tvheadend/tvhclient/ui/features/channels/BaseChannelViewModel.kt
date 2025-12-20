@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import org.tvheadend.data.entity.Program
+import org.tvheadend.data.entity.ProgramWithChannel
 import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
@@ -80,7 +81,7 @@ open class BaseChannelViewModel(private val application: Application) : BaseView
         return application.serverProfileDataSource.recordingProfileNames
     }
 
-    fun getProgramById(id: Int): Program? {
+    fun getProgramById(id: Int): ProgramWithChannel? {
         return application.programDataSource.getItemById(id)
     }
 }
