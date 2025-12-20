@@ -387,7 +387,7 @@ class HtspIntentServiceHandler(val context: Context, val connection: Connection)
         }
 
         Timber.d("Done loading more events")
-        context.programDataSource.addItems(pendingEventOps.map { ProgramWithChannel(it) })
+        context.programDataSource.addItems(pendingEventOps)
         Timber.d("Saved ${pendingEventOps.size} events for all channels. Database contains ${context.programDataSource.itemCount} events")
         pendingEventOps.clear()
     }

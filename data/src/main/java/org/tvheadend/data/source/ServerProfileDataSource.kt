@@ -10,7 +10,7 @@ import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.ServerProfile
 import java.util.*
 
-class ServerProfileDataSource(private val db: AppRoomDatabase) : DataSourceInterface<ServerProfile> {
+class ServerProfileDataSource(private val db: AppRoomDatabase) : DataSourceInterface<ServerProfile, ServerProfile> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 

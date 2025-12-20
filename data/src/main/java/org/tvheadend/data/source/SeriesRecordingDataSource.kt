@@ -6,23 +6,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tvheadend.data.db.AppRoomDatabase
+import org.tvheadend.data.entity.SeriesRecording
 import org.tvheadend.data.entity.SeriesRecordingWithChannel
 import java.util.*
 
-class SeriesRecordingDataSource(private val db: AppRoomDatabase) : DataSourceInterface<SeriesRecordingWithChannel> {
+class SeriesRecordingDataSource(private val db: AppRoomDatabase) : DataSourceInterface<SeriesRecording, SeriesRecordingWithChannel> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    override fun addItem(item: SeriesRecordingWithChannel) {
-        ioScope.launch { db.seriesRecordingDao.insert(item.base) }
+    override fun addItem(item: SeriesRecording) {
+        ioScope.launch { db.seriesRecordingDao.insert(item) }
     }
 
-    override fun updateItem(item: SeriesRecordingWithChannel) {
-        ioScope.launch { db.seriesRecordingDao.update(item.base) }
+    override fun updateItem(item: SeriesRecording) {
+        ioScope.launch { db.seriesRecordingDao.update(item) }
     }
 
-    override fun removeItem(item: SeriesRecordingWithChannel) {
-        ioScope.launch { db.seriesRecordingDao.delete(item.base) }
+    override fun removeItem(item: SeriesRecording) {
+        ioScope.launch { db.seriesRecordingDao.delete(item) }
     }
 
     override fun getLiveDataItemCount(): LiveData<Int> = db.seriesRecordingDao.itemCount

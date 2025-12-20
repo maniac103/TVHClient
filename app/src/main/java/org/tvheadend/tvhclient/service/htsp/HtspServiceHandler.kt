@@ -635,7 +635,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
                 context.sendSyncStateMessage(SyncStateResult.Syncing(SyncState.InProgress("Received ${pendingRecordingOps.size} recordings")))
             }
         } else {
-            context.recordingDataSource.addItem(RecordingWithChannel(recording))
+            context.recordingDataSource.addItem(recording)
         }
 
         addNotificationScheduledRecordingStarts(context, recording)
@@ -650,7 +650,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
     private fun onDvrEntryUpdate(msg: HtspMessage) {
         val recording = context.recordingDataSource.getItemById(msg.getInteger("id"))?.base ?: return
         val updatedRecording = convertMessageToRecordingModel(recording, msg)
-        context.recordingDataSource.updateItem(RecordingWithChannel(updatedRecording))
+        context.recordingDataSource.updateItem(updatedRecording)
 
         removeNotificationById(context, recording.id)
         if (context.prefs.notificationsEnabled) {
@@ -669,7 +669,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
      */
     private fun onDvrEntryDelete(msg: HtspMessage) {
         if (msg.containsKey("id")) {
-            val recording = context.recordingDataSource.getItemById(msg.getInteger("id")) ?: return
+            val recording = context.recordingDataSource.getItemById(msg.getInteger("id"))?.base ?: return
             context.recordingDataSource.removeItem(recording)
         }
     }
@@ -683,7 +683,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
     private fun onAutorecEntryAdd(msg: HtspMessage) {
         val seriesRecording = convertMessageToSeriesRecordingModel(SeriesRecording(), msg)
         seriesRecording.connectionId = connection.id
-        context.seriesRecordingDataSource.addItem(SeriesRecordingWithChannel(seriesRecording))
+        context.seriesRecordingDataSource.addItem(seriesRecording)
     }
 
     /**
@@ -700,7 +700,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
         }
         val recording = context.seriesRecordingDataSource.getItemById(msg.getString("id"))?.base ?: return
         val updatedRecording = convertMessageToSeriesRecordingModel(recording, msg)
-        context.seriesRecordingDataSource.updateItem(SeriesRecordingWithChannel(updatedRecording))
+        context.seriesRecordingDataSource.updateItem(updatedRecording)
     }
 
     /**
@@ -712,7 +712,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
     private fun onAutorecEntryDelete(msg: HtspMessage) {
         val id = msg.getString("id", "")
         if (id.isNotEmpty()) {
-            val seriesRecording = context.seriesRecordingDataSource.getItemById(msg.getString("id")) ?: return
+            val seriesRecording = context.seriesRecordingDataSource.getItemById(msg.getString("id"))?.base ?: return
             context.seriesRecordingDataSource.removeItem(seriesRecording)
         }
     }
@@ -726,7 +726,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
     private fun onTimerRecEntryAdd(msg: HtspMessage) {
         val recording = convertMessageToTimerRecordingModel(TimerRecording(), msg)
         recording.connectionId = connection.id
-        context.timerRecordingDataSource.addItem(TimerRecordingWithChannel(recording))
+        context.timerRecordingDataSource.addItem(recording)
     }
 
     /**
@@ -743,7 +743,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
         }
         val recording = context.timerRecordingDataSource.getItemById(id)?.base ?: return
         val updatedRecording = convertMessageToTimerRecordingModel(recording, msg)
-        context.timerRecordingDataSource.updateItem(TimerRecordingWithChannel(updatedRecording))
+        context.timerRecordingDataSource.updateItem(updatedRecording)
     }
 
     /**
@@ -755,7 +755,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
     private fun onTimerRecEntryDelete(msg: HtspMessage) {
         val id = msg.getString("id", "")
         if (id.isNotEmpty()) {
-            val timerRecording = context.timerRecordingDataSource.getItemById(id) ?: return
+            val timerRecording = context.timerRecordingDataSource.getItemById(id)?.base ?: return
             context.timerRecordingDataSource.removeItem(timerRecording)
         }
     }
@@ -789,7 +789,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
             }
         } else {
             Timber.d("Adding event ${program.title}")
-            context.programDataSource.addItem(ProgramWithChannel(program))
+            context.programDataSource.addItem(program)
         }
     }
 
@@ -803,7 +803,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
         val program = context.programDataSource.getItemById(msg.getInteger("eventId"))?.base ?: return
         val updatedProgram = convertMessageToProgramModel(program, msg)
         Timber.d("Updating event ${updatedProgram.title}")
-        context.programDataSource.updateItem(ProgramWithChannel(updatedProgram))
+        context.programDataSource.updateItem(updatedProgram)
     }
 
     /**
@@ -842,7 +842,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
                 pendingEventOps.addAll(programs)
             } else {
                 Timber.d("Saving ${programs.size} events for channel $channelName")
-                context.programDataSource.addItems(programs.map { ProgramWithChannel(it) })
+                context.programDataSource.addItems(programs)
             }
         }
     }
@@ -1113,7 +1113,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
     private fun saveAllReceivedEvents() {
         Timber.d("Saving ${pendingEventOps.size} new events")
         if (pendingEventOps.isNotEmpty()) {
-            context.programDataSource.addItems(pendingEventOps.map { ProgramWithChannel(it) })
+            context.programDataSource.addItems(pendingEventOps)
         }
     }
 
@@ -1253,7 +1253,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
         htspConnection?.sendMessage(request, object : ServerResponseListener<HtspMessage> {
             override fun handleResponse(response: HtspMessage) {
                 val program = convertMessageToProgramModel(Program(), response)
-                context.programDataSource.addItem(ProgramWithChannel(program))
+                context.programDataSource.addItem(program)
             }
         })
     }
@@ -1320,7 +1320,7 @@ class HtspServiceHandler(val context: Context, val connection: Connection) : Con
             getEvents(msgIntent)
         }
 
-        context.programDataSource.addItems(pendingEventOps.map { ProgramWithChannel(it) })
+        context.programDataSource.addItems(pendingEventOps)
         Timber.d("Saved ${pendingEventOps.size} events for all channels. Database contains ${context.programDataSource.itemCount} events")
         pendingEventOps.clear()
     }

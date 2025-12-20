@@ -7,9 +7,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.EpgProgram
+import org.tvheadend.data.entity.Program
 import org.tvheadend.data.entity.ProgramWithChannel
 
-class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<ProgramWithChannel> {
+class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Program, ProgramWithChannel> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
@@ -22,22 +23,22 @@ class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<P
             return count
         }
 
-    override fun addItem(item: ProgramWithChannel) {
-        ioScope.launch { db.programDao.insert(item.base) }
+    override fun addItem(item: Program) {
+        ioScope.launch { db.programDao.insert(item) }
     }
 
-    fun addItems(items: List<ProgramWithChannel>) {
+    fun addItems(items: List<Program>) {
         ioScope.launch {
-            db.programDao.insert(items.map { it.base })
+            db.programDao.insert(items)
         }
     }
 
-    override fun updateItem(item: ProgramWithChannel) {
-        ioScope.launch { db.programDao.update(item.base) }
+    override fun updateItem(item: Program) {
+        ioScope.launch { db.programDao.update(item) }
     }
 
-    override fun removeItem(item: ProgramWithChannel) {
-        ioScope.launch { db.programDao.delete(item.base) }
+    override fun removeItem(item: Program) {
+        ioScope.launch { db.programDao.delete(item) }
     }
 
     fun removeItemsByTime(time: Long) {

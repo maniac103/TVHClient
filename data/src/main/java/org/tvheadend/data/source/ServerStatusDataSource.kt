@@ -10,7 +10,7 @@ import org.tvheadend.data.entity.ServerStatus
 import timber.log.Timber
 import java.util.*
 
-class ServerStatusDataSource(private val db: AppRoomDatabase) : DataSourceInterface<ServerStatus> {
+class ServerStatusDataSource(private val db: AppRoomDatabase) : DataSourceInterface<ServerStatus, ServerStatus> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 

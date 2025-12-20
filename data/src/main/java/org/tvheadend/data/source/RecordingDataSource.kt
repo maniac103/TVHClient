@@ -10,24 +10,24 @@ import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.RecordingWithChannel
 
-class RecordingDataSource(private val db: AppRoomDatabase) : DataSourceInterface<RecordingWithChannel> {
+class RecordingDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Recording, RecordingWithChannel> {
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    override fun addItem(item: RecordingWithChannel) {
-        scope.launch { db.recordingDao.insert(item.base) }
+    override fun addItem(item: Recording) {
+        scope.launch { db.recordingDao.insert(item) }
     }
 
-    fun addItems(items: List<RecordingWithChannel>) {
-        scope.launch { db.recordingDao.insert(items.map { it.base }) }
+    fun addItems(items: List<Recording>) {
+        scope.launch { db.recordingDao.insert(items) }
     }
 
-    override fun updateItem(item: RecordingWithChannel) {
-        scope.launch { db.recordingDao.update(item.base) }
+    override fun updateItem(item: Recording) {
+        scope.launch { db.recordingDao.update(item) }
     }
 
-    override fun removeItem(item: RecordingWithChannel) {
-        scope.launch { db.recordingDao.delete(item.base) }
+    override fun removeItem(item: Recording) {
+        scope.launch { db.recordingDao.delete(item) }
     }
 
     override fun getLiveDataItemCount(): LiveData<Int> {

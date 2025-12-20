@@ -12,7 +12,7 @@ import org.tvheadend.data.entity.ChannelWithProgram
 import org.tvheadend.data.entity.EpgChannel
 import timber.log.Timber
 
-class ChannelDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Channel> {
+class ChannelDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Channel, Channel> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 

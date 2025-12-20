@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.Input
 
-class InputDataSource(@Suppress("unused") private val db: AppRoomDatabase) : DataSourceInterface<Input> {
+class InputDataSource(@Suppress("unused") private val db: AppRoomDatabase) : DataSourceInterface<Input, Input> {
 
     private var inputs: MutableList<Input> = ArrayList()
 

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.Subscription
 
-class SubscriptionDataSource(@Suppress("unused") private val db: AppRoomDatabase) : DataSourceInterface<Subscription> {
+class SubscriptionDataSource(@Suppress("unused") private val db: AppRoomDatabase) : DataSourceInterface<Subscription, Subscription> {
 
     private var subscriptions: MutableList<Subscription> = ArrayList()
 

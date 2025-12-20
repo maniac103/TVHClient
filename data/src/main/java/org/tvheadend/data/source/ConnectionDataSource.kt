@@ -10,7 +10,7 @@ import org.tvheadend.data.entity.Connection
 import org.tvheadend.data.entity.ServerStatus
 import timber.log.Timber
 
-class ConnectionDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Connection> {
+class ConnectionDataSource(private val db: AppRoomDatabase) : DataSourceInterface<Connection, Connection> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 

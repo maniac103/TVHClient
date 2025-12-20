@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.ChannelTag
 
-class ChannelTagDataSource(private val db: AppRoomDatabase) : DataSourceInterface<ChannelTag> {
+class ChannelTagDataSource(private val db: AppRoomDatabase) : DataSourceInterface<ChannelTag, ChannelTag> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 

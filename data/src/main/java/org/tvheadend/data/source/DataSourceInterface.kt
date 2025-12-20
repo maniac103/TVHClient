@@ -2,21 +2,21 @@ package org.tvheadend.data.source
 
 import androidx.lifecycle.LiveData
 
-interface DataSourceInterface<T> {
+interface DataSourceInterface<IT, PT> {
 
     fun getLiveDataItemCount(): LiveData<Int>
 
-    fun getLiveDataItems(): LiveData<List<T>>
+    fun getLiveDataItems(): LiveData<List<PT>>
 
-    fun getLiveDataItemById(id: Any): LiveData<T>
+    fun getLiveDataItemById(id: Any): LiveData<PT>
 
-    fun getItems(): List<T>
+    fun getItems(): List<PT>
 
-    fun getItemById(id: Any): T?
+    fun getItemById(id: Any): PT?
 
-    fun addItem(item: T)
+    fun addItem(item: IT)
 
-    fun updateItem(item: T)
+    fun updateItem(item: IT)
 
-    fun removeItem(item: T)
+    fun removeItem(item: IT)
 }

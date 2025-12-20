@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 import org.tvheadend.data.db.AppRoomDatabase
 import org.tvheadend.data.entity.TagAndChannel
 
-class TagAndChannelDataSource(private val db: AppRoomDatabase) : DataSourceInterface<TagAndChannel> {
+class TagAndChannelDataSource(private val db: AppRoomDatabase) : DataSourceInterface<TagAndChannel, TagAndChannel> {
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
