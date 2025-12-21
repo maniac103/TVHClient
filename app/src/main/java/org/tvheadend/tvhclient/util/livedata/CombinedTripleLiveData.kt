@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 
-class CombinedTupleLiveData<T1, T2, T3, O>(source1: LiveData<T1>,
-                                           source2: LiveData<T2>,
-                                           source3: LiveData<T3>,
-                                           private val combine: (data1: T1, data2: T2, data3: T3) -> O) : MediatorLiveData<O>() {
+class CombinedTripleLiveData<T1, T2, T3, O>(source1: LiveData<T1>,
+                                            source2: LiveData<T2>,
+                                            source3: LiveData<T3>,
+                                            private val combine: (data1: T1, data2: T2, data3: T3) -> O) : MediatorLiveData<O>() {
     private var data1: ValueHolder<T1>? = null
     private var data2: ValueHolder<T2>? = null
     private var data3: ValueHolder<T3>? = null

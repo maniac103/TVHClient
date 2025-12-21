@@ -42,6 +42,9 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
     private var channelTags: List<ChannelTag> = ArrayList()
     private var channelCount = 0
 
+    private var daysToShow = 1
+    private var hoursToShow = 1
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = EpgFragmentBinding.inflate(inflater, container, false)
         return binding.root
@@ -97,12 +100,6 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
             }
         })
 
-        // Calculates the available display width of one minute in pixels. This depends
-        // how wide the screen is and how many hours shall be shown in one screen.
-        val displayMetrics = DisplayMetrics()
-        requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-        epgViewModel.displayWidth = displayMetrics.widthPixels
-
         Timber.d("Observing channel tags")
         epgViewModel.channelTags.observe(viewLifecycleOwner) { tags ->
             if (tags != null) {
@@ -137,36 +134,26 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
         }
 
         Timber.d("Observing trigger to reload epg data")
-        epgViewModel.viewAndEpgDataIsInvalid.observe(viewLifecycleOwner) { reload ->
-            Timber.d("Trigger to reload epg data has changed to $reload")
-            if (reload) {
-                viewPagerAdapter.notifyDataSetChanged()
-            }
+        epgViewModel.viewPagerFragmentCount.observe(viewLifecycleOwner) { count ->
+            Timber.d("Fragment count has changed to $count")
+            viewPagerAdapter.notifyDataSetChanged()
+        }
+        epgViewModel.startTime.observe(viewLifecycleOwner) { startTime ->
+            Timber.d("Start time has changed to $startTime")
+            viewPagerAdapter.notifyDataSetChanged()
         }
 
-        Timber.d("Observing epg data")
-        epgViewModel.epgData.observe(viewLifecycleOwner) { data ->
-            data?.forEach {
-                Timber.d("Loaded ${it.value.size} programs for channel ${it.key}")
-            }
-        }
+        epgViewModel.hoursOfEpgDataPerScreen.observe(viewLifecycleOwner) { hoursToShow = it }
+        epgViewModel.daysOfEpgData.observe(viewLifecycleOwner) { daysToShow = it }
 
         // Observe all recordings here in case a recording shall be edited right after it was added.
         // This needs to be done in this fragment because the popup menu handling is also done here.
         Timber.d("Observing recordings")
         epgViewModel.recordings.observe(viewLifecycleOwner) { recordings ->
-            if (recordings != null) {
-                Timber.d("View model returned ${recordings.size} recordings")
-                for (recording in recordings) {
-                    // Show the edit recording screen of the scheduled recording
-                    // in case the user has selected the record and edit menu item.
-                    if (recording.eventId == programIdToBeEditedWhenBeingRecorded && programIdToBeEditedWhenBeingRecorded > 0) {
-                        programIdToBeEditedWhenBeingRecorded = 0
-                        editSelectedRecording(requireActivity(), recording.id)
-                        break
-                    }
-                }
-            }
+            Timber.d("View model returned ${recordings.size} recordings")
+            recordings
+                .firstOrNull { it.eventId == programIdToBeEditedWhenBeingRecorded && programIdToBeEditedWhenBeingRecorded > 0 }
+                ?.let { editSelectedRecording(requireActivity(), it.id) }
         }
 
         epgViewModel.channelCount.observe(viewLifecycleOwner) { count ->
@@ -199,7 +186,7 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
         return when (item.itemId) {
             R.id.menu_channel_tags -> showChannelTagSelectionDialog(ctx, channelTags.toMutableList(), channelCount, this)
             R.id.menu_program_timeframe -> {
-                val dialog = showProgramTimeframeSelectionDialog(ctx, epgViewModel.selectedTimeOffset, epgViewModel.hoursToShow, (24 / epgViewModel.hoursToShow) * epgViewModel.daysToShow, this)
+                val dialog = showProgramTimeframeSelectionDialog(ctx, epgViewModel.selectedTimeOffset, hoursToShow, (24 / hoursToShow) * daysToShow, this)
                 startDialogDismissTimer(dialog)
                 true
             }
@@ -223,7 +210,7 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
         // Add the selected list index as extra hours to the current time.
         // If the first index was selected then use the current time.
         var timeInMillis = System.currentTimeMillis()
-        timeInMillis += (1000 * 60 * 60 * which * epgViewModel.hoursToShow).toLong()
+        timeInMillis += (1000 * 60 * 60 * which * hoursToShow).toLong()
         epgViewModel.setSelectedTime(timeInMillis)
     }
 

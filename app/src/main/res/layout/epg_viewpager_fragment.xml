@@ -86,6 +86,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/viewpager_title_date" />
 
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress"
+            style="?circularProgressIndicatorStyle"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:indeterminate="true"
+            app:layout_constraintStart_toStartOf="@id/viewpager_recycler_view"
+            app:layout_constraintEnd_toEndOf="@id/viewpager_recycler_view"
+            app:layout_constraintTop_toTopOf="@id/viewpager_recycler_view"
+            app:layout_constraintBottom_toBottomOf="@id/viewpager_recycler_view" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <data>

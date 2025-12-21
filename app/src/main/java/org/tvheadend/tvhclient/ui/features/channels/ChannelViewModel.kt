@@ -4,14 +4,14 @@ import android.app.Application
 import androidx.lifecycle.switchMap
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
-import org.tvheadend.tvhclient.util.livedata.CombinedTupleLiveData
+import org.tvheadend.tvhclient.util.livedata.CombinedTripleLiveData
 
 class ChannelViewModel(private val application: Application) : BaseChannelViewModel(application) {
 
     var selectedListPosition = 0
     var selectedTimeOffset = 0
 
-    val channels = CombinedTupleLiveData(
+    val channels = CombinedTripleLiveData(
         selectedTime,
         application.prefs.channelSortOrderLiveData(),
         selectedChannelTagIds

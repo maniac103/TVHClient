@@ -70,7 +70,7 @@ class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<P
         db.programDao.loadProgramsFromChannelFromTime(channelId, time)
 
     fun getItemByChannelIdAndBetweenTime(channelId: Int, startTime: Long, endTime: Long): List<EpgProgram> = runBlocking(Dispatchers.IO) {
-            db.programDao.loadEpgProgramsFromChannelBetweenTimeSync(channelId, startTime, endTime)
+        db.programDao.loadEpgProgramsFromChannelBetweenTimeSync(channelId, startTime, endTime)
     }
 
     fun getLastItemByChannelId(channelId: Int): ProgramWithChannel? = runBlocking(Dispatchers.IO) {

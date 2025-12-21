@@ -7,15 +7,32 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgHorizontalChildRecyclerviewAdapterBinding
 import org.tvheadend.tvhclient.util.extensions.isEqualTo
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 internal class EpgHorizontalChildRecyclerViewAdapter(private val viewModel: EpgViewModel, private val fragmentId: Int, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<EpgHorizontalChildRecyclerViewAdapter.EpgProgramListViewHolder>() {
+    init {
+        viewModel.hoursOfEpgDataPerScreen.observe(lifecycleOwner) { hours ->
+            hoursPerScreen = hours
+            notifyDataSetChanged()
+        }
+    }
 
     private val programList = ArrayList<ItemModel>()
     private val recordingList = ArrayList<Recording>()
+    private var hoursPerScreen = 1
+    var parentWidth = 1
+        set(value) {
+            if (value != field) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpgProgramListViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -26,23 +43,22 @@ internal class EpgHorizontalChildRecyclerViewAdapter(private val viewModel: EpgV
     }
 
     override fun onBindViewHolder(holder: EpgProgramListViewHolder, position: Int) {
-        if (programList.size > position) {
-            val model = programList[position]
-            val program = model.program
+        val model = programList[position]
+        val program = model.program
 
-            val startTime = if (program.start < viewModel.getStartTime(fragmentId)) viewModel.getStartTime(fragmentId) else program.start
-            val stopTime = if (program.stop > viewModel.getEndTime(fragmentId)) viewModel.getEndTime(fragmentId) else program.stop
-            val layoutWidth = ((stopTime - startTime) / 1000 / 60 * viewModel.pixelsPerMinute).toInt()
+        val startTime = max(program.start, viewModel.getStartTime(fragmentId))
+        val stopTime = min(program.stop, viewModel.getEndTime(fragmentId))
+        val durationInHours = (stopTime - startTime).toFloat() / 1000F / 60F / 60F
+        val layoutWidth = (durationInHours * parentWidth / hoursPerScreen).toInt()
 
-            holder.bind(model, layoutWidth)
-        }
+        holder.bind(model, layoutWidth)
     }
 
     override fun onBindViewHolder(holder: EpgProgramListViewHolder, position: Int, payloads: List<Any>) {
         onBindViewHolder(holder, position)
     }
 
-    fun addItems(items: MutableList<EpgProgram>) {
+    fun addItems(items: List<EpgProgram>, recordings: List<RecordingWithChannel>) {
         val newItems = items.map { ItemModel(it) }.toMutableList()
         updateRecordingState(newItems, recordingList)
 
@@ -51,13 +67,12 @@ internal class EpgHorizontalChildRecyclerViewAdapter(private val viewModel: EpgV
 
         programList.clear()
         programList.addAll(newItems)
-        diffResult.dispatchUpdatesTo(this)
-    }
 
-    fun addRecordings(list: List<Recording>) {
         recordingList.clear()
-        recordingList.addAll(list)
+        recordingList.addAll(recordings.map { it.base })
         updateRecordingState(programList, recordingList)
+
+        diffResult.dispatchUpdatesTo(this)
     }
 
     private fun updateRecordingState(items: MutableList<ItemModel>, recordings: List<Recording>) {

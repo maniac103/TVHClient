@@ -22,7 +22,7 @@ import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import org.tvheadend.tvhclient.util.extensions.subscriptionDataSource
 import org.tvheadend.tvhclient.util.extensions.timerRecordingDataSource
 import org.tvheadend.tvhclient.util.livedata.CombinedPairLiveData
-import org.tvheadend.tvhclient.util.livedata.CombinedTupleLiveData
+import org.tvheadend.tvhclient.util.livedata.CombinedTripleLiveData
 import timber.log.Timber
 
 class StatusViewModel(private val application: Application) : BaseViewModel(application) {
@@ -47,7 +47,7 @@ class StatusViewModel(private val application: Application) : BaseViewModel(appl
         show && runningRecordings > 0
     }
 
-    val showLowStorageSpace = CombinedTupleLiveData(
+    val showLowStorageSpace = CombinedTripleLiveData(
         application.serverStatusDataSource.liveDataActiveItem,
         application.prefs.notificationLowStorageEnabledLiveData(),
         application.prefs.notificationLowStorageThresholdGbLiveData()

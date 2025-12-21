@@ -6,52 +6,61 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.extensions.LayoutContainer
-import org.tvheadend.data.entity.EpgChannel
 import org.tvheadend.data.entity.EpgProgram
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgVerticalRecyclerviewAdapterBinding
 import timber.log.Timber
 
-internal class EpgVerticalRecyclerViewAdapter(private val activity: FragmentActivity, private val epgViewModel: EpgViewModel, private val fragmentId: Int, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<EpgVerticalRecyclerViewAdapter.EpgViewPagerViewHolder>() {
+internal class EpgVerticalRecyclerViewAdapter(private val epgViewModel: EpgViewModel, private val fragmentId: Int, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<EpgVerticalRecyclerViewAdapter.EpgViewPagerViewHolder>() {
 
     private val viewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
-    private var channelList = ArrayList<EpgChannel>()
+    private val programLists = ArrayList<EpgViewModel.EpgChannelEntry>()
+    private val recordingList = ArrayList<RecordingWithChannel>()
+
+    var viewWidth = 0
+        set(value) {
+            if (value != field) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EpgViewPagerViewHolder {
         val binding = EpgVerticalRecyclerviewAdapterBinding.inflate(LayoutInflater.from(parent.context))
-        return EpgViewPagerViewHolder(binding.root, binding, activity, fragmentId, viewPool, epgViewModel, lifecycleOwner)
+        return EpgViewPagerViewHolder(binding.root, binding, fragmentId, viewPool, epgViewModel, lifecycleOwner)
     }
 
     override fun onBindViewHolder(holder: EpgViewPagerViewHolder, position: Int) {
-        val epgChannel = channelList[position]
-        val programs = epgViewModel.getProgramsByChannelAndBetweenTimeSync(epgChannel.id, fragmentId)
-        Timber.d("Binding ${programs.size} programs for channel ${epgChannel.name} in viewpager fragment $fragmentId")
-        holder.bindData(programs)
+        val entry = programLists[position]
+        Timber.d("Binding ${entry.programs.size} programs for channel ${entry.channel.name} in viewpager fragment $fragmentId")
+        holder.bindData(entry.programs, recordingList, viewWidth)
     }
 
     override fun getItemCount(): Int {
-        return channelList.size
+        return programLists.size
     }
 
     override fun getItemViewType(position: Int): Int {
         return R.layout.epg_vertical_recyclerview_adapter
     }
 
-    fun loadProgramData() {
+    fun loadProgramData(entries: List<EpgViewModel.EpgChannelEntry>, recordings: List<RecordingWithChannel>) {
         Timber.d("Loading programs for viewpager fragment $fragmentId")
-        channelList.clear()
-        channelList.addAll(epgViewModel.epgChannels.value ?: ArrayList())
+        programLists.clear()
+        programLists.addAll(entries)
+        recordingList.clear()
+        recordingList.addAll(recordings)
+
         notifyDataSetChanged()
     }
 
     class EpgViewPagerViewHolder(override val containerView: View,
                                  val binding: EpgVerticalRecyclerviewAdapterBinding,
-                                 private val activity: FragmentActivity,
                                  fragmentId: Int,
                                  viewPool: RecyclerView.RecycledViewPool,
                                  private val epgViewModel: EpgViewModel,
@@ -66,28 +75,13 @@ internal class EpgVerticalRecyclerViewAdapter(private val activity: FragmentActi
             binding.horizontalChildRecyclerView.adapter = recyclerViewAdapter
         }
 
-        fun bindData(programs: List<EpgProgram>) {
+        fun bindData(programs: List<EpgProgram>, recordings: List<RecordingWithChannel>, viewWidth: Int) {
+            recyclerViewAdapter.parentWidth = viewWidth
 
-            binding.horizontalChildRecyclerView.isVisible = false
-            binding.progressBar.isVisible = true
-            binding.noPrograms.isVisible = false
+            binding.horizontalChildRecyclerView.isInvisible = programs.isEmpty()
+            recyclerViewAdapter.addItems(programs, recordings)
 
-            if (programs.isNotEmpty()) {
-                recyclerViewAdapter.addItems(programs.toMutableList())
-                binding.horizontalChildRecyclerView.isVisible = true
-                binding.progressBar.isVisible = false
-                binding.noPrograms.isInvisible = true
-            } else {
-                binding.horizontalChildRecyclerView.isInvisible = true
-                binding.progressBar.isVisible = false
-                binding.noPrograms.isVisible = true
-            }
-
-            epgViewModel.recordings.observe(activity) { recordings ->
-                if (recordings != null) {
-                    recyclerViewAdapter.addRecordings(recordings.map { it.base })
-                }
-            }
+            binding.noPrograms.isVisible = programs.isEmpty()
         }
 
         internal class CustomHorizontalLayoutManager(context: Context) : LinearLayoutManager(context, HORIZONTAL, false) {
