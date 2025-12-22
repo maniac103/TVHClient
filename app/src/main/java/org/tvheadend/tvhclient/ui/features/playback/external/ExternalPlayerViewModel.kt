@@ -10,7 +10,6 @@ import org.tvheadend.api.ConnectionStateResult
 import org.tvheadend.api.ServerConnectionStateListener
 import org.tvheadend.api.ServerResponseListener
 import org.tvheadend.data.entity.Channel
-import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.data.entity.ServerStatus
 import org.tvheadend.htsp.*
@@ -26,6 +25,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.application
 import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
+import org.tvheadend.tvhclient.util.extensions.connectionDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.recordingDataSource
 import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
@@ -45,6 +45,7 @@ class ExternalPlayerViewModel(application: Application) : BaseViewModel(applicat
     // Observable fields
     var isTicketReceived: MutableLiveData<Boolean> = MutableLiveData()
     var isConnected: MutableLiveData<Boolean> = MutableLiveData()
+    private val connection = application.connectionDataSource.activeItem
 
     init {
         Timber.d("Initializing")

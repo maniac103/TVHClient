@@ -41,7 +41,9 @@ import org.tvheadend.api.AuthenticationFailureReason
 import org.tvheadend.api.AuthenticationStateResult
 import org.tvheadend.api.ConnectionFailureReason
 import org.tvheadend.api.ConnectionStateResult
+import org.tvheadend.data.entity.Connection
 import org.tvheadend.tvhclient.BuildConfig
+import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.MainActivityBinding
 import org.tvheadend.tvhclient.service.ConnectionService
@@ -49,8 +51,8 @@ import org.tvheadend.tvhclient.service.SyncState
 import org.tvheadend.tvhclient.service.SyncStateReceiver
 import org.tvheadend.tvhclient.service.SyncStateResult
 import org.tvheadend.tvhclient.ui.base.BaseActivity
+import org.tvheadend.tvhclient.ui.common.GlobalStatusViewModel
 import org.tvheadend.tvhclient.ui.common.NetworkStatus
-import org.tvheadend.tvhclient.ui.common.NetworkStatusReceiver
 import org.tvheadend.tvhclient.ui.common.SnackbarMessageReceiver
 import org.tvheadend.tvhclient.ui.common.SuggestionProvider
 import org.tvheadend.tvhclient.ui.common.WakeOnLanTask
@@ -87,8 +89,9 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
     private lateinit var navigationViewModel: NavigationViewModel
     private lateinit var statusViewModel: StatusViewModel
 
+    private lateinit var globalStatusViewModel: GlobalStatusViewModel
+
     private lateinit var snackbarMessageReceiver: SnackbarMessageReceiver
-    private lateinit var networkStatusReceiver: NetworkStatusReceiver
     private lateinit var binding: MainActivityBinding
 
     private lateinit var syncProgress: ProgressBar
@@ -107,6 +110,8 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
     private lateinit var syncStateReceiver: SyncStateReceiver
 
     private var isDualPane: Boolean = false
+
+    private var connection: Connection? = null
 
     private lateinit var queryTextSubmitTask: Runnable
     private val delayedQueryTextSubmitHandler = Handler(Looper.getMainLooper())
@@ -137,9 +142,9 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
 
         navigationViewModel = ViewModelProvider(this)[NavigationViewModel::class.java]
         statusViewModel = ViewModelProvider(this)[StatusViewModel::class.java]
+        globalStatusViewModel = (application as MainApplication).globalStatus
 
         snackbarMessageReceiver = SnackbarMessageReceiver(baseViewModel)
-        networkStatusReceiver = NetworkStatusReceiver(baseViewModel)
 
         // Reset the search in case the main activity was called for the first
         // time or when we came back from another like the search activity
@@ -246,14 +251,19 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
     private fun startupIsCompleteObserveMainLiveData() {
         Timber.d("Startup complete, observing other required live data")
 
-        baseViewModel.networkStatusLiveData.observe(this) { event ->
+        globalStatusViewModel.networkStatusLiveData.observe(this) { event ->
             event.getContentIfNotHandled()?.let {
                 Timber.d("Network status changed to $it")
                 connectToServer(it)
             }
         }
 
-        baseViewModel.connectionToServerAvailableLiveData.observe(this) { isAvailable ->
+        globalStatusViewModel.connectionLiveData.observe(this) { conn ->
+            connection = conn
+            invalidateOptionsMenu()
+        }
+
+        globalStatusViewModel.connectionToServerAvailableLiveData.observe(this) { isAvailable ->
             Timber.d("Connection to server availability changed to $isAvailable")
             invalidateOptionsMenu()
             statusViewModel.stopDiskSpaceUpdateHandler()
@@ -297,7 +307,6 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
         super.onStart()
         LocalBroadcastManager.getInstance(this).registerReceiver(syncStateReceiver, IntentFilter(SyncStateReceiver.ACTION))
         LocalBroadcastManager.getInstance(this).registerReceiver(snackbarMessageReceiver, IntentFilter(SnackbarMessageReceiver.SNACKBAR_ACTION))
-        registerReceiver(networkStatusReceiver, IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"))
     }
 
     public override fun onResume() {
@@ -322,7 +331,6 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
         super.onStop()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(syncStateReceiver)
         LocalBroadcastManager.getInstance(this).unregisterReceiver(snackbarMessageReceiver)
-        unregisterReceiver(networkStatusReceiver)
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -411,11 +419,11 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             NavigationDrawer.MENU_STATUS -> {
                 menu.findItem(R.id.media_route_menu_item)?.isVisible = false
                 menu.findItem(R.id.menu_search).isVisible = false
-                menu.findItem(R.id.menu_send_wake_on_lan_packet)?.isVisible = baseViewModel.connection.isWolEnabled
+                menu.findItem(R.id.menu_send_wake_on_lan_packet)?.isVisible = connection?.isWolEnabled == true
             }
             else -> {
                 menu.findItem(R.id.media_route_menu_item)?.isVisible = true
-                menu.findItem(R.id.menu_send_wake_on_lan_packet)?.isVisible = baseViewModel.connection.isWolEnabled
+                menu.findItem(R.id.menu_send_wake_on_lan_packet)?.isVisible = connection?.isWolEnabled == true
             }
         }
         return true
@@ -442,7 +450,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             }
             R.id.menu_reconnect_to_server -> showConfirmationToReconnectToServer(this, baseViewModel)
             R.id.menu_send_wake_on_lan_packet -> {
-                WakeOnLanTask(lifecycleScope, this, baseViewModel.connection)
+                connection?.let { WakeOnLanTask(lifecycleScope, this, it) }
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -518,7 +526,6 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
                         Timber.d("Connection failed or closed")
                         sendSnackbarMessage(getString(R.string.connection_closed))
                         Timber.d("Setting connection to server not available")
-                        baseViewModel.setConnectionToServerAvailable(false)
                     }
                     is ConnectionStateResult.Connecting -> {
                         Timber.d("Connecting")
@@ -527,7 +534,6 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
                     is ConnectionStateResult.Connected -> {
                         Timber.d("Connected")
                         sendSnackbarMessage(getString(R.string.connected_to_server))
-                        baseViewModel.setConnectionToServerAvailable(true)
                     }
                     is ConnectionStateResult.Failed -> {
                         when (result.reason.reason) {
@@ -538,7 +544,6 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
                             is ConnectionFailureReason.Other -> sendSnackbarMessage(getString(R.string.connection_failed))
                         }
                         Timber.d("Setting connection to server not available")
-                        baseViewModel.setConnectionToServerAvailable(false)
                     }
                 }
             }
@@ -594,8 +599,6 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
                 NetworkStatus.NETWORK_IS_DOWN -> {
                     Timber.d("Disconnecting from server because network is down")
                     stopService(intent)
-                    Timber.d("Setting connection to server not available")
-                    baseViewModel.setConnectionToServerAvailable(false)
                 }
                 else -> {
                     Timber.d("Network status is $status, doing nothing")

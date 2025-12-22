@@ -15,11 +15,8 @@ import org.tvheadend.tvhclient.util.extensions.connectionDataSource
 import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import org.tvheadend.tvhclient.util.livedata.Event
 
-open class BaseViewModel(application: Application) : AndroidViewModel(application), SnackbarMessageInterface, NetworkStatusInterface {
+open class BaseViewModel(application: Application) : AndroidViewModel(application), SnackbarMessageInterface {
     var startupCompleteLiveData = MutableLiveData<Event<Boolean>>()
-        private set
-
-    var connectionToServerAvailableLiveData = MutableLiveData<Boolean>()
         private set
 
     /**
@@ -29,16 +26,6 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     var snackbarMessageLiveData = MutableLiveData<Event<Intent>>()
         private set
 
-    /**
-     * Contains the current network status.
-     * The value gets set by the {@link NetworkStatusReceiver}
-     */
-    var networkStatusLiveData = MutableLiveData<Event<NetworkStatus>>()
-        private set
-
-    var connection: Connection
-
-    var htspVersion: Int
     var removeFragmentWhenSearchIsDone = false
 
     var searchQueryLiveData = MutableLiveData("")
@@ -49,13 +36,6 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
 
     init {
         startupCompleteLiveData.value = Event(false)
-
-        connection = application.connectionDataSource.activeItem
-        htspVersion = application.serverStatusDataSource.activeItem.htspVersion
-
-        connectionToServerAvailableLiveData.value = false
-
-        networkStatusLiveData.value = Event(NetworkStatus.NETWORK_UNKNOWN)
     }
 
     fun updateConnectionAndRestartApplication(context: Context?, isSyncRequired: Boolean = true) {
@@ -80,16 +60,6 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
 
     override fun setSnackbarMessage(intent: Intent) {
         snackbarMessageLiveData.value = Event(intent)
-    }
-
-    override fun setNetworkStatus(status: NetworkStatus) {
-        networkStatusLiveData.value = Event(status)
-    }
-
-    override fun getNetworkStatus(): NetworkStatus? = networkStatusLiveData.value?.peekContent()
-
-    fun setConnectionToServerAvailable(available: Boolean) {
-        connectionToServerAvailableLiveData.value = available
     }
 
     fun setStartupComplete(isComplete: Boolean) {

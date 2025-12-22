@@ -65,7 +65,7 @@ class StatusFragment : BaseFragment() {
             }
         }
 
-        baseViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { connectionAvailable ->
+        globalStatusViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { connectionAvailable ->
             Timber.d("Connection to server availability changed to $connectionAvailable")
             if (connectionAvailable) {
                 Timber.d("Starting additional information update handler")
@@ -77,8 +77,8 @@ class StatusFragment : BaseFragment() {
     }
 
     private fun showStatus() {
-
-        val text = "${connection.name} (${connection.serverUrl})"
+        val conn = connection ?: return
+        val text = "${conn.name} (${conn.serverUrl})"
         binding.connectionView.text = text
 
         binding.seriesRecordingsView.visibility = if (htspVersion >= 13) View.VISIBLE else View.GONE

@@ -1,9 +1,11 @@
 package org.tvheadend.tvhclient
 
 import android.content.Context
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.multidex.MultiDexApplication
 import com.google.android.gms.cast.framework.CastOptions
 import com.google.android.gms.cast.framework.OptionsProvider
@@ -26,6 +28,9 @@ import org.tvheadend.data.source.ServerStatusDataSource
 import org.tvheadend.data.source.SubscriptionDataSource
 import org.tvheadend.data.source.TagAndChannelDataSource
 import org.tvheadend.data.source.TimerRecordingDataSource
+import org.tvheadend.tvhclient.service.SyncStateReceiver
+import org.tvheadend.tvhclient.ui.common.GlobalStatusViewModel
+import org.tvheadend.tvhclient.ui.common.NetworkStatusReceiver
 import org.tvheadend.tvhclient.ui.features.playback.external.ExpandedControlsActivity
 import org.tvheadend.tvhclient.util.MigrateUtils
 import org.tvheadend.tvhclient.util.Preferences
@@ -61,6 +66,10 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
         Preferences(this)
     }
 
+    lateinit var globalStatus: GlobalStatusViewModel
+    private lateinit var networkStatusReceiver: NetworkStatusReceiver
+    private lateinit var syncStateReceiver: SyncStateReceiver
+
     override fun onCreate() {
         super.onCreate()
 
@@ -68,7 +77,6 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
 
         // Initialize the logging. Log to the console only when in debug mode.
         Timber.plant(DebugTree())
-
         // Log to a file when in release mode and the user has activated the setting
         if (!BuildConfig.DEBUG && preferences.debugModeEnabled) {
             Timber.plant(FileLoggingTree(applicationContext))
@@ -82,6 +90,13 @@ class MainApplication : MultiDexApplication(), OptionsProvider, SharedPreference
         MigrateUtils(applicationContext, appRepository, preferences.prefs).doMigrate()
         preferences.prefs.registerOnSharedPreferenceChangeListener(this)
         updateDefaultNightMode()
+
+        globalStatus = GlobalStatusViewModel(this)
+        networkStatusReceiver = NetworkStatusReceiver(globalStatus)
+        syncStateReceiver = SyncStateReceiver(globalStatus)
+
+        registerReceiver(networkStatusReceiver, IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"))
+        LocalBroadcastManager.getInstance(this).registerReceiver(syncStateReceiver, IntentFilter(SyncStateReceiver.ACTION))
     }
 
     /**

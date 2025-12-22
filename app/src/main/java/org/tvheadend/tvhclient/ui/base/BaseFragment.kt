@@ -8,18 +8,22 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.Connection
+import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.R
+import org.tvheadend.tvhclient.ui.common.GlobalStatusViewModel
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import timber.log.Timber
 
 abstract class BaseFragment : Fragment() {
     protected lateinit var baseViewModel: BaseViewModel
+    protected lateinit var globalStatusViewModel: GlobalStatusViewModel
     protected lateinit var toolbarInterface: ToolbarInterface
     protected var isDualPane: Boolean = false
     protected var htspVersion: Int = 13
     protected var isConnectionToServerAvailable: Boolean = false
-    protected lateinit var connection: Connection
+    protected var connection: Connection? = null
+        private set
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -29,13 +33,19 @@ abstract class BaseFragment : Fragment() {
         }
 
         baseViewModel = ViewModelProvider(requireActivity())[BaseViewModel::class.java]
-        baseViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { isAvailable ->
+        globalStatusViewModel = (requireContext().applicationContext as MainApplication).globalStatus
+
+        globalStatusViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { isAvailable ->
             Timber.d("Received live data, connection to server availability changed to $isAvailable")
             isConnectionToServerAvailable = isAvailable
         }
 
-        connection = baseViewModel.connection
-        htspVersion = baseViewModel.htspVersion
+        globalStatusViewModel.connectionLiveData.observe(viewLifecycleOwner) {
+            connection = it
+        }
+        globalStatusViewModel.htspVersionLiveData.observe(viewLifecycleOwner) { version ->
+            version?.let { htspVersion = it }
+        }
 
         // Check if we have a frame in which to embed the details fragment.
         // Make the frame layout visible and set the weights again in case

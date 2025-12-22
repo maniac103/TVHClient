@@ -24,6 +24,7 @@ import org.tvheadend.tvhclient.ui.features.playback.external.BasePlaybackActivit
 import timber.log.Timber
 import java.io.File
 import androidx.core.net.toUri
+import org.tvheadend.tvhclient.util.extensions.connectionDataSource
 
 
 class DownloadRecordingActivity : BasePlaybackActivity() {
@@ -46,8 +47,9 @@ class DownloadRecordingActivity : BasePlaybackActivity() {
     private fun startDownload(downloadUrl: String, recording: Recording) {
         Timber.d("Preparing download of recording ${recording.title}")
 
+        val connection = connectionDataSource.activeItem
         // The user and password are required for authentication. They need to be encoded.
-        val credentials = "Basic " + Base64.encodeToString((viewModel.connection.username + ":" + viewModel.connection.password).toByteArray(), Base64.NO_WRAP)
+        val credentials = "Basic " + Base64.encodeToString((connection.username + ":" + connection.password).toByteArray(), Base64.NO_WRAP)
         // Use the recording title if present, otherwise use the recording id only
         val recordingTitle = getRecordingTitle(recording)
 
