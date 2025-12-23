@@ -6,8 +6,6 @@ import android.view.*
 import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
-import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -163,12 +161,8 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
             return
         }
 
-        val fragment = ProgramDetailsFragment.newInstance(program.eventId, program.channelId)
-        activity?.supportFragmentManager?.commit {
-            replace(R.id.main, fragment)
-            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            addToBackStack(null)
-        }
+        val activity = requireActivity()
+        activity.startActivity(ProgramDetailsActivity.makeIntent(activity, program))
     }
 
     private fun showPopupMenu(view: View, position: Int) {

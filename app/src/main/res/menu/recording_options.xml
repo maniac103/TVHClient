@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_record_program_and_edit"
+        android:icon="@drawable/ic_menu_record_and_edit"
+        android:title="@string/record_once_and_edit" />
+    <item
+        android:id="@+id/menu_record_program_with_custom_profile"
+        android:icon="@drawable/ic_menu_record_profile"
+        android:title="@string/record_once_custom_profile" />
+    <item
+        android:id="@+id/menu_record_program_as_series_recording"
+        android:icon="@drawable/ic_menu_record_series"
+        android:title="@string/record_series" />
+</menu>

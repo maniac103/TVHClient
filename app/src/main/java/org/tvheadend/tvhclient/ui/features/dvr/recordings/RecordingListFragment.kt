@@ -110,32 +110,8 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
             return
         }
 
-        val fm = activity?.supportFragmentManager
-        if (!isDualPane) {
-            val fragment = RecordingDetailsFragment.newInstance(recording.id)
-            fm?.commit {
-                replace(R.id.main, fragment)
-                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                addToBackStack(null)
-            }
-        } else {
-            var fragment = activity?.supportFragmentManager?.findFragmentById(R.id.details)
-            if (fragment !is RecordingDetailsFragment) {
-                fragment = RecordingDetailsFragment.newInstance(recording.id)
-
-                // Check the lifecycle state to avoid committing the transaction
-                // after the onSaveInstance method was already called which would
-                // trigger an illegal state exception.
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    fm?.commit {
-                        replace(R.id.details, fragment)
-                        setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    }
-                }
-            } else if (recordingViewModel.currentIdLiveData.value != recording.id) {
-                recordingViewModel.currentIdLiveData.value = recording.id
-            }
-        }
+        val intent = RecordingDetailsActivity.makeIntent(requireContext(), recording)
+        startActivity(intent)
     }
 
     private fun showPopupMenu(view: View, position: Int) {

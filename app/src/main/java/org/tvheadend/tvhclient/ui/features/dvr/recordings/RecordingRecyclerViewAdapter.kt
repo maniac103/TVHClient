@@ -18,6 +18,13 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
     private val recordingList = ArrayList<RecordingWithChannel>()
     private var recordingListFiltered: MutableList<RecordingWithChannel> = ArrayList()
     private var selectedPosition = 0
+    var showFileStatus = false
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
 
     val items: List<RecordingWithChannel>
         get() = recordingListFiltered
@@ -30,7 +37,7 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
 
     override fun onBindViewHolder(holder: RecordingViewHolder, position: Int) {
         val recording = recordingListFiltered[position]
-        holder.bind(recording, position, selectedPosition == position, htspVersion, clickCallback)
+        holder.bind(recording, position, selectedPosition == position, htspVersion, showFileStatus, clickCallback)
     }
 
     internal fun addItems(newItems: List<RecordingWithChannel>) {
@@ -106,10 +113,12 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
                               private val viewModel: RecordingViewModel,
                               private val isDualPane: Boolean) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(recording: RecordingWithChannel, position: Int, isSelected: Boolean, htspVersion: Int, clickCallback: RecyclerViewClickInterface) {
+        fun bind(recording: RecordingWithChannel, position: Int, isSelected: Boolean, htspVersion: Int,
+                 showFileStatus: Boolean, clickCallback: RecyclerViewClickInterface) {
             binding.recording = recording
             binding.position = position
             binding.htspVersion = htspVersion
+            binding.showFileStatus = showFileStatus
             binding.isSelected = isSelected
             binding.viewModel = viewModel
             binding.isDualPane = isDualPane

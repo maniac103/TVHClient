@@ -14,7 +14,7 @@ import org.tvheadend.tvhclient.util.extensions.recordingDataSource
 import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
 import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import org.tvheadend.tvhclient.util.livedata.CombinedPairLiveData
-import java.util.*
+import java.util.Date
 
 class ProgramViewModel(application: Application) : BaseViewModel(application) {
 
@@ -25,6 +25,7 @@ class ProgramViewModel(application: Application) : BaseViewModel(application) {
     val program = eventIdLiveData
         .filter { it > 0 }
         .map { application.programDataSource.getItemById(it) }
+
     val programs = CombinedPairLiveData(channelIdLiveData, selectedTimeLiveData) { channelId, selectedTime -> channelId to selectedTime }
         .switchMap { (channelId, selectedTime) ->
             if (channelId == 0) {
@@ -33,11 +34,12 @@ class ProgramViewModel(application: Application) : BaseViewModel(application) {
                 application.programDataSource.getLiveDataItemByChannelIdAndTime(channelId, selectedTime)
             }
         }
+
     val recordings = channelIdLiveData.switchMap { channelId ->
         if (channelId == 0) {
-            return@switchMap application.recordingDataSource.getLiveDataItems()
+            application.recordingDataSource.getLiveDataItems()
         } else {
-            return@switchMap application.recordingDataSource.getLiveDataItemsByChannelId(channelId)
+            application.recordingDataSource.getLiveDataItemsByChannelId(channelId)
         }
     }
 
@@ -51,13 +53,11 @@ class ProgramViewModel(application: Application) : BaseViewModel(application) {
     val showProgramSubtitles = application.prefs.showProgramSubtitleLiveData()
     val showProgramArtwork = application.prefs.showProgramArtworkLiveData()
 
-    fun getRecordingProfile(): ServerProfile? {
-        return application.serverProfileDataSource.getItemById(
+    fun getRecordingProfile(): ServerProfile? =
+        application.serverProfileDataSource.getItemById(
             application.serverStatusDataSource.activeItem.recordingServerProfileId
         )
-    }
 
-    fun getRecordingProfileNames(): Array<String> {
-        return application.serverProfileDataSource.recordingProfileNames
-    }
+    fun getRecordingProfileNames(): Array<String> =
+        application.serverProfileDataSource.recordingProfileNames
 }

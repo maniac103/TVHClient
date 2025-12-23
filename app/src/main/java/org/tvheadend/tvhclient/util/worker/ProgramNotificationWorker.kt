@@ -30,10 +30,8 @@ class ProgramNotificationWorker(val context: Context, workerParams: WorkerParame
         Timber.d("Received notification broadcast for program $eventTitle")
 
         // Create the intent that will handle showing the program details
-        val detailsIntent = Intent(context, ProgramDetailsActivity::class.java)
-        detailsIntent.putExtra("eventId", eventId)
-        detailsIntent.putExtra("channelId", channelId)
-        detailsIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val detailsIntent = ProgramDetailsActivity.makeIntent(context, eventId, channelId)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         val detailsPendingIntent = PendingIntent.getActivity(context, 0, detailsIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         // Create the intent that handles the scheduling of the program

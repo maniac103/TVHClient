@@ -19,16 +19,14 @@ import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
-import com.squareup.picasso.Transformation
 import org.tvheadend.data.entity.ProgramInterface
-import org.tvheadend.data.entity.Recording
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.util.getIconUrl
 import org.tvheadend.tvhclient.util.isInDarkMode
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.core.graphics.scale
+import org.tvheadend.data.entity.RecordingInterface
 import org.tvheadend.tvhclient.util.extensions.prefs
 
 // Constants required for the date calculation
@@ -55,6 +53,22 @@ fun setLayoutWidth(view: View, width: Int) {
     val layoutParams = view.layoutParams as RecyclerView.LayoutParams
     layoutParams.width = width
     view.layoutParams = layoutParams
+}
+
+@BindingAdapter("startStopTextStart", "startStopTextStop")
+fun setStartStopText(view: TextView, start: Long, stop: Long) {
+    val df = if (view.context.prefs.localizedTimeFormat) {
+        // Show the date as defined with the currently active locale.
+        // For the date display the short version will be used
+        java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, getLocale(view.context.resources))
+    } else {
+        // Show the date using the default format like 31.07.2013
+        SimpleDateFormat("HH:mm", Locale.US)
+    }
+
+    val startText = df.format(start)
+    val stopText = df.format(stop)
+    view.text = "$startText - $stopText"
 }
 
 @BindingAdapter("seriesInfoText")
@@ -164,76 +178,63 @@ fun setPriorityText(view: TextView, priority: Int) {
     }
 }
 
-@BindingAdapter("dataSizeText")
-fun setDataSizeText(view: TextView, recording: Recording?) {
-    val context = view.context
-
-    if (context.prefs.showRecordingFileStatus
+@BindingAdapter("dataSizeText", "dataSizeVisible")
+fun setDataSizeText(view: TextView, recording: RecordingInterface?, visible: Boolean) {
+    if (visible
             && recording != null
             && (!recording.isScheduled || recording.isScheduled && recording.isRecording)) {
         view.isVisible = true
         if (recording.dataSize > 1048576) {
-            view.text = context.resources.getString(R.string.data_size, recording.dataSize / 1048576, "MB")
+            view.text = view.context.getString(R.string.data_size, recording.dataSize / 1048576, "MB")
         } else {
-            view.text = context.resources.getString(R.string.data_size, recording.dataSize / 1024, "KB")
+            view.text = view.context.getString(R.string.data_size, recording.dataSize / 1024, "KB")
         }
     } else {
         view.isVisible = false
     }
 }
 
-@BindingAdapter("dataErrorText")
-fun setDataErrorText(view: TextView, recording: Recording?) {
-    val context = view.context
-
-    if (context.prefs.showRecordingFileStatus
+@BindingAdapter("dataErrorText", "dataErrorVisible")
+fun setDataErrorText(view: TextView, recording: RecordingInterface?, visible: Boolean) {
+    if (visible
             && recording != null
             && !recording.dataErrors.isNullOrEmpty()
             && (!recording.isScheduled || recording.isScheduled && recording.isRecording)) {
         view.isVisible = true
-        view.text = context.resources.getString(R.string.data_errors, if (recording.dataErrors == null) "0" else recording.dataErrors)
+        view.text = view.context.getString(R.string.data_errors, recording.dataErrors ?: "0")
     } else {
         view.isVisible = false
     }
 }
 
-@BindingAdapter("subscriptionErrorText")
-fun setSubscriptionErrorText(view: TextView, recording: Recording?) {
-    val context = view.context
-
-    if (context.prefs.showRecordingFileStatus
+@BindingAdapter("subscriptionErrorText", "subscriptionErrorVisible")
+fun setSubscriptionErrorText(view: TextView, recording: RecordingInterface?, visible: Boolean) {
+    if (visible
             && recording != null
             && !recording.isScheduled
             && !recording.subscriptionError.isNullOrEmpty()) {
         view.isVisible = true
-        view.text = context.resources.getString(R.string.subscription_error, recording.subscriptionError)
+        view.text = view.context.getString(R.string.subscription_error, recording.subscriptionError)
     } else {
         view.isVisible = false
     }
 }
 
-@BindingAdapter("streamErrorText")
-fun setStreamErrorText(view: TextView, recording: Recording?) {
-    val context = view.context
-
-    if (context.prefs.showRecordingFileStatus
+@BindingAdapter("streamErrorText", "streamErrorVisible")
+fun setStreamErrorText(view: TextView, recording: RecordingInterface?, visible: Boolean) {
+    if (visible
             && recording != null
             && !recording.isScheduled
             && !recording.streamErrors.isNullOrEmpty()) {
         view.isVisible = true
-        view.text = context.resources.getString(R.string.stream_errors, recording.streamErrors)
+        view.text = view.context.getString(R.string.stream_errors, recording.streamErrors)
     } else {
         view.isVisible = false
     }
 }
 
-@BindingAdapter("statusLabelVisibility")
-fun setStatusLabelVisibility(view: TextView, recording: Recording?) {
-    view.isVisible = view.context.prefs.showRecordingFileStatus && recording != null && !recording.isScheduled
-}
-
 @BindingAdapter("disabledText", "htspVersion")
-fun setDisabledText(view: TextView, recording: Recording?, htspVersion: Int) {
+fun setDisabledText(view: TextView, recording: RecordingInterface?, htspVersion: Int) {
     if (recording == null || !recording.isScheduled) {
         view.isVisible = false
     } else {
@@ -248,7 +249,7 @@ fun setDisabledText(view: TextView, isEnabled: Boolean, htspVersion: Int) {
 }
 
 @BindingAdapter("duplicateText", "htspVersion")
-fun setDuplicateText(view: TextView, recording: Recording?, htspVersion: Int) {
+fun setDuplicateText(view: TextView, recording: RecordingInterface?, htspVersion: Int) {
     if (recording == null || !recording.isScheduled) {
         view.isVisible = false
     } else {
@@ -258,7 +259,7 @@ fun setDuplicateText(view: TextView, recording: Recording?, htspVersion: Int) {
 }
 
 @BindingAdapter("failedReasonText")
-fun setFailedReasonText(view: TextView, recording: Recording?) {
+fun setFailedReasonText(view: TextView, recording: RecordingInterface?) {
     val context = view.context
     var failedReasonText = ""
 
@@ -310,7 +311,7 @@ fun setOptionalText(view: TextView, text: String?) {
 }
 
 @BindingAdapter("stateIcon")
-fun setStateIcon(view: ImageView, recording: Recording?) {
+fun setStateIcon(view: ImageView, recording: RecordingInterface?) {
     var drawable: Drawable? = null
     if (recording != null) {
         when {
@@ -324,6 +325,23 @@ fun setStateIcon(view: ImageView, recording: Recording?) {
 
     view.isVisible = drawable != null
     view.setImageDrawable(drawable)
+}
+
+@BindingAdapter("recordingStateText")
+fun setRecordingStateText(view: TextView, recording: RecordingInterface?) {
+    val stateTextResId = when {
+        recording == null -> 0
+        recording.isFailed -> R.string.recording_state_failed
+        recording.isCompleted -> R.string.recording_state_completed
+        recording.isMissed -> R.string.recording_state_missed
+        recording.isRecording -> R.string.recording_state_recording
+        recording.isScheduled -> R.string.recording_state_scheduled
+        else -> 0
+    }
+    view.isVisible = stateTextResId != 0
+    if (stateTextResId != 0) {
+        view.setText(stateTextResId)
+    }
 }
 
 @BindingAdapter("iconUrl", "iconVisibility")
@@ -341,37 +359,13 @@ fun setChannelIcon(view: ImageView, iconUrl: String?, visible: Boolean) {
  * @param view The view where the icon and visibility shall be applied to
  * @param url  The url of the channel icon
  */
-@BindingAdapter("programImage", "viewWidth", "programImageVisibility")
-fun setProgramImage(view: ImageView, url: String?, viewWidth: Int = 0, visible: Boolean) {
+@BindingAdapter("programImage", "programImageVisibility")
+fun setProgramImage(view: ImageView, url: String?, visible: Boolean) {
     if (url.isNullOrEmpty() || !visible) {
         view.isVisible = false
     } else {
-        val transformation = object : Transformation {
-            override fun transform(source: Bitmap): Bitmap {
-                Timber.d("Transforming source image with dimensions w:${source.width}, h:${source.height} to fit the view width $viewWidth")
-                if (viewWidth == 0 || source.height == 0 || source.width == 0) {
-                    Timber.d("Returning source image with dimensions w:${source.width}, h:${source.height}, target width is $viewWidth")
-                    return source
-                }
-                val aspectRatio = source.height.toDouble() / source.width.toDouble()
-                val targetHeight = (viewWidth * aspectRatio).toInt()
-                val result = source.scale(viewWidth, targetHeight, false)
-                if (result != source) {
-                    // Same bitmap is returned if sizes are the same
-                    source.recycle()
-                }
-                Timber.d("Returning transformed image with new dimensions w:${source.width}, h:${source.height}")
-                return result
-            }
-
-            override fun key(): String {
-                return "transformation" + " desiredWidth"
-            }
-        }
-
         Picasso.get()
                 .load(url)
-                .transform(transformation)
                 .into(view, object : Callback {
                     override fun onSuccess() {
                         view.isVisible = true

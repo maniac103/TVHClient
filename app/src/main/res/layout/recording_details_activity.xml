@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/toolbar_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="?collapsingToolbarLayoutLargeSize"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+                app:expandedSubtitleTextAppearance="?textAppearanceBodyMedium"
+                app:collapsedSubtitleTextAppearance="?textAppearanceBodyMedium"
+                app:titleMaxLines="2"
+                app:subtitleMaxLines="3"
+                app:expandedTitleGravity="bottom|center_horizontal">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?actionBarSize"
+                    app:layout_collapseMode="pin"
+                    app:title="@{recording.title}"
+                    app:subtitle="@{recording.subtitle}" />
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/play"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="?materialIconButtonFilledTonalStyle"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:text="@string/play"
+                    app:icon="@drawable/ic_menu_play" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cast"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="?materialIconButtonFilledTonalStyle"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:text="@string/cast"
+                    app:icon="@drawable/ic_menu_cast" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/download"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="?materialIconButtonFilledTonalStyle"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:text="@string/download"
+                    app:icon="@drawable/ic_menu_download" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/edit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="?materialIconButtonFilledTonalStyle"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:text="@string/edit"
+                    app:icon="@drawable/ic_menu_edit" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/remove"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="?materialIconButtonFilledTonalStyle"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:text="@string/remove"
+                    app:icon="@drawable/ic_menu_delete" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/stop"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="?materialIconButtonFilledTonalStyle"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:text="@string/stop"
+                    app:icon="@drawable/ic_menu_stop" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cancel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="?materialIconButtonFilledTonalStyle"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    android:text="@string/cancel"
+                    app:icon="@drawable/ic_menu_cancel" />
+
+            </LinearLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    style="?materialCardViewFilledStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:cardBackgroundColor="?colorSurfaceContainerHigh">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:id="@+id/info_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:src="@drawable/ic_information"
+                            android:scaleType="center"
+                            app:tint="?colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/state"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toEndOf="@id/info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:recordingStateText="@{recording}"
+                            tools:text="@tools:sample/lorem" />
+
+                        <TextView
+                            android:id="@+id/disabled"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            app:layout_constraintStart_toEndOf="@id/info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/state"
+                            app:disabledText="@{recording.base}"
+                            app:htspVersion="@{htspVersion}"
+                            tools:text="@string/recording_disabled" />
+
+                        <TextView
+                            android:id="@+id/is_series_recording"
+                            style="@style/SubtitleFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            app:layout_constraintStart_toEndOf="@id/info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/disabled"
+                            android:text="@string/is_series_recording"
+                            android:visibility="@{recording.autorecId != null &amp;&amp; !recording.autorecId.isEmpty ? View.VISIBLE : View.GONE}" />
+
+                        <TextView
+                            android:id="@+id/is_timer_recording"
+                            style="@style/SubtitleFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toEndOf="@id/info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/is_series_recording"
+                            android:text="@string/is_timer_recording"
+                            android:visibility="@{recording.timerecId != null &amp;&amp; !recording.timerecId.isEmpty ? View.VISIBLE : View.GONE}" />
+
+                        <TextView
+                            android:id="@+id/data_size"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            app:layout_constraintStart_toEndOf="@id/info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/is_timer_recording"
+                            app:dataSizeText="@{recording.base}"
+                            app:dataSizeVisible="@{true}"
+                            tools:text="@string/data_size" />
+
+                        <TextView
+                            android:id="@+id/subscription_error"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            app:layout_constraintStart_toEndOf="@id/info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/data_size"
+                            app:subscriptionErrorText="@{recording.base}"
+                            app:subscriptionErrorVisible="@{true}"
+                            tools:text="@string/subscription_error" />
+
+                        <TextView
+                            android:id="@+id/stream_errors"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            app:layout_constraintStart_toEndOf="@id/info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/subscription_error"
+                            app:streamErrorText="@{recording.base}"
+                            app:streamErrorVisible="@{true}"
+                            tools:text="@string/stream_errors" />
+
+                        <TextView
+                            android:id="@+id/data_errors"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            app:layout_constraintStart_toEndOf="@id/info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/stream_errors"
+                            app:dataErrorText="@{recording.base}"
+                            app:dataErrorVisible="@{true}"
+                            tools:text="@string/data_errors" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="?materialCardViewFilledStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:cardBackgroundColor="?colorSurfaceContainerHigh"
+                    android:visibility="@{recording.channelName != null || recording.description != null || recording.summary != null || recording.comment != null ? View.VISIBLE : View.GONE}">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:id="@+id/channel_info_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:src="@drawable/ic_tv_station"
+                            android:scaleType="center"
+                            app:tint="?colorOnSurfaceVariant" />
+
+                        <ImageView
+                            android:id="@+id/channel_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:layout_constraintStart_toEndOf="@id/channel_info_icon"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:iconUrl="@{recording.channelIcon}" />
+
+                        <TextView
+                            android:id="@+id/channel"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="8dp"
+                            app:layout_constraintStart_toEndOf="@id/channel_icon"
+                            app:layout_constraintTop_toTopOf="@id/channel_info_icon"
+                            app:layout_constraintBottom_toBottomOf="@id/channel_info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:gravity="center_vertical"
+                            android:text="@{recording.channelName != null ? recording.channelName : @string/all_channels}"
+                            tools:text="@string/channel" />
+
+                        <TextView
+                            android:id="@+id/content_type"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toEndOf="@id/channel_info_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/channel"
+                            app:contentTypeText="@{recording.contentType * 16}"
+                            tools:text="@string/content_type" />
+
+                        <androidx.constraintlayout.widget.Barrier
+                            android:id="@+id/channel_barrier"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:barrierDirection="bottom"
+                            app:barrierMargin="16dp"
+                            app:constraint_referenced_ids="channel_info_icon,channel_icon,content_type" />
+
+                        <ImageView
+                            android:id="@+id/summary_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/channel_barrier"
+                            android:src="@drawable/ic_program_summary"
+                            android:scaleType="center"
+                            android:visibility="@{recording.episode != null || recording.summary != null ? View.VISIBLE : View.GONE}"
+                            app:tint="?colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/episode"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toEndOf="@id/summary_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/channel_barrier"
+                            app:optionalText="@{recording.episode}"
+                            tools:text="@tools:sample/lorem" />
+
+                        <TextView
+                            android:id="@+id/summary"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toEndOf="@id/summary_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/series_info"
+                            android:layout_marginTop="16dp"
+                            app:layout_goneMarginTop="0dp"
+                            app:optionalText="@{recording.summary}"
+                            tools:text="@string/summary" />
+
+                        <androidx.constraintlayout.widget.Barrier
+                            android:id="@+id/summary_barrier"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="@{recording.episode != null || recording.summary != null ? View.VISIBLE : View.GONE}"
+                            app:barrierDirection="bottom"
+                            app:constraint_referenced_ids="episode,summary,summary_icon" />
+
+                        <ImageView
+                            android:id="@+id/description_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="16dp"
+                            app:layout_goneMarginTop="0dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/summary_barrier"
+                            android:visibility="@{recording.description != null &amp;&amp; !recording.description.isEmpty() ? View.VISIBLE : View.GONE}"
+                            android:src="@drawable/ic_description"
+                            android:scaleType="center"
+                            app:tint="?colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/description"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            app:layout_goneMarginTop="0dp"
+                            app:layout_constraintStart_toEndOf="@id/description_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/summary_barrier"
+                            app:optionalColoredText="@{recording.description}"
+                            tools:text="@string/description" />
+
+                        <androidx.constraintlayout.widget.Barrier
+                            android:id="@+id/description_barrier"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="@{recording.description != null ? View.VISIBLE : View.GONE}"
+                            app:barrierDirection="bottom"
+                            app:constraint_referenced_ids="description,description_icon" />
+
+                        <ImageView
+                            android:id="@+id/comment_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="16dp"
+                            app:layout_goneMarginTop="0dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/description_barrier"
+                            android:visibility="@{recording.comment != null ? View.VISIBLE : View.GONE}"
+                            android:src="@drawable/ic_comment"
+                            android:scaleType="center"
+                            app:tint="?colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/comment"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            app:layout_goneMarginTop="0dp"
+                            app:layout_constraintStart_toEndOf="@id/comment_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/description_barrier"
+                            app:optionalText="@{recording.comment}"
+                            tools:text="@string/comment" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="?materialCardViewFilledStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:cardBackgroundColor="?colorSurfaceContainerHigh">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:id="@+id/datetime_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:src="@drawable/ic_time_date"
+                            android:scaleType="center"
+                            app:tint="?colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/date"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toEndOf="@id/datetime_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:dateText="@{recording.start}"
+                            tools:text="@tools:sample/date/ddmmyy" />
+
+                        <TextView
+                            android:id="@+id/time"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            app:layout_constraintTop_toBottomOf="@id/date"
+                            app:layout_constraintStart_toEndOf="@id/datetime_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:startStopTextStart="@{recording.start}"
+                            app:startStopTextStop="@{recording.stop}"
+                            tools:text="@tools:sample/date/hhmm" />
+
+                        <androidx.constraintlayout.widget.Barrier
+                            android:id="@+id/datetime_barrier"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:barrierDirection="bottom"
+                            app:barrierMargin="16dp"
+                            app:constraint_referenced_ids="datetime_icon,time" />
+
+                        <ImageView
+                            android:id="@+id/duration_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/datetime_barrier"
+                            android:src="@drawable/ic_duration"
+                            android:scaleType="center"
+                            app:tint="?colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/duration"
+                            style="@style/ContentFont"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintStart_toEndOf="@id/duration_icon"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="@id/duration_icon"
+                            app:layout_constraintBottom_toBottomOf="@id/duration_icon"
+                            android:text="@{@string/minutes(recording.duration)}"
+                            tools:text="@string/minutes" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="recording"
+            type="org.tvheadend.data.entity.RecordingWithChannel" />
+
+        <variable
+            name="viewModel"
+            type="org.tvheadend.tvhclient.ui.features.dvr.recordings.RecordingViewModel" />
+
+        <variable
+            name="htspVersion"
+            type="int" />
+
+    </data>
+
+</layout>

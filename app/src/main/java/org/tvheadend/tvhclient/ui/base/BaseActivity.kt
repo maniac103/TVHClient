@@ -9,16 +9,22 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.internal.EdgeToEdgeUtils
+import org.tvheadend.tvhclient.MainApplication
+import org.tvheadend.tvhclient.ui.common.GlobalStatusViewModel
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 
 abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
     private lateinit var toolbar: Toolbar
     protected lateinit var baseViewModel: BaseViewModel
+        private set
+    protected lateinit var globalStatusViewModel: GlobalStatusViewModel
+        private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         baseViewModel = ViewModelProvider(this)[BaseViewModel::class.java]
+        globalStatusViewModel = (applicationContext as MainApplication).globalStatus
     }
 
     protected fun setupToolbar(toolbar: Toolbar, appBarLayout: AppBarLayout) {
@@ -28,11 +34,11 @@ abstract class BaseActivity : AppCompatActivity(), ToolbarInterface {
     }
 
     override fun setTitle(title: String) {
-        toolbar.title = title
+        supportActionBar?.title = title
     }
 
     override fun setSubtitle(subtitle: String?) {
-        toolbar.subtitle = subtitle
+        supportActionBar?.subtitle = subtitle
     }
 
     private fun enableDrawingBehindStatusBar(toolbar: Toolbar, appBarLayout: AppBarLayout) {

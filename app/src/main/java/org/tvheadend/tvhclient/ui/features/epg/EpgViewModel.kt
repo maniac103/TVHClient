@@ -6,8 +6,6 @@ import android.util.SparseArray
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.commit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -26,7 +24,7 @@ import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.data.source.ProgramDataSource
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.features.channels.BaseChannelViewModel
-import org.tvheadend.tvhclient.ui.features.programs.ProgramDetailsFragment
+import org.tvheadend.tvhclient.ui.features.programs.ProgramDetailsActivity
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.programDataSource
@@ -142,12 +140,7 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
     fun onClick(view: View, program: EpgProgram) {
         Timber.d("Clicked on program ${program.title}")
         val activity = getActivity(view) ?: return
-        val fragment = ProgramDetailsFragment.newInstance(program.eventId, program.channelId)
-        activity.supportFragmentManager.commit {
-            replace(R.id.main, fragment)
-            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            addToBackStack(null)
-        }
+        activity.startActivity(ProgramDetailsActivity.makeIntent(activity, program))
     }
 
     fun onLongClick(view: View, program: EpgProgram): Boolean {

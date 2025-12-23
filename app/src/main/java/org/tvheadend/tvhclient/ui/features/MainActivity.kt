@@ -89,8 +89,6 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
     private lateinit var navigationViewModel: NavigationViewModel
     private lateinit var statusViewModel: StatusViewModel
 
-    private lateinit var globalStatusViewModel: GlobalStatusViewModel
-
     private lateinit var snackbarMessageReceiver: SnackbarMessageReceiver
     private lateinit var binding: MainActivityBinding
 
@@ -107,7 +105,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
 
     private lateinit var navigationDrawer: NavigationDrawer
     private lateinit var drawerToggle: ActionBarDrawerToggle
-    private lateinit var syncStateReceiver: SyncStateReceiver
+    private lateinit var syncStateReceiver: SyncStateReceiver // TODO: copy to application
 
     private var isDualPane: Boolean = false
 
@@ -142,7 +140,6 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
 
         navigationViewModel = ViewModelProvider(this)[NavigationViewModel::class.java]
         statusViewModel = ViewModelProvider(this)[StatusViewModel::class.java]
-        globalStatusViewModel = (application as MainApplication).globalStatus
 
         snackbarMessageReceiver = SnackbarMessageReceiver(baseViewModel)
 
