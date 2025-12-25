@@ -111,6 +111,11 @@ class Preferences(context: Context) {
                                          val defaultValue: PT) : LiveData<OT>(), SharedPreferences.OnSharedPreferenceChangeListener {
         abstract fun getValueFromPreferences(key: String, defaultValue: PT): OT
 
+        override fun getValue(): OT? {
+            val value = super.getValue()
+            return value ?: getValueFromPreferences(key, defaultValue)
+        }
+
         override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
             if (key == this.key) {
                 value = getValueFromPreferences(key, defaultValue)
