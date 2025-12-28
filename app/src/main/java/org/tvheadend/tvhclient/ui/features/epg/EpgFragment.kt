@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import org.tvheadend.data.entity.ChannelTag
+import org.tvheadend.data.entity.EpgChannel
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgFragmentBinding
@@ -27,7 +28,7 @@ import org.tvheadend.tvhclient.util.Preferences
 import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
-class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterface, ChannelTimeSelectedInterface, ChannelTagIdsSelectedInterface, Filter.FilterListener, SearchRequestInterface, ShowProgramListFragmentInterface {
+class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterface<EpgChannel>, ChannelTimeSelectedInterface, ChannelTagIdsSelectedInterface, Filter.FilterListener, SearchRequestInterface, ShowProgramListFragmentInterface {
 
     private lateinit var binding: EpgFragmentBinding
     private val dialogDismissHandler = Handler(Looper.getMainLooper())
@@ -58,7 +59,7 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
             (activity as LayoutControlInterface).forceSingleScreenLayout()
         }
 
-        channelListRecyclerViewAdapter = EpgChannelListRecyclerViewAdapter(epgViewModel, this, viewLifecycleOwner)
+        channelListRecyclerViewAdapter = EpgChannelListRecyclerViewAdapter(this)
         channelListRecyclerViewLayoutManager = LinearLayoutManager(activity)
         binding.channelListRecyclerView.layoutManager = channelListRecyclerViewLayoutManager
         binding.channelListRecyclerView.adapter = channelListRecyclerViewAdapter
@@ -99,6 +100,8 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
                 }
             }
         })
+
+        epgViewModel.showChannelNumber.observe(viewLifecycleOwner) { channelListRecyclerViewAdapter.showChannelNumber = it }
 
         Timber.d("Observing channel tags")
         epgViewModel.channelTags.observe(viewLifecycleOwner) { tags ->
@@ -221,18 +224,17 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
         epgViewModel.setSelectedChannelTagIds(ids)
     }
 
-    override fun onClick(view: View, position: Int) {
-        val item = channelListRecyclerViewAdapter.getItem(position)
-        if ((view.id == R.id.icon || view.id == R.id.icon_text) && isConnectionToServerAvailable && item != null) {
+    override fun onClick(view: View, position: Int, channel: EpgChannel) {
+        if ((view.id == R.id.icon || view.id == R.id.icon_text) && isConnectionToServerAvailable) {
             when (requireActivity().prefs.channelIconAction) {
-                Preferences.IconAction.Play -> playSelectedChannel(view.context, item.id)
-                Preferences.IconAction.CastOrPlay -> playOrCastChannel(view.context, item.id)
+                Preferences.IconAction.Play -> playSelectedChannel(view.context, channel.id)
+                Preferences.IconAction.CastOrPlay -> playOrCastChannel(view.context, channel.id)
                 Preferences.IconAction.DoNothing -> {}
             }
         }
     }
 
-    override fun onLongClick(view: View, position: Int): Boolean {
+    override fun onLongClick(view: View, position: Int, channel: EpgChannel): Boolean {
         // NOP
         return true
     }

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +18,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgViewpagerFragmentBinding
+import org.tvheadend.tvhclient.util.extensions.applyText
+import org.tvheadend.tvhclient.util.extensions.formatDate
+import org.tvheadend.tvhclient.util.extensions.formatTime
 import org.tvheadend.tvhclient.util.livedata.CombinedPairLiveData
 import timber.log.Timber
 import java.util.Calendar
@@ -35,9 +37,10 @@ class EpgViewPagerFragment : Fragment(), EpgScrollInterface {
     private var enableScrolling = false
     private var fragmentId = 0
     private var hoursPerScreen = 0
+    private var startTime = 0L
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = DataBindingUtil.inflate(inflater, R.layout.epg_viewpager_fragment, container, false)
+        binding = EpgViewpagerFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -52,9 +55,6 @@ class EpgViewPagerFragment : Fragment(), EpgScrollInterface {
 
         // Get the id that defines the position of the fragment in the viewpager
         fragmentId = arguments?.getInt("fragmentId") ?: 0
-
-        binding.startTime = epgViewModel.getStartTime(fragmentId)
-        binding.endTime = epgViewModel.getEndTime(fragmentId)
 
         recyclerViewAdapter = EpgVerticalRecyclerViewAdapter(epgViewModel, fragmentId, viewLifecycleOwner)
         recyclerViewLinearLayoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
@@ -109,6 +109,12 @@ class EpgViewPagerFragment : Fragment(), EpgScrollInterface {
             binding.progress.isVisible = false
         }
 
+        epgViewModel.getFragmentStartAndEndTimes(fragmentId).observe(viewLifecycleOwner) { (start, end) ->
+            binding.viewpagerTitleDate.applyText { formatDate(start) }
+            binding.viewpagerTitleStartHours.applyText { formatTime(start) }
+            binding.viewpagerTitleEndHours.applyText { formatTime(end) }
+        }
+
         val showTimeIndication = fragmentId == 0
         binding.currentTime.isVisible = showTimeIndication
 
@@ -130,6 +136,10 @@ class EpgViewPagerFragment : Fragment(), EpgScrollInterface {
 
             epgViewModel.hoursOfEpgDataPerScreen.observe(viewLifecycleOwner) {
                 hoursPerScreen = it
+                setCurrentTimeIndication()
+            }
+            epgViewModel.getFragmentStartAndEndTimes(fragmentId).observe(viewLifecycleOwner) { (start, _) ->
+                startTime = start
                 setCurrentTimeIndication()
             }
 
@@ -159,10 +169,10 @@ class EpgViewPagerFragment : Fragment(), EpgScrollInterface {
         // the icon width to the offset.
         val width = view?.width ?: return
         val currentTime = Calendar.getInstance().timeInMillis
-        val durationTime = (currentTime - epgViewModel.getStartTime(fragmentId)) / 1000 / 60
+        val durationTime = (currentTime - startTime) / 1000 / 60
         val pixelsPerMinute = width.toFloat() / (60.0f * hoursPerScreen.toFloat())
         val offset = (durationTime * pixelsPerMinute).toInt()
-        Timber.d("Fragment id: $fragmentId, current time: $currentTime, start time: ${epgViewModel.getStartTime(fragmentId)}, offset: $offset, durationTime: $durationTime, pixelsPerMinute: $pixelsPerMinute")
+        Timber.d("Fragment id: $fragmentId, current time: $currentTime, start time: $startTime, offset: $offset, durationTime: $durationTime, pixelsPerMinute: $pixelsPerMinute")
 
         // Set the left constraint of the time indication so it shows the actual time
         binding.currentTime.let {

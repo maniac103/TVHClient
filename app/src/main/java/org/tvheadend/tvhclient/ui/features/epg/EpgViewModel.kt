@@ -23,6 +23,7 @@ import org.tvheadend.data.entity.EpgChannel
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.data.source.ProgramDataSource
 import org.tvheadend.tvhclient.R
+import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.features.channels.BaseChannelViewModel
 import org.tvheadend.tvhclient.ui.features.programs.ProgramDetailsActivity
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
@@ -33,7 +34,7 @@ import timber.log.Timber
 import java.util.Calendar
 import kotlin.time.Duration.Companion.minutes
 
-class EpgViewModel(application: Application) : BaseChannelViewModel(application) {
+class EpgViewModel(application: Application) : BaseChannelViewModel(application), RecyclerViewClickInterface<EpgProgram> {
 
     val registeredEpgFragments = SparseArray<Fragment>()
     val epgChannels = CombinedPairLiveData(selectedChannelTagIds, application.prefs.channelSortOrderLiveData()) { tagIds, sortOrder ->
@@ -63,7 +64,6 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
         Timber.d("View pager fragment count has changed to $fragmentCount")
         fragmentCount
     }
-
     data class EpgChannelEntry(val channel: EpgChannel, val programs: List<EpgProgram>)
 
     var verticalScrollOffset = 0
@@ -99,6 +99,14 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
         }
     }
 
+    fun getFragmentStartAndEndTimes(fragmentId: Int): LiveData<Pair<Long, Long>> =
+        CombinedPairLiveData(startTimeInternal, hoursOfEpgDataPerScreen) { startTime, hours ->
+            val millisPerScreen = hours.toLong() * 60L * 60L * 1000L
+            val start = startTime + millisPerScreen * fragmentId
+            val end = start + millisPerScreen
+            Pair(start, end)
+        }
+
     fun getFragmentLiveData(fragmentId: Int): LiveData<List<EpgChannelEntry>> =
         programLiveDataPerFragment.getOrPut(fragmentId) {
             EpgForFragmentLiveData(
@@ -110,14 +118,6 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
                 epgChannels
             )
         }
-
-    fun getStartTime(fragmentId: Int): Long {
-        val start = startTime.value ?: 0L
-        val hours = hoursOfEpgDataPerScreen.value ?: 0
-        return start + fragmentId * hours * 60 * 60 * 1000
-    }
-
-    fun getEndTime(fragmentId: Int): Long = getStartTime(fragmentId + 1)
 
     /**
      * Returns the activity from the view context so that
@@ -137,13 +137,13 @@ class EpgViewModel(application: Application) : BaseChannelViewModel(application)
         return null
     }
 
-    fun onClick(view: View, program: EpgProgram) {
+    override fun onClick(view: View, position: Int, program: EpgProgram) {
         Timber.d("Clicked on program ${program.title}")
         val activity = getActivity(view) ?: return
         activity.startActivity(ProgramDetailsActivity.makeIntent(activity, program))
     }
 
-    fun onLongClick(view: View, program: EpgProgram): Boolean {
+    override fun onLongClick(view: View, position: Int, program: EpgProgram): Boolean {
         Timber.d("Long clicked on program ${program.title}")
         val activity = getActivity(view) ?: return false
         val fragment = activity.supportFragmentManager.findFragmentById(R.id.main)

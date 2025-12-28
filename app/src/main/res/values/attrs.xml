@@ -9,6 +9,7 @@
     <attr name="fast_scroll_thumb" format="reference" />
 
     <attr name="divider_color" format="reference" />
+    <attr name="dual_pane_list_selection" format="reference" />
 
     <item name="abc_action_mode_bar" type="layout" tools:override="true">@layout/action_mode_bar</item>
 </resources>

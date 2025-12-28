@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.ProgramBaseInterface
 import org.tvheadend.data.entity.ProgramWithChannel
 import org.tvheadend.data.entity.Recording
+import org.tvheadend.data.entity.RecordingInterface
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ProgramDetailsActivityBinding
 import org.tvheadend.tvhclient.ui.base.BaseActivity
@@ -34,7 +35,16 @@ import org.tvheadend.tvhclient.ui.common.showConfirmationToCancelSelectedRecordi
 import org.tvheadend.tvhclient.ui.common.showConfirmationToRemoveSelectedRecording
 import org.tvheadend.tvhclient.ui.common.showConfirmationToStopSelectedRecording
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
+import org.tvheadend.tvhclient.util.extensions.applyIcon
+import org.tvheadend.tvhclient.util.extensions.applyText
+import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
+import org.tvheadend.tvhclient.util.extensions.determineContentTypeText
+import org.tvheadend.tvhclient.util.extensions.determineRecordingStateText
+import org.tvheadend.tvhclient.util.extensions.determineSeriesInfoText
+import org.tvheadend.tvhclient.util.extensions.formatDate
+import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
 import org.tvheadend.tvhclient.util.extensions.getCastSession
+import org.tvheadend.tvhclient.util.extensions.interpretColoredText
 import timber.log.Timber
 
 class ProgramDetailsActivity : BaseActivity() {
@@ -47,6 +57,7 @@ class ProgramDetailsActivity : BaseActivity() {
     private var htspVersion: Int = 13
     private var isConnectionToServerAvailable: Boolean = false
     private var programIdToBeEditedWhenBeingRecorded = 0
+    private var showProgramImage = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,12 +79,16 @@ class ProgramDetailsActivity : BaseActivity() {
         programViewModel.eventIdLiveData.value = intent.getIntExtra("eventId", 0)
         programViewModel.channelIdLiveData.value = intent.getIntExtra("channelId", 0)
 
+        programViewModel.showProgramArtwork.observe(this) {
+            showProgramImage = it
+            updateHeaderImage()
+        }
         programViewModel.program.observe(this) {
             Timber.d("View model returned a program")
             setTitle(it?.title)
             program = it
-            binding.program = program
-            binding.viewModel = programViewModel
+            updateContent()
+            updateHeaderImage()
             updateActionButtons()
             invalidateOptionsMenu()
         }
@@ -89,7 +104,7 @@ class ProgramDetailsActivity : BaseActivity() {
                 }
             recording = recordings.firstOrNull { it.eventId == program?.eventId }?.base
 
-            binding.recording = recording
+            updateRecordingContent(recording)
             updateActionButtons()
             invalidateOptionsMenu()
         }
@@ -103,6 +118,7 @@ class ProgramDetailsActivity : BaseActivity() {
 
         globalStatusViewModel.htspVersionLiveData.observe(this) {
             htspVersion = it ?: 0
+            updateContent()
             invalidateOptionsMenu()
         }
 
@@ -153,6 +169,63 @@ class ProgramDetailsActivity : BaseActivity() {
 
     override fun attachBaseContext(context: Context) {
         super.attachBaseContext(onAttach(context))
+    }
+
+    private fun updateContent() {
+        val program = program
+        if (program == null || htspVersion == 0) {
+            return
+        }
+
+        supportActionBar?.apply {
+            title = program.title
+            subtitle = program.subtitle
+        }
+
+        // Info card
+        binding.channelIcon.applyIcon(program.channelIcon)
+        binding.channel.text = program.channelName
+        binding.contentType.applyText { determineContentTypeText(program.contentType) }
+
+        binding.seriesInfo.applyTextAndAdjustVisibility { program.determineSeriesInfoText(this) }
+        binding.summary.applyTextAndAdjustVisibility(program.summary)
+        binding.summaryIcon.isVisible = binding.seriesInfo.isVisible || binding.summary.isVisible
+        binding.summaryBarrier.isVisible = binding.summaryIcon.isVisible
+
+        binding.description.applyTextAndAdjustVisibility { interpretColoredText(program.description) }
+        binding.descriptionIcon.isVisible = binding.description.isVisible
+
+        // Date/time card
+        binding.date.applyText { formatDate(program.start) }
+        binding.time.applyText { formatStartStopTime(program.start, program.stop) }
+        binding.duration.applyText { getString(R.string.minutes, program.duration) }
+        binding.progress.applyText { getString(R.string.progress, program.progress) }
+        binding.starRating.apply {
+            isVisible = program.starRating > 0
+            rating = program.starRating.toFloat() / 10F
+        }
+        binding.reviewIcon.isVisible = binding.starRating.isVisible
+    }
+
+    private fun updateRecordingContent(recording: RecordingInterface?) {
+        if (recording == null) {
+            binding.recordingCard.isVisible = false
+            return
+        }
+
+        binding.recordingCard.isVisible = true
+        binding.recordingState.apply {
+            text = recording.determineRecordingStateText(context)
+            isVisible = text.isNotEmpty()
+        }
+    }
+
+    private fun updateHeaderImage() {
+        if (showProgramImage) {
+            binding.image.applyIcon(program?.image)
+        } else {
+            binding.image.isVisible = false
+        }
     }
 
     private fun updateActionButtons() {

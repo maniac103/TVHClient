@@ -23,7 +23,12 @@ import org.tvheadend.tvhclient.util.extensions.getCastSession
 import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
-class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProgramVisibleListener, SearchRequestInterface, Filter.FilterListener, ClearSearchResultsOrPopBackStackInterface {
+class ProgramListFragment : BaseFragment(),
+    RecyclerViewClickInterface<ProgramRecyclerViewAdapter.ItemModel>,
+    LastProgramVisibleListener,
+    SearchRequestInterface,
+    Filter.FilterListener,
+    ClearSearchResultsOrPopBackStackInterface {
 
     private lateinit var binding: RecyclerviewFragmentBinding
     lateinit var recyclerViewAdapter: ProgramRecyclerViewAdapter
@@ -50,9 +55,9 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
         }
 
         // Show the channel icons when a search is active and all channels shall be searched
-        programViewModel.showProgramChannelIcon = baseViewModel.isSearchActive && channelId == 0
+        val showProgramChannelIcon = baseViewModel.isSearchActive && channelId == 0
 
-        recyclerViewAdapter = ProgramRecyclerViewAdapter(programViewModel, this, this, viewLifecycleOwner)
+        recyclerViewAdapter = ProgramRecyclerViewAdapter(showProgramChannelIcon, this, this)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
@@ -80,6 +85,9 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
                 channelId = id
             }
         }
+
+        programViewModel.showGenreColor.observe(viewLifecycleOwner) { recyclerViewAdapter.showGenreColor = it }
+        programViewModel.showProgramSubtitles.observe(viewLifecycleOwner) { recyclerViewAdapter.showProgramSubtitle = it }
     }
 
     private fun observeRecordings() {
@@ -153,21 +161,8 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
         }
     }
 
-    private fun showProgramDetails(position: Int) {
-        val program = recyclerViewAdapter.getItem(position)?.program
-        if (program == null
-                || !isVisible
-                || !lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-            return
-        }
-
-        val activity = requireActivity()
-        activity.startActivity(ProgramDetailsActivity.makeIntent(activity, program))
-    }
-
-    private fun showPopupMenu(view: View, position: Int) {
+    private fun showPopupMenu(view: View, model: ProgramRecyclerViewAdapter.ItemModel) {
         val ctx = context ?: return
-        val model = recyclerViewAdapter.getItem(position) ?: return
         val eventId = model.program.eventId
         val channelId = model.program.channelId
         val programTitle = model.program.title
@@ -276,12 +271,15 @@ class ProgramListFragment : BaseFragment(), RecyclerViewClickInterface, LastProg
         }
     }
 
-    override fun onClick(view: View, position: Int) {
-        showProgramDetails(position)
+    override fun onClick(view: View, position: Int, model: ProgramRecyclerViewAdapter.ItemModel) {
+        if (isVisible && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            val activity = requireActivity()
+            activity.startActivity(ProgramDetailsActivity.makeIntent(activity, model.program))
+        }
     }
 
-    override fun onLongClick(view: View, position: Int): Boolean {
-        showPopupMenu(view, position)
+    override fun onLongClick(view: View, position: Int, model: ProgramRecyclerViewAdapter.ItemModel): Boolean {
+        showPopupMenu(view, model)
         return true
     }
 

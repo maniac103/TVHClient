@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.tvheadend.data.entity.TimerRecording
+import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecyclerviewFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
@@ -20,9 +21,8 @@ import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
-import java.util.concurrent.CopyOnWriteArrayList
 
-class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, SearchRequestInterface, Filter.FilterListener {
+class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface<TimerRecordingWithChannel>, SearchRequestInterface, Filter.FilterListener {
 
     private lateinit var binding: RecyclerviewFragmentBinding
     private lateinit var timerRecordingViewModel: TimerRecordingViewModel
@@ -154,9 +154,8 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, S
         }
     }
 
-    private fun showPopupMenu(view: View, position: Int) {
+    private fun showPopupMenu(view: View, timerRecording: TimerRecording) {
         val ctx = context ?: return
-        val timerRecording = recyclerViewAdapter.getItem(position)?.base ?: return
 
         val popupMenu = PopupMenu(ctx, view)
         popupMenu.menuInflater.inflate(R.menu.timer_recordings_popup_menu, popupMenu.menu)
@@ -193,12 +192,12 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, S
         return true
     }
 
-    override fun onClick(view: View, position: Int) {
+    override fun onClick(view: View, position: Int, recording: TimerRecordingWithChannel) {
         showRecordingDetails(position)
     }
 
-    override fun onLongClick(view: View, position: Int): Boolean {
-        showPopupMenu(view, position)
+    override fun onLongClick(view: View, position: Int, recording: TimerRecordingWithChannel): Boolean {
+        showPopupMenu(view, recording.base)
         return true
     }
 

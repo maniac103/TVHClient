@@ -4,17 +4,26 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import org.tvheadend.data.entity.TimerRecording
+import org.tvheadend.data.ServerCapabilities
 import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.TimerRecordingListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
+import org.tvheadend.tvhclient.util.extensions.applyIcon
+import org.tvheadend.tvhclient.util.extensions.applyText
+import org.tvheadend.tvhclient.util.extensions.determineDaysOfWeekText
+import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
-class TimerRecordingRecyclerViewAdapter internal constructor(private val isDualPane: Boolean, private val clickCallback: RecyclerViewClickInterface, private val htspVersion: Int) : RecyclerView.Adapter<TimerRecordingRecyclerViewAdapter.TimerRecordingViewHolder>(), Filterable {
-
+class TimerRecordingRecyclerViewAdapter internal constructor(
+    private val isDualPane: Boolean,
+    private val clickCallback: RecyclerViewClickInterface<TimerRecordingWithChannel>,
+    htspVersion: Int
+) : RecyclerView.Adapter<TimerRecordingRecyclerViewAdapter.TimerRecordingViewHolder>(), Filterable {
+    private val caps = ServerCapabilities(htspVersion)
     private val recordingList = ArrayList<TimerRecordingWithChannel>()
     private var recordingListFiltered: MutableList<TimerRecordingWithChannel> = ArrayList()
     private var selectedPosition = 0
@@ -31,7 +40,7 @@ class TimerRecordingRecyclerViewAdapter internal constructor(private val isDualP
     override fun onBindViewHolder(holder: TimerRecordingViewHolder, position: Int) {
         if (recordingListFiltered.size > position) {
             val recording = recordingListFiltered[position]
-            holder.bind(recording, position, selectedPosition == position, htspVersion, clickCallback)
+            holder.bind(recording, position, selectedPosition == position, caps, clickCallback)
         }
     }
 
@@ -107,14 +116,34 @@ class TimerRecordingRecyclerViewAdapter internal constructor(private val isDualP
 
     class TimerRecordingViewHolder(private val binding: TimerRecordingListAdapterBinding, private val isDualPane: Boolean) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(recording: TimerRecordingWithChannel, position: Int, isSelected: Boolean, htspVersion: Int, clickCallback: RecyclerViewClickInterface) {
-            binding.recording = recording
-            binding.position = position
-            binding.htspVersion = htspVersion
-            binding.isSelected = isSelected
-            binding.isDualPane = isDualPane
-            binding.callback = clickCallback
-            binding.executePendingBindings()
+        fun bind(
+            recording: TimerRecordingWithChannel,
+            position: Int,
+            isSelected: Boolean,
+            caps: ServerCapabilities,
+            clickCallback: RecyclerViewClickInterface<TimerRecordingWithChannel>
+        ) {
+            binding.root.apply {
+                setOnClickListener { clickCallback.onClick(it, position, recording) }
+                setOnLongClickListener { clickCallback.onLongClick(it, position, recording) }
+            }
+            binding.title.text = recording.title ?: recording.name
+            binding.name.apply {
+                text = recording.name
+                isVisible = text.isNotEmpty() && recording.title != recording.name
+            }
+            binding.channel.applyText { recording.channelName ?: getString(R.string.all_channels) }
+            binding.duration.applyText { getString(R.string.minutes, recording.duration) }
+            binding.daysOfWeek.applyText { determineDaysOfWeekText(recording.daysOfWeek) }
+            binding.startStop.applyText {
+                formatStartStopTime(
+                    if (recording.start == 0L) -1L else recording.startTimeInMillis,
+                    if (recording.stop == 0L) -1L else recording.stopTimeInMillis
+                )
+            }
+            binding.disabled.isVisible = caps.recordingEnabledSupported && !recording.isEnabled
+            binding.icon.applyIcon(recording.channelIcon, recording.channelName, binding.iconText)
+            binding.dualPaneListItemSelection.isVisible = isDualPane && isSelected
         }
     }
 }

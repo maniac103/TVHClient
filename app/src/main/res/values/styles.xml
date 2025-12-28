@@ -112,6 +112,7 @@
         <!--<editor-fold desc="Misc">-->
         <item name="rounded_corners">@drawable/rounded_corners_light</item>
         <item name="divider_color">@color/divider_color_light</item>
+        <item name="dual_pane_list_selection">@drawable/dual_pane_selector_active_light</item>
         <item name="preferenceTheme">@style/ThemeOverlay.Custom.Preference</item>
         <!--</editor-fold>-->
     </style>

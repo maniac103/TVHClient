@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
+import org.tvheadend.data.ServerCapabilities
 import org.tvheadend.data.entity.Connection
 import org.tvheadend.tvhclient.MainApplication
 import org.tvheadend.tvhclient.R
@@ -20,7 +21,7 @@ abstract class BaseFragment : Fragment() {
     protected lateinit var globalStatusViewModel: GlobalStatusViewModel
     protected lateinit var toolbarInterface: ToolbarInterface
     protected var isDualPane: Boolean = false
-    protected var htspVersion: Int = 13
+    protected var htspVersion: Int = 0
     protected var isConnectionToServerAvailable: Boolean = false
     protected var connection: Connection? = null
         private set

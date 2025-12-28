@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import androidx.lifecycle.LifecycleOwner
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import org.tvheadend.data.entity.ChannelWithProgram
@@ -13,27 +13,86 @@ import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ChannelListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
+import org.tvheadend.tvhclient.util.extensions.applyChannelIcon
+import org.tvheadend.tvhclient.util.extensions.applyRecordingStateIcon
+import org.tvheadend.tvhclient.util.extensions.determineContentTypeColor
+import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
+import org.tvheadend.tvhclient.util.extensions.interpretColoredText
 import org.tvheadend.tvhclient.util.extensions.isEqualTo
 
-class ChannelRecyclerViewAdapter internal constructor(private val viewModel: ChannelViewModel, private val isDualPane: Boolean, private val clickCallback: RecyclerViewClickInterface, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<ChannelRecyclerViewAdapter.ChannelViewHolder>(), Filterable {
-
+class ChannelRecyclerViewAdapter internal constructor(
+    private val isDualPane: Boolean,
+    private val clickCallback: RecyclerViewClickInterface<ChannelWithProgram>
+) : RecyclerView.Adapter<ChannelRecyclerViewAdapter.ChannelViewHolder>(), Filterable {
     private val recordingList = ArrayList<RecordingWithChannel>()
     private val channelList = ArrayList<ItemModel>()
     private var channelListFiltered: MutableList<ItemModel> = ArrayList()
     private var selectedPosition = 0
 
+    var showChannelName: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+    var showChannelNumber: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+    var showProgramSubtitle: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+    var showProgressBar: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+    var showGenreColor: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+    var showNextProgramTitle: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChannelViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val itemBinding = ChannelListAdapterBinding.inflate(layoutInflater, parent, false)
-        val viewHolder = ChannelViewHolder(itemBinding, viewModel, isDualPane)
-        itemBinding.lifecycleOwner = lifecycleOwner
-        return viewHolder
+        return ChannelViewHolder(itemBinding, isDualPane)
     }
 
     override fun onBindViewHolder(holder: ChannelViewHolder, position: Int) {
         if (channelListFiltered.size > position) {
             val item = channelListFiltered[position]
-            holder.bind(item, position, selectedPosition == position, clickCallback)
+            holder.bind(
+                item,
+                position,
+                selectedPosition == position,
+                showChannelName,
+                showChannelNumber,
+                showProgramSubtitle,
+                showNextProgramTitle,
+                showGenreColor,
+                showProgressBar,
+                clickCallback
+            )
         }
     }
 
@@ -166,18 +225,76 @@ class ChannelRecyclerViewAdapter internal constructor(private val viewModel: Cha
         }
     }
 
-    class ChannelViewHolder(private val binding: ChannelListAdapterBinding,
-                            private val viewModel: ChannelViewModel,
-                            private val isDualPane: Boolean) : RecyclerView.ViewHolder(binding.root) {
+    class ChannelViewHolder(
+        private val binding: ChannelListAdapterBinding,
+        private val isDualPane: Boolean
+    ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: ItemModel, position: Int, isSelected: Boolean, clickCallback: RecyclerViewClickInterface) {
-            binding.model = item
-            binding.position = position
-            binding.isSelected = isSelected
-            binding.viewModel = viewModel
-            binding.isDualPane = isDualPane
-            binding.callback = clickCallback
-            binding.executePendingBindings()
+        fun bind(
+            item: ItemModel,
+            position: Int,
+            isSelected: Boolean,
+            showChannelName: Boolean,
+            showChannelNumber: Boolean,
+            showProgramSubtitle: Boolean,
+            showNextProgramTitle: Boolean,
+            showGenreColor: Boolean,
+            showProgressBar: Boolean,
+            clickCallback: RecyclerViewClickInterface<ChannelWithProgram>
+        ) {
+            binding.root.apply {
+                setOnClickListener { clickCallback.onClick(this, position, item.channel) }
+                setOnLongClickListener { clickCallback.onLongClick(this, position, item.channel) }
+            }
+            binding.icon.apply {
+                setOnClickListener { clickCallback.onClick(this, position, item.channel) }
+                applyChannelIcon(item.channel, binding.iconText)
+            }
+            binding.iconText.setOnClickListener { v -> clickCallback.onClick(v, position, item.channel) }
+            binding.channelNumber.apply {
+                isVisible = showChannelNumber
+                text = if (item.channel.numberMinor == 0) item.channel.number.toString() else item.channel.displayNumber
+            }
+            binding.channelName.apply {
+                isVisible = showChannelName
+                text = item.channel.name
+            }
+            binding.title.apply {
+                isVisible = item.channel.programId > 0
+                text = context.interpretColoredText(item.channel.programTitle)
+            }
+            binding.subtitle.apply {
+                text = context.interpretColoredText(item.channel.programSubtitle)
+                isVisible = text.isNotEmpty() &&
+                        item.channel.programId > 0 &&
+                        showProgramSubtitle &&
+                        item.channel.programSubtitle != item.channel.programTitle
+            }
+            binding.startStopTime.apply {
+                isVisible = item.channel.programId > 0
+                text = context.formatStartStopTime(item.channel.programStart, item.channel.programStop)
+            }
+            binding.duration.apply {
+                isVisible = item.channel.programId > 0
+                text = context.getString(R.string.minutes, item.channel.duration)
+            }
+            binding.nextTitle.apply {
+                text = item.channel.nextProgramTitle
+                isVisible = item.channel.nextProgramId > 0 &&
+                        showNextProgramTitle &&
+                        item.channel.nextProgramTitle != null
+            }
+            binding.noPrograms.isVisible = item.channel.programId == 0
+            binding.state.applyRecordingStateIcon(item.recording)
+            binding.dualPaneListItemSelection.isVisible = isDualPane && isSelected
+            binding.progressbar.apply {
+                isVisible = item.channel.programId > 0 && item.channel.progress > 0 && showProgressBar
+                progress = item.channel.progress
+            }
+            binding.genre.apply {
+                isVisible = showGenreColor
+                item.channel.determineContentTypeColor(context)?.let { setBackgroundColor(it) }
+            }
         }
     }
 }

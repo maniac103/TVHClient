@@ -1,12 +1,16 @@
 package org.tvheadend.tvhclient.ui.features.dvr.timer_recordings
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
-import org.tvheadend.data.entity.TimerRecording
+import org.tvheadend.data.ServerCapabilities
 import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.TimerRecordingDetailsFragmentBinding
@@ -14,6 +18,11 @@ import org.tvheadend.tvhclient.ui.base.BaseFragment
 import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.ClearSearchResultsOrPopBackStackInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
+import org.tvheadend.tvhclient.util.extensions.applyText
+import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
+import org.tvheadend.tvhclient.util.extensions.determineDaysOfWeekText
+import org.tvheadend.tvhclient.util.extensions.determinePriorityText
+import org.tvheadend.tvhclient.util.extensions.formatTime
 
 class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, ClearSearchResultsOrPopBackStackInterface {
 
@@ -22,7 +31,7 @@ class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface,
     private lateinit var binding: TimerRecordingDetailsFragmentBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = DataBindingUtil.inflate(inflater, R.layout.timer_recording_details_fragment, container, false)
+        binding = TimerRecordingDetailsFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -46,15 +55,28 @@ class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface,
     }
 
     private fun showRecordingDetails() {
-        if (recording != null) {
-            binding.recording = recording
-            binding.htspVersion = htspVersion
-            binding.isDualPane = isDualPane
+        recording?.let { rec ->
+            val caps = ServerCapabilities(htspVersion)
+            binding.disabled.isVisible = caps.recordingEnabledSupported == true && !rec.isEnabled
+            binding.titleLabel.isVisible = !isDualPane
+            binding.title.apply {
+                text = rec.title?.takeIf { it.isNotEmpty() } ?: context.getString(R.string.hint_not_set)
+                isVisible = !isDualPane
+            }
+            binding.name.applyTextAndAdjustVisibility { rec.name?.takeIf { it.isNotEmpty() } ?: rec.title }
+            binding.channel.applyText { rec.channelName ?: getString(R.string.all_channels) }
+            binding.startTime.applyText { formatTime(rec.start.takeIf { it < 0 } ?: rec.startTimeInMillis) }
+            binding.stopTime.applyText { formatTime(rec.stop.takeIf { it < 0 } ?: rec.stopTimeInMillis) }
+            binding.duration.applyText { getString(R.string.minutes, rec.duration) }
+            binding.daysOfWeek.applyText { determineDaysOfWeekText(rec.daysOfWeek) }
+            binding.priority.applyText { determinePriorityText(rec.priority) }
+            binding.directory.applyText { rec.directory ?: getString(R.string.hint_not_set) }
+
             // The toolbar is hidden as a default to prevent pressing any icons if no recording
             // has been loaded yet. The toolbar is shown here because a recording was loaded
             binding.nestedToolbar.isVisible = true
             activity?.invalidateOptionsMenu()
-        } else {
+        } ?: run {
             binding.scrollview.isVisible = false
             binding.status.text = getString(R.string.error_loading_recording_details)
             binding.status.isVisible = true

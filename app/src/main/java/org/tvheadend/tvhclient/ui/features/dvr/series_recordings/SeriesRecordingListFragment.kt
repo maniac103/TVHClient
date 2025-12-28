@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.tvheadend.data.entity.SeriesRecording
+import org.tvheadend.data.entity.SeriesRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecyclerviewFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
@@ -21,7 +22,7 @@ import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
-class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, SearchRequestInterface, Filter.FilterListener {
+class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface<SeriesRecordingWithChannel>, SearchRequestInterface, Filter.FilterListener {
 
     private lateinit var binding: RecyclerviewFragmentBinding
     private lateinit var seriesRecordingViewModel: SeriesRecordingViewModel
@@ -152,9 +153,8 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, 
         }
     }
 
-    private fun showPopupMenu(view: View, position: Int) {
+    private fun showPopupMenu(view: View, seriesRecording: SeriesRecording) {
         val ctx = context ?: return
-        val seriesRecording = recyclerViewAdapter.getItem(position)?.base ?: return
 
         val popupMenu = PopupMenu(ctx, view)
         popupMenu.menuInflater.inflate(R.menu.series_recordings_popup_menu, popupMenu.menu)
@@ -192,12 +192,12 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface, 
         return true
     }
 
-    override fun onClick(view: View, position: Int) {
+    override fun onClick(view: View, position: Int, recording: SeriesRecordingWithChannel) {
         showRecordingDetails(position)
     }
 
-    override fun onLongClick(view: View, position: Int): Boolean {
-        showPopupMenu(view, position)
+    override fun onLongClick(view: View, position: Int, recording: SeriesRecordingWithChannel): Boolean {
+        showPopupMenu(view, recording.base)
         return true
     }
 

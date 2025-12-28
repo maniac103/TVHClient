@@ -5,9 +5,6 @@ import android.view.*
 import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
-import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.commit
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.tvheadend.data.entity.Recording
@@ -23,7 +20,7 @@ import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
-abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterface, SearchRequestInterface, DownloadPermissionGrantedInterface, Filter.FilterListener {
+abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterface<Recording>, SearchRequestInterface, DownloadPermissionGrantedInterface, Filter.FilterListener {
 
     private lateinit var binding: RecyclerviewFragmentBinding
     lateinit var recordingViewModel: RecordingViewModel
@@ -42,12 +39,15 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
             recordingViewModel.selectedListPosition = it.getInt("listPosition")
         }
 
-        recyclerViewAdapter = RecordingRecyclerViewAdapter(recordingViewModel, isDualPane, this, htspVersion)
+        recyclerViewAdapter = RecordingRecyclerViewAdapter(isDualPane, this, htspVersion)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
         binding.recyclerView.isVisible = false
         binding.searchProgress.isVisible = baseViewModel.isSearchActive
+
+        recordingViewModel.showFileStatus.observe(viewLifecycleOwner) { recyclerViewAdapter.showFileStatus = it }
+        recordingViewModel.showGenreColor.observe(viewLifecycleOwner) { recyclerViewAdapter.showGenreColor = it }
     }
 
     private fun observeSearchQuery() {
@@ -114,9 +114,8 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         startActivity(intent)
     }
 
-    private fun showPopupMenu(view: View, position: Int) {
+    private fun showPopupMenu(view: View, recording: Recording) {
         val ctx = context ?: return
-        val recording = recyclerViewAdapter.getItem(position)?.base ?: return
 
         val popupMenu = PopupMenu(ctx, view)
         popupMenu.menuInflater.inflate(R.menu.recordings_popup_menu, popupMenu.menu)
@@ -152,19 +151,17 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         popupMenu.show()
     }
 
-    override fun onClick(view: View, position: Int) {
+    override fun onClick(view: View, position: Int, recording: Recording) {
         recordingViewModel.selectedListPosition = position
         if (view.id == R.id.icon || view.id == R.id.icon_text) {
-            recyclerViewAdapter.getItem(position)?.let {
-                playOrCastRecording(view.context, it.id)
-            }
+            playOrCastRecording(view.context, recording.id)
         } else {
             showRecordingDetails(position)
         }
     }
 
-    override fun onLongClick(view: View, position: Int): Boolean {
-        showPopupMenu(view, position)
+    override fun onLongClick(view: View, position: Int, recording: Recording): Boolean {
+        showPopupMenu(view, recording)
         return true
     }
 

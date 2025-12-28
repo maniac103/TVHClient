@@ -20,7 +20,7 @@ class GlobalStatusViewModel(application: Application) : AndroidViewModel(applica
     val connectionLiveData = application.connectionDataSource.liveDataActiveItem
     val networkStatusLiveData: LiveData<Event<NetworkStatus>> = networkStatusLiveDataInternal
     val connectionToServerAvailableLiveData: LiveData<Boolean> = connectionToServerAvailableLiveDataInternal
-    val htspVersionLiveData = application.serverStatusDataSource.liveDataActiveItem.map { it?.htspVersion }
+    val htspVersionLiveData = application.serverStatusDataSource.liveDataActiveItem.map { it?.htspVersion ?: 0 }
 
     override fun setNetworkStatus(status: NetworkStatus) {
         networkStatusLiveDataInternal.value = Event(status)

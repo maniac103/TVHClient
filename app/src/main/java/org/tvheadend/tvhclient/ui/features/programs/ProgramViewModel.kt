@@ -47,7 +47,6 @@ class ProgramViewModel(application: Application) : BaseViewModel(application) {
     var eventId = 0
     var channelId = 0
     var channelName = ""
-    var showProgramChannelIcon = false
 
     val showGenreColor = application.prefs.genreColorsForProgramsLiveData()
     val showProgramSubtitles = application.prefs.showProgramSubtitleLiveData()

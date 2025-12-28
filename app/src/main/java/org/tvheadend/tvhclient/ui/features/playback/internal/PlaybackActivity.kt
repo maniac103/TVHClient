@@ -24,7 +24,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import androidx.preference.PreferenceManager
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -32,7 +31,6 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.ui.common.onAttach
-import org.tvheadend.tvhclient.ui.common.setOptionalDescriptionText
 import org.tvheadend.tvhclient.ui.features.MainActivity
 import org.tvheadend.tvhclient.ui.features.playback.internal.utils.TrackInformationDialog
 import org.tvheadend.tvhclient.ui.features.playback.internal.utils.TrackSelectionDialog
@@ -274,17 +272,15 @@ class PlaybackActivity : AppCompatActivity() {
         }
         viewModel.title.observe(this) { title ->
             Timber.d("Received title $title")
-            setOptionalDescriptionText(programTitle, title)
+            programTitle.applyTextAndAdjustVisibility { interpretColoredText(title) }
         }
         viewModel.subtitle.observe(this) { subtitle ->
             Timber.d("Received subtitle $subtitle")
-            setOptionalDescriptionText(programSubtitle, subtitle)
-            programSubtitle.isVisible = subtitle.isNotEmpty()
+            programSubtitle.applyTextAndAdjustVisibility { interpretColoredText(subtitle) }
         }
         viewModel.nextTitle.observe(this) { nextTitle ->
             Timber.d("Received next title $nextTitle")
-            setOptionalDescriptionText(nextProgramTitle, nextTitle)
-            nextProgramTitle.isVisible = nextTitle.isNotEmpty()
+            nextProgramTitle.applyTextAndAdjustVisibility { interpretColoredText(nextTitle) }
         }
         viewModel.elapsedTime.observe(this) { time ->
             elapsedTime.text = time

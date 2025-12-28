@@ -4,38 +4,60 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import androidx.lifecycle.LifecycleOwner
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import org.tvheadend.data.entity.ProgramInterface
 import org.tvheadend.data.entity.ProgramWithChannel
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ProgramListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
-import org.tvheadend.tvhclient.ui.features.channels.ChannelRecyclerViewAdapter.ItemModel
+import org.tvheadend.tvhclient.util.extensions.applyIcon
+import org.tvheadend.tvhclient.util.extensions.applyText
+import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
+import org.tvheadend.tvhclient.util.extensions.determineContentTypeColor
+import org.tvheadend.tvhclient.util.extensions.determineContentTypeText
+import org.tvheadend.tvhclient.util.extensions.determineSeriesInfoText
+import org.tvheadend.tvhclient.util.extensions.formatDate
+import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
+import org.tvheadend.tvhclient.util.extensions.interpretColoredText
 import org.tvheadend.tvhclient.util.extensions.isEqualTo
-import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
 
-class ProgramRecyclerViewAdapter internal constructor(private val viewModel: ProgramViewModel, private val clickCallback: RecyclerViewClickInterface, private val onLastProgramVisibleListener: LastProgramVisibleListener, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<ProgramRecyclerViewAdapter.ProgramViewHolder>(), Filterable {
+class ProgramRecyclerViewAdapter internal constructor(
+    private val showChannelIcon: Boolean,
+    private val clickCallback: RecyclerViewClickInterface<ItemModel>,
+    private val onLastProgramVisibleListener: LastProgramVisibleListener
+) : RecyclerView.Adapter<ProgramRecyclerViewAdapter.ProgramViewHolder>(), Filterable {
 
     private val programList = ArrayList<ItemModel>()
     private var programListFiltered: MutableList<ItemModel> = ArrayList()
     private val recordingList = ArrayList<Recording>()
 
+    var showProgramSubtitle: Boolean = false
+        set(value) {
+            if (value != field) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+    var showGenreColor: Boolean = false
+        set(value) {
+            if (value != field) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProgramViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val itemBinding = ProgramListAdapterBinding.inflate(layoutInflater, parent, false)
-        val viewHolder = ProgramViewHolder(itemBinding, viewModel)
-        itemBinding.lifecycleOwner = lifecycleOwner
-        return viewHolder
+        return ProgramViewHolder(itemBinding, showChannelIcon)
     }
 
     override fun onBindViewHolder(holder: ProgramViewHolder, position: Int) {
         if (programListFiltered.size > position) {
             val model = programListFiltered[position]
-            holder.bind(model, position, clickCallback)
+            holder.bind(model, position, showGenreColor, showProgramSubtitle, clickCallback)
             if (position == programList.size - 1) {
                 onLastProgramVisibleListener.onLastProgramVisible(position)
             }
@@ -164,14 +186,59 @@ class ProgramRecyclerViewAdapter internal constructor(private val viewModel: Pro
         }
     }
 
-    class ProgramViewHolder(private val binding: ProgramListAdapterBinding, private val viewModel: ProgramViewModel) : RecyclerView.ViewHolder(binding.root) {
+    class ProgramViewHolder(
+        private val binding: ProgramListAdapterBinding,
+        private val showChannelIcon: Boolean
+    ) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            val startMargin = binding.root.context.resources.getDimensionPixelSize(if (showChannelIcon) R.dimen.dp_80 else R.dimen.dp_16)
+            listOf(binding.title, binding.subtitle, binding.summary, binding.contentType, binding.date, binding.progress, binding.seriesInfo, binding.description)
+                .forEach { v ->
+                    (v.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
+                        lp.marginStart = startMargin
+                        v.layoutParams = lp
+                    }
+                }
+        }
 
-        fun bind(model: ItemModel, position: Int, clickCallback: RecyclerViewClickInterface) {
-            binding.model = model
-            binding.position = position
-            binding.viewModel = viewModel
-            binding.callback = clickCallback
-            binding.executePendingBindings()
+        fun bind(model: ItemModel,
+                 position: Int,
+                 showGenreColor: Boolean,
+                 showProgramSubtitle: Boolean,
+                 clickCallback: RecyclerViewClickInterface<ItemModel>) {
+            binding.root.apply {
+                setOnClickListener { clickCallback.onClick(this, position, model) }
+                setOnLongClickListener { clickCallback.onLongClick(this, position, model) }
+            }
+            if (showChannelIcon) {
+                binding.icon.applyIcon(model.program.channelIcon, model.program.channelName, binding.iconText)
+            } else {
+                binding.icon.isVisible = false
+                binding.iconText.isVisible = false
+            }
+            binding.title.applyTextAndAdjustVisibility { interpretColoredText(model.program.title) }
+            binding.subtitle.apply {
+                text = context.interpretColoredText(model.program.subtitle)
+                isVisible = text.isNotEmpty() && showProgramSubtitle && model.program.subtitle != model.program.title
+            }
+            binding.summary.apply {
+                text = model.program.summary
+                isVisible = text.isNotEmpty() && (!showProgramSubtitle || model.program.summary != model.program.subtitle)
+            }
+            binding.genre.apply {
+                isVisible = showGenreColor
+                model.program.determineContentTypeColor(context)?.let { setBackgroundColor(it) }
+            }
+            binding.contentType.applyText { determineContentTypeText(model.program.contentType) }
+            binding.date.applyText { formatDate(model.program.start) }
+            binding.startStop.applyText { formatStartStopTime(model.program.start, model.program.stop) }
+            binding.duration.applyText { getString(R.string.minutes, model.program.duration) }
+            binding.progress.apply {
+                text = context.getString(R.string.progress, model.program.progress)
+                isVisible = model.program.progress > 0
+            }
+            binding.seriesInfo.applyTextAndAdjustVisibility { model.program.determineSeriesInfoText(this) }
+            binding.description.applyTextAndAdjustVisibility { interpretColoredText(model.program.description) }
         }
     }
 }

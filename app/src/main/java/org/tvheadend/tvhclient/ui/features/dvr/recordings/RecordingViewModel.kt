@@ -34,7 +34,8 @@ class RecordingViewModel(private val application: Application) : BaseViewModel(a
     val failedRecordings = application.recordingDataSource.getFailedRecordings()
     val removedRecordings = application.recordingDataSource.getRemovedRecordings()
 
-    var showGenreColor = application.prefs.genreColorsForRecordingsLiveData()
+    val showGenreColor = application.prefs.genreColorsForRecordingsLiveData()
+    val showFileStatus = application.prefs.showRecordingFileStatusLiveData()
     var recordingLiveData = currentIdLiveData
         .filter { it > 0 }
         .map { application.recordingDataSource.getItemById(it) }

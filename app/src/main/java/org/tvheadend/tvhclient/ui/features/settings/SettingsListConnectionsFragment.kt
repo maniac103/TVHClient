@@ -22,7 +22,7 @@ import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import androidx.core.view.get
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, ActionMode.Callback, RecyclerViewClickInterface {
+class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, ActionMode.Callback, RecyclerViewClickInterface<Connection> {
 
     private lateinit var binding: RecyclerviewFragmentBinding
     private var activeConnectionId: Int = -1
@@ -48,7 +48,7 @@ class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, Action
             toolbarInterface.setTitle(getString(R.string.pref_connections))
         }
 
-        recyclerViewAdapter = ConnectionRecyclerViewAdapter(this, viewLifecycleOwner)
+        recyclerViewAdapter = ConnectionRecyclerViewAdapter(this)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
@@ -201,13 +201,13 @@ class SettingsListConnectionsFragment : Fragment(), BackPressedInterface, Action
         context?.startActivity(intent)
     }
 
-    override fun onClick(view: View, position: Int) {
+    override fun onClick(view: View, position: Int, item: Connection) {
         actionMode?.finish()
         recyclerViewAdapter.setPosition(position)
         actionMode = activity?.startActionMode(this, ActionMode.TYPE_PRIMARY)
     }
 
-    override fun onLongClick(view: View, position: Int): Boolean {
+    override fun onLongClick(view: View, position: Int, item: Connection): Boolean {
         return true
     }
 }

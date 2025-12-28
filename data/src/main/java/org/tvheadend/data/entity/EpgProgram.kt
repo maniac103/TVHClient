@@ -13,7 +13,7 @@ data class EpgProgram(
     override var title: String? = null,
     override var subtitle: String? = null,
     @ColumnInfo(name = "content_type")
-    var contentType: Int = 0,
+    override var contentType: Int = 0,
     @ColumnInfo(name = "connection_id")
     var connectionId: Int = 0,
 ) : ProgramBaseInterface {

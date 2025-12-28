@@ -4,15 +4,15 @@ import androidx.room.ColumnInfo
 
 data class EpgChannel(
     @ColumnInfo(name = "id")
-    var id: Int = 0,
+    override var id: Int = 0,
     @ColumnInfo(name = "name")
-    var name: String? = null,
+    override var name: String? = null,
     @ColumnInfo(name = "icon")
-    var icon: String? = null,
+    override var icon: String? = null,
     @ColumnInfo(name = "number")
-    var number: Int = 0,
+    override var number: Int = 0,
     @ColumnInfo(name = "number_minor")
-    var numberMinor: Int = 0,
+    override var numberMinor: Int = 0,
     @ColumnInfo(name = "display_number")
-    var displayNumber: String? = null
-)
+    override var displayNumber: String? = null
+) : ChannelBaseInterface

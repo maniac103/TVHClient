@@ -7,6 +7,7 @@ interface ProgramBaseInterface {
     var stop: Long                  // u64   required   Ending time of event, UNIX time.
     var title: String?              // str   optional   Title of event.
     var subtitle: String?           // str   optional   Subtitle of event.
+    var contentType: Int            // u32   optional   DVB content code (Added in version 4, Modified in version 6*).
 }
 
 interface ProgramInterface : ProgramBaseInterface {
@@ -24,7 +25,6 @@ interface ProgramInterface : ProgramBaseInterface {
     var seasonId: Int               // u32   optional   Season ID (Added in version 6).
     var brandId: Int                // u32   optional   Brand ID (Added in version 6).
 
-    var contentType: Int            // u32   optional   DVB content code (Added in version 4, Modified in version 6*).
     var ageRating: Int              // u32   optional   Minimum age rating (Added in version 6).
     var starRating: Int             // u32   optional   Star rating (1-5) (Added in version 6).
     var copyrightYear: Int          // str   optional   The copyright year (Added in version 33)

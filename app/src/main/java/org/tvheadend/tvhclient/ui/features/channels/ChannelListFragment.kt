@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvheadend.data.entity.ChannelTag
+import org.tvheadend.data.entity.ChannelWithProgram
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.InputDialogBinding
 import org.tvheadend.tvhclient.databinding.RecyclerviewFragmentBinding
@@ -32,7 +33,7 @@ import org.tvheadend.tvhclient.util.extensions.afterTextChanged
 import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
 
-class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelTimeSelectedInterface, ChannelTagIdsSelectedInterface, SearchRequestInterface, Filter.FilterListener, ShowProgramListFragmentInterface {
+class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface<ChannelWithProgram>, ChannelTimeSelectedInterface, ChannelTagIdsSelectedInterface, SearchRequestInterface, Filter.FilterListener, ShowProgramListFragmentInterface {
 
     private lateinit var binding: RecyclerviewFragmentBinding
     private val dialogDismissHandler = Handler(Looper.getMainLooper())
@@ -66,7 +67,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
             channelViewModel.selectedTimeOffset = it.getInt("timeOffset")
         }
 
-        recyclerViewAdapter = ChannelRecyclerViewAdapter(channelViewModel, isDualPane, this, viewLifecycleOwner)
+        recyclerViewAdapter = ChannelRecyclerViewAdapter(isDualPane, this)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
@@ -108,9 +109,13 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
             }
         }
 
-        channelViewModel.channelCount.observe(viewLifecycleOwner) { count ->
-            channelCount = count
-        }
+        channelViewModel.channelCount.observe(viewLifecycleOwner) { channelCount = it }
+        channelViewModel.showChannelName.observe(viewLifecycleOwner) { recyclerViewAdapter.showChannelName = it }
+        channelViewModel.showChannelNumber.observe(viewLifecycleOwner) { recyclerViewAdapter.showChannelNumber = it }
+        channelViewModel.showGenreColor.observe(viewLifecycleOwner) { recyclerViewAdapter.showGenreColor = it }
+        channelViewModel.showProgressBar.observe(viewLifecycleOwner) { recyclerViewAdapter.showProgressBar = it }
+        channelViewModel.showProgramSubtitle.observe(viewLifecycleOwner) { recyclerViewAdapter.showProgramSubtitle = it }
+        channelViewModel.showNextProgramTitle.observe(viewLifecycleOwner) { recyclerViewAdapter.showNextProgramTitle = it }
 
         // Initiate a timer that will update the view model data every minute
         // so that the progress bars will be displayed correctly
@@ -332,8 +337,7 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
         }
     }
 
-    private fun showPopupMenu(view: View, position: Int) {
-        val channel = recyclerViewAdapter.getItem(position)?.channel ?: return
+    private fun showPopupMenu(view: View, channel: ChannelWithProgram) {
         val ctx = context ?: return
 
         val program = channelViewModel.getProgramById(channel.programId)
@@ -394,12 +398,11 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
         return getString(R.string.search_programs)
     }
 
-    override fun onClick(view: View, position: Int) {
-        val item = recyclerViewAdapter.getItem(position)?.channel
-        if ((view.id == R.id.icon || view.id == R.id.icon_text) && isConnectionToServerAvailable && item != null) {
+    override fun onClick(view: View, position: Int, channel: ChannelWithProgram) {
+        if ((view.id == R.id.icon || view.id == R.id.icon_text) && isConnectionToServerAvailable) {
             when (requireActivity().prefs.channelIconAction) {
-                Preferences.IconAction.Play -> playSelectedChannel(view.context, item.id)
-                Preferences.IconAction.CastOrPlay -> playOrCastChannel(view.context, item.id)
+                Preferences.IconAction.Play -> playSelectedChannel(view.context, channel.id)
+                Preferences.IconAction.CastOrPlay -> playOrCastChannel(view.context, channel.id)
                 Preferences.IconAction.DoNothing -> showChannelDetails(position)
             }
         } else {
@@ -407,8 +410,8 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface, ChannelT
         }
     }
 
-    override fun onLongClick(view: View, position: Int): Boolean {
-        showPopupMenu(view, position)
+    override fun onLongClick(view: View, position: Int, channel: ChannelWithProgram): Boolean {
+        showPopupMenu(view, channel)
         return true
     }
 

@@ -4,21 +4,50 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import org.tvheadend.data.ServerCapabilities
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecordingListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
+import org.tvheadend.tvhclient.util.extensions.applyChannelIcon
+import org.tvheadend.tvhclient.util.extensions.applyDateText
+import org.tvheadend.tvhclient.util.extensions.applyIcon
+import org.tvheadend.tvhclient.util.extensions.applyOptionalColoredText
+import org.tvheadend.tvhclient.util.extensions.applyRecordingStateIcon
+import org.tvheadend.tvhclient.util.extensions.applyStartStopTime
+import org.tvheadend.tvhclient.util.extensions.applyText
+import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
+import org.tvheadend.tvhclient.util.extensions.determineContentTypeColor
+import org.tvheadend.tvhclient.util.extensions.determineDataErrorText
+import org.tvheadend.tvhclient.util.extensions.determineDataSizeText
+import org.tvheadend.tvhclient.util.extensions.determineFailedReasonText
+import org.tvheadend.tvhclient.util.extensions.determineStreamErrorText
+import org.tvheadend.tvhclient.util.extensions.formatDate
+import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
+import org.tvheadend.tvhclient.util.extensions.interpretColoredText
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
-class RecordingRecyclerViewAdapter internal constructor(private val viewModel: RecordingViewModel, private val isDualPane: Boolean, private val clickCallback: RecyclerViewClickInterface, private val htspVersion: Int) : RecyclerView.Adapter<RecordingRecyclerViewAdapter.RecordingViewHolder>(), Filterable {
-
+class RecordingRecyclerViewAdapter internal constructor(
+    private val isDualPane: Boolean,
+    private val clickCallback: RecyclerViewClickInterface<Recording>,
+    htspVersion: Int
+) : RecyclerView.Adapter<RecordingRecyclerViewAdapter.RecordingViewHolder>(), Filterable {
+    private val caps = ServerCapabilities(htspVersion)
     private val recordingList = ArrayList<RecordingWithChannel>()
     private var recordingListFiltered: MutableList<RecordingWithChannel> = ArrayList()
     private var selectedPosition = 0
     var showFileStatus = false
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
+    var showGenreColor = false
         set(value) {
             if (field != value) {
                 field = value
@@ -32,12 +61,20 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordingViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val itemBinding = RecordingListAdapterBinding.inflate(layoutInflater, parent, false)
-        return RecordingViewHolder(itemBinding, viewModel, isDualPane)
+        return RecordingViewHolder(itemBinding, isDualPane)
     }
 
     override fun onBindViewHolder(holder: RecordingViewHolder, position: Int) {
         val recording = recordingListFiltered[position]
-        holder.bind(recording, position, selectedPosition == position, htspVersion, showFileStatus, clickCallback)
+        holder.bind(
+            recording,
+            position,
+            selectedPosition == position,
+            caps,
+            showGenreColor,
+            showFileStatus,
+            clickCallback
+        )
     }
 
     internal fun addItems(newItems: List<RecordingWithChannel>) {
@@ -109,21 +146,63 @@ class RecordingRecyclerViewAdapter internal constructor(private val viewModel: R
         }
     }
 
-    class RecordingViewHolder(private val binding: RecordingListAdapterBinding,
-                              private val viewModel: RecordingViewModel,
-                              private val isDualPane: Boolean) : RecyclerView.ViewHolder(binding.root) {
+    class RecordingViewHolder(
+        private val binding: RecordingListAdapterBinding,
+        private val isDualPane: Boolean
+    ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(recording: RecordingWithChannel, position: Int, isSelected: Boolean, htspVersion: Int,
-                 showFileStatus: Boolean, clickCallback: RecyclerViewClickInterface) {
-            binding.recording = recording
-            binding.position = position
-            binding.htspVersion = htspVersion
-            binding.showFileStatus = showFileStatus
-            binding.isSelected = isSelected
-            binding.viewModel = viewModel
-            binding.isDualPane = isDualPane
-            binding.callback = clickCallback
-            binding.executePendingBindings()
+        fun bind(
+            recording: RecordingWithChannel,
+            position: Int,
+            isSelected: Boolean,
+            caps: ServerCapabilities,
+            showGenreColor: Boolean,
+            showFileStatus: Boolean,
+            clickCallback: RecyclerViewClickInterface<Recording>
+        ) {
+            binding.root.apply {
+                setOnClickListener { clickCallback.onClick(this, position, recording.base) }
+                setOnLongClickListener { clickCallback.onLongClick(this, position, recording.base) }
+            }
+            binding.title.applyTextAndAdjustVisibility { interpretColoredText(recording.title) }
+            binding.subtitle.apply {
+                text = context.interpretColoredText(recording.subtitle)
+                isVisible = text.isNotEmpty() && recording.title != recording.subtitle
+            }
+            binding.episode.applyTextAndAdjustVisibility(recording.episode)
+            binding.summary.apply {
+                text = recording.summary
+                isVisible = text.isNotEmpty() && recording.subtitle != recording.summary
+            }
+            binding.description.applyTextAndAdjustVisibility { interpretColoredText(recording.description) }
+            binding.channel.applyText { recording.channelName ?: getString(R.string.all_channels) }
+            binding.duration.applyText { getString(R.string.minutes, recording.duration) }
+            binding.date.applyText { formatDate(recording.start) }
+            binding.startStop.applyText { formatStartStopTime(recording.start, recording.stop) }
+            binding.icon.applyIcon(recording.channelIcon, recording.channelName, binding.iconText)
+            binding.state.applyRecordingStateIcon(recording)
+            binding.genre.apply {
+                isVisible = showGenreColor
+                recording.determineContentTypeColor(context)?.let { setBackgroundColor(it) }
+            }
+            binding.isSeriesRecording.isVisible = !recording.autorecId.isNullOrEmpty()
+            binding.isTimerRecording.isVisible = !recording.timerecId.isNullOrEmpty()
+            binding.dualPaneListItemSelection.isVisible = isDualPane && isSelected
+            binding.failedReason.applyTextAndAdjustVisibility { recording.determineFailedReasonText(this) }
+            binding.disabled.isVisible = recording.isScheduled && caps.recordingEnabledSupported && !recording.isEnabled
+            binding.duplicate.isVisible = recording.isScheduled && caps.recordingDuplicateSupported && recording.duplicate != 0
+            binding.dataSize.apply {
+                text = recording.determineDataSizeText(context)
+                isVisible = text.isNotEmpty() && showFileStatus
+            }
+            binding.dataErrors.apply {
+                text = recording.determineDataErrorText(context)
+                isVisible = text.isNotEmpty() && showFileStatus
+            }
+            binding.streamErrors.apply {
+                text = recording.determineStreamErrorText(context)
+                isVisible = text.isNotEmpty() && showFileStatus
+            }
         }
     }
 }

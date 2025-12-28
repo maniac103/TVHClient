@@ -1,112 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/constraint_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ImageView
+        android:id="@+id/current_time"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/time"
+        android:scaleType="fitXY"
+        android:src="@drawable/current_time"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/viewpager_title_date" />
 
-        android:id="@+id/constraint_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/viewpager_title_start_hours"
+        style="@style/ContentFont"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:background="?colorSurfaceContainerLow"
+        android:gravity="end|center_vertical"
+        android:padding="8dp"
+        android:singleLine="true"
+        app:layout_constraintStart_toEndOf="@id/viewpager_title_date"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@tools:sample/date/hhmm" />
 
-        <ImageView
-            android:id="@+id/current_time"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:contentDescription="@string/time"
-            android:scaleType="fitXY"
-            android:src="@drawable/current_time"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/viewpager_title_date" />
+    <TextView
+        android:id="@+id/viewpager_title_placeholder"
+        style="@style/ContentFont"
+        android:layout_width="8dp"
+        android:layout_height="36dp"
+        android:background="?colorSurfaceContainerLow"
+        android:gravity="center"
+        android:text="@string/minus"
+        app:layout_constraintStart_toEndOf="@id/viewpager_title_start_hours"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/viewpager_title_start_hours"
-            style="@style/ContentFont"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:background="?colorSurfaceContainerLow"
-            android:gravity="end|center_vertical"
-            android:padding="8dp"
-            android:singleLine="true"
-            app:layout_constraintStart_toEndOf="@+id/viewpager_title_date"
-            app:layout_constraintTop_toTopOf="parent"
-            app:timeText="@{startTime}"
-            tools:text="@tools:sample/date/hhmm" />
+    <TextView
+        android:id="@+id/viewpager_title_end_hours"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:background="?colorSurfaceContainerLow"
+        android:gravity="start|center_vertical"
+        android:padding="8dp"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@id/viewpager_title_placeholder"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@tools:sample/date/hhmm" />
 
-        <TextView
-            android:id="@+id/viewpager_title_placeholder"
-            style="@style/ContentFont"
-            android:layout_width="8dp"
-            android:layout_height="36dp"
-            android:background="?colorSurfaceContainerLow"
-            android:gravity="center"
-            android:text="@string/minus"
-            app:layout_constraintStart_toEndOf="@+id/viewpager_title_start_hours"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/viewpager_title_date"
+        style="@style/ContentFont"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:background="?colorSurfaceContainerLow"
+        android:gravity="center"
+        android:padding="4dp"
+        android:singleLine="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@tools:sample/date/mmddyy" />
 
-        <TextView
-            android:id="@+id/viewpager_title_end_hours"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:background="?colorSurfaceContainerLow"
-            android:gravity="start|center_vertical"
-            android:padding="8dp"
-            android:singleLine="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/viewpager_title_placeholder"
-            app:layout_constraintTop_toTopOf="parent"
-            app:timeText="@{endTime}"
-            tools:text="@tools:sample/date/hhmm" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/viewpager_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/viewpager_title_date" />
 
-        <TextView
-            android:id="@+id/viewpager_title_date"
-            style="@style/ContentFont"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:background="?colorSurfaceContainerLow"
-            android:gravity="center"
-            android:padding="4dp"
-            android:singleLine="true"
-            app:dateText="@{startTime}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="@tools:sample/date/mmddyy" />
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress"
+        style="?circularProgressIndicatorStyle"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:indeterminate="true"
+        app:layout_constraintStart_toStartOf="@id/viewpager_recycler_view"
+        app:layout_constraintEnd_toEndOf="@id/viewpager_recycler_view"
+        app:layout_constraintTop_toTopOf="@id/viewpager_recycler_view"
+        app:layout_constraintBottom_toBottomOf="@id/viewpager_recycler_view" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/viewpager_recycler_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/viewpager_title_date" />
-
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/progress"
-            style="?circularProgressIndicatorStyle"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
-            android:indeterminate="true"
-            app:layout_constraintStart_toStartOf="@id/viewpager_recycler_view"
-            app:layout_constraintEnd_toEndOf="@id/viewpager_recycler_view"
-            app:layout_constraintTop_toTopOf="@id/viewpager_recycler_view"
-            app:layout_constraintBottom_toBottomOf="@id/viewpager_recycler_view" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <data>
-
-        <variable
-            name="startTime"
-            type="long" />
-
-        <variable
-            name="endTime"
-            type="long" />
-    </data>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>

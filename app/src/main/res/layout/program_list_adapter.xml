@@ -1,288 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="56dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:contentDescription="@null"
+        android:scaleType="fitStart"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/state"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/genre"
+        android:layout_width="8dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/icon_text"
+        style="@style/ContentFont"
+        android:layout_width="56dp"
         android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:onClick="@{(view) -> callback.onClick(view, position)}"
-        android:onLongClick="@{(view) -> callback.onLongClick(view, position)}">
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="56dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:contentDescription="@null"
-            android:scaleType="fitStart"
-            app:iconUrl="@{model.program.channelIcon}"
-            app:iconVisibility="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/title"
+        style="@style/TitleFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        app:layout_constraintEnd_toStartOf="@id/state"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/title" />
 
-        <ImageView
-            android:id="@+id/state"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:contentDescription="@null"
-            android:scaleType="fitCenter"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:stateIcon="@{model.recording}" />
+    <TextView
+        android:id="@+id/subtitle"
+        style="@style/SubtitleFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:text="@string/subtitle" />
 
-        <TextView
-            android:id="@+id/genre"
-            android:layout_width="8dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            app:genreColor="@{model.program.contentType}"
-            app:genreColorAlphaOffset="@{0}"
-            app:genreColorItemName="@{model.program.title}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showGenreColor="@{safeUnbox(viewModel.showGenreColor)}" />
+    <TextView
+        android:id="@+id/summary"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toBottomOf="@id/subtitle"
+        tools:text="@string/summary" />
 
-        <TextView
-            android:id="@+id/icon_text"
-            style="@style/ContentFont"
-            android:layout_width="56dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
-            app:iconName="@{model.program.channelName}"
-            app:iconUrl="@{model.program.channelIcon}"
-            app:iconVisibility="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+    <TextView
+        android:id="@+id/content_type"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toBottomOf="@id/summary"
+        tools:text="@string/content_type" />
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/TitleFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:ellipsize="end"
-            app:layout_constraintEnd_toStartOf="@+id/state"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:layout_constraintTop_toTopOf="parent"
-            app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:optionalColoredText="@{model.program.title}"
-            tools:text="@string/title" />
+    <TextView
+        android:id="@+id/date"
+        style="@style/ContentFont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="start"
+        android:textAlignment="viewStart"
+        app:layout_constraintBottom_toTopOf="@id/progress"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toBottomOf="@id/content_type"
+        tools:text="@tools:sample/date/mmddyy" />
 
-        <TextView
-            android:id="@+id/subtitle"
-            style="@style/SubtitleFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:visibility="@{safeUnbox(viewModel.showProgramSubtitles) &amp;&amp; model.program.subtitle != null &amp;&amp; !model.program.subtitle.equals(model.program.title) ? View.VISIBLE : View.GONE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:layout_constraintTop_toBottomOf="@+id/title"
-            app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:optionalColoredText="@{model.program.subtitle}"
-            tools:text="@string/subtitle" />
+    <TextView
+        android:id="@+id/start_stop"
+        style="@style/ContentFont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@id/duration"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@id/date"
+        app:layout_constraintTop_toTopOf="@id/date"
+        tools:text="@tools:sample/date/hhmm" />
 
-        <TextView
-            android:id="@+id/summary"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:text="@{model.program.summary}"
-            android:visibility="@{(!safeUnbox(viewModel.showProgramSubtitles) &amp;&amp; model.program.summary != null) || (model.program.summary != null &amp;&amp; !model.program.summary.equals(model.program.subtitle)) ? View.VISIBLE : View.GONE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:layout_constraintTop_toBottomOf="@+id/subtitle"
-            app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            tools:text="@string/summary" />
+    <TextView
+        android:id="@+id/duration"
+        style="@style/ContentFont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_weight="0.3"
+        android:gravity="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/date"
+        tools:text="@tools:sample/date/hhmm" />
 
-        <TextView
-            android:id="@+id/content_type"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:singleLine="true"
-            app:contentTypeText="@{model.program.contentType}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:layout_constraintTop_toBottomOf="@+id/summary"
-            app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            tools:text="@string/content_type" />
+    <TextView
+        android:id="@+id/progress"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp"
+        android:singleLine="true"
+        app:layout_constraintBottom_toTopOf="@id/series_info"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        tools:text="@string/progress" />
 
-        <TextView
-            android:id="@+id/date"
-            style="@style/ContentFont"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="start"
-            android:textAlignment="viewStart"
-            app:dateText="@{model.program.start}"
-            app:layout_constraintBottom_toTopOf="@+id/progress"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:layout_constraintTop_toBottomOf="@+id/content_type"
-            app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            tools:text="@tools:sample/date/mmddyy" />
+    <TextView
+        android:id="@+id/series_info"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp"
+        android:ellipsize="end"
+        app:layout_constraintBottom_toTopOf="@id/description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        tools:text="@tools:sample/lorem" />
 
-        <TextView
-            android:id="@+id/start_time"
-            style="@style/ContentFont"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintEnd_toStartOf="@+id/stop_time"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/date"
-            app:layout_constraintTop_toTopOf="@+id/date"
-            app:timeText="@{model.program.start}"
-            tools:text="@tools:sample/date/hhmm" />
+    <TextView
+        android:id="@+id/description"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:ellipsize="end"
+        android:maxLines="6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        tools:text="@tools:sample/lorem/random" />
 
-        <TextView
-            android:id="@+id/stop_time"
-            style="@style/ContentFont"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintEnd_toStartOf="@+id/duration"
-            app:layout_constraintTop_toTopOf="@+id/date"
-            app:timeText="@{model.program.stop}"
-            tools:text="@tools:sample/date/hhmm" />
+    <View
+        android:id="@+id/horizontal_divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:background="?attr/divider_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/genre" />
 
-        <TextView
-            android:id="@+id/duration"
-            style="@style/ContentFont"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_weight="0.3"
-            android:gravity="end"
-            android:text="@{@string/minutes(model.program.duration)}"
-            android:textAlignment="textEnd"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/date"
-            tools:text="@tools:sample/date/hhmm" />
-
-        <TextView
-            android:id="@+id/progress"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="8dp"
-            android:singleLine="true"
-            android:text="@{@string/progress(model.program.progress)}"
-            android:visibility="@{model.program.progress > 0 ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toTopOf="@+id/series_info"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            tools:text="@string/progress" />
-
-        <TextView
-            android:id="@+id/series_info"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="8dp"
-            android:ellipsize="end"
-            app:layout_constraintBottom_toTopOf="@+id/description"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:seriesInfoText="@{model.program}"
-            tools:text="@tools:sample/lorem" />
-
-        <TextView
-            android:id="@+id/description"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            android:ellipsize="end"
-            android:maxLines="6"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/genre"
-            app:marginStart="@{safeUnbox(viewModel.showProgramChannelIcon)}"
-            app:optionalColoredText="@{model.program.description}"
-            tools:text="@tools:sample/lorem/random" />
-
-        <View
-            android:id="@+id/horizontal_divider"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:background="?attr/divider_color"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/genre" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <data>
-
-        <import type="android.view.View" />
-
-        <variable
-            name="model"
-            type="org.tvheadend.tvhclient.ui.features.programs.ProgramRecyclerViewAdapter.ItemModel" />
-
-        <variable
-            name="viewModel"
-            type="org.tvheadend.tvhclient.ui.features.programs.ProgramViewModel" />
-
-        <variable
-            name="position"
-            type="int" />
-
-        <variable
-            name="callback"
-            type="org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface" />
-    </data>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>

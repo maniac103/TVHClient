@@ -16,7 +16,11 @@ import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgVerticalRecyclerviewAdapterBinding
 import timber.log.Timber
 
-internal class EpgVerticalRecyclerViewAdapter(private val epgViewModel: EpgViewModel, private val fragmentId: Int, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<EpgVerticalRecyclerViewAdapter.EpgViewPagerViewHolder>() {
+internal class EpgVerticalRecyclerViewAdapter(
+    private val epgViewModel: EpgViewModel,
+    private val fragmentId: Int,
+    private val lifecycleOwner: LifecycleOwner
+) : RecyclerView.Adapter<EpgVerticalRecyclerViewAdapter.EpgViewPagerViewHolder>() {
 
     private val viewPool: RecyclerView.RecycledViewPool = RecyclerView.RecycledViewPool()
     private val programLists = ArrayList<EpgViewModel.EpgChannelEntry>()
@@ -59,19 +63,20 @@ internal class EpgVerticalRecyclerViewAdapter(private val epgViewModel: EpgViewM
         notifyDataSetChanged()
     }
 
-    class EpgViewPagerViewHolder(override val containerView: View,
-                                 val binding: EpgVerticalRecyclerviewAdapterBinding,
-                                 fragmentId: Int,
-                                 viewPool: RecyclerView.RecycledViewPool,
-                                 private val epgViewModel: EpgViewModel,
-                                 lifecycleOwner: LifecycleOwner) : RecyclerView.ViewHolder(binding.root), LayoutContainer {
+    class EpgViewPagerViewHolder(
+        override val containerView: View,
+        val binding: EpgVerticalRecyclerviewAdapterBinding,
+        fragmentId: Int,
+        viewPool: RecyclerView.RecycledViewPool,
+        epgViewModel: EpgViewModel,
+        lifecycleOwner: LifecycleOwner
+    ) : RecyclerView.ViewHolder(binding.root), LayoutContainer {
 
-        private val recyclerViewAdapter: EpgHorizontalChildRecyclerViewAdapter
+        private val recyclerViewAdapter = EpgHorizontalChildRecyclerViewAdapter(fragmentId, lifecycleOwner, epgViewModel)
 
         init {
             binding.horizontalChildRecyclerView.layoutManager = CustomHorizontalLayoutManager(containerView.context)
             binding.horizontalChildRecyclerView.setRecycledViewPool(viewPool)
-            recyclerViewAdapter = EpgHorizontalChildRecyclerViewAdapter(epgViewModel, fragmentId, lifecycleOwner)
             binding.horizontalChildRecyclerView.adapter = recyclerViewAdapter
         }
 

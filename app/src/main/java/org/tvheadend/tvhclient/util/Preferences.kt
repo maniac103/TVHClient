@@ -70,6 +70,8 @@ class Preferences(context: Context) {
     fun genreColorsForProgramsLiveData() = BooleanLiveData(prefs, res, "genre_colors_for_programs_enabled", R.bool.pref_default_genre_colors_for_programs_enabled)
     fun genreColorsForProgramGuideLiveData() = BooleanLiveData(prefs, res, "genre_colors_for_program_guide_enabled", R.bool.pref_default_genre_colors_for_program_guide_enabled)
     fun genreColorsForRecordingsLiveData() = BooleanLiveData(prefs, res, "genre_colors_for_recordings_enabled", R.bool.pref_default_genre_colors_for_recordings_enabled)
+    fun showRecordingFileStatusLiveData() = BooleanLiveData(prefs, res, "show_recording_file_status_enabled", R.bool.pref_default_show_recording_file_status_enabled)
+
     fun showNextProgramTitleLiveData() = BooleanLiveData(prefs, res, "next_program_title_enabled", R.bool.pref_default_next_program_title_enabled)
     fun showProgramSubtitleLiveData() = BooleanLiveData(prefs, res, "program_subtitle_enabled", R.bool.pref_default_program_subtitle_enabled)
     fun showProgramProgressLiveData() = BooleanLiveData(prefs, res, "program_progressbar_enabled", R.bool.pref_default_program_progressbar_enabled)

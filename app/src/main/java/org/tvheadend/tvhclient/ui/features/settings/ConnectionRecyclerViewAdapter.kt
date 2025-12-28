@@ -10,7 +10,9 @@ import org.tvheadend.tvhclient.databinding.ConnectionListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import java.util.*
 
-class ConnectionRecyclerViewAdapter internal constructor(private val clickCallback: RecyclerViewClickInterface, private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<ConnectionRecyclerViewAdapter.ConnectionViewHolder>() {
+class ConnectionRecyclerViewAdapter internal constructor(
+    private val clickCallback: RecyclerViewClickInterface<Connection>
+) : RecyclerView.Adapter<ConnectionRecyclerViewAdapter.ConnectionViewHolder>() {
 
     private var connectionList: MutableList<Connection> = ArrayList()
     var selectedPosition = 0
@@ -20,7 +22,6 @@ class ConnectionRecyclerViewAdapter internal constructor(private val clickCallba
         val layoutInflater = LayoutInflater.from(parent.context)
         val itemBinding = ConnectionListAdapterBinding.inflate(layoutInflater, parent, false)
         val viewHolder = ConnectionViewHolder(itemBinding)
-        itemBinding.lifecycleOwner = lifecycleOwner
         return viewHolder
     }
 
@@ -65,11 +66,11 @@ class ConnectionRecyclerViewAdapter internal constructor(private val clickCallba
 
     class ConnectionViewHolder(private val binding: ConnectionListAdapterBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(connection: Connection, position: Int, clickCallback: RecyclerViewClickInterface) {
-            binding.connection = connection
-            binding.position = position
-            binding.callback = clickCallback
-            binding.executePendingBindings()
+        fun bind(connection: Connection, position: Int, clickCallback: RecyclerViewClickInterface<Connection>) {
+            binding.root.setOnClickListener { v -> clickCallback.onClick(v, position, connection) }
+            binding.selected.setImageResource(if (connection.isActive) R.drawable.item_active else R.drawable.item_not_active)
+            binding.title.text = connection.name
+            binding.summary.text = connection.serverUrl
         }
     }
 }

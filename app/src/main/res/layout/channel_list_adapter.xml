@@ -1,275 +1,201 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="12dp"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/channel_number"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <ImageView
+        android:id="@+id/state"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/dual_pane_list_item_selection"
+        android:layout_width="12dp"
+        android:layout_height="36dp"
+        android:contentDescription="@null"
+        android:src="?dual_pane_list_selection"
+        android:scaleType="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressbar"
+        android:layout_width="0dp"
+        android:layout_height="4dip"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:scaleY="0.5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintTop_toBottomOf="@id/duration" />
+
+    <TextView
+        android:id="@+id/genre"
+        android:layout_width="4dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/icon_text"
+        style="@style/ContentFont"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/channel_number"
+        style="@style/ContentFont"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:onClick="@{(view) -> callback.onClick(view, position)}"
-        android:onLongClick="@{(view) -> callback.onLongClick(view, position)}">
+        android:layout_marginStart="12dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:singleLine="true"
+        app:layout_constraintTop_toBottomOf="@id/icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/genre"
+        tools:text="@tools:sample/us_zipcodes" />
 
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="12dp"
-            android:contentDescription="@null"
-            android:onClick="@{(view) -> callback.onClick(view, position)}"
-            android:scaleType="fitCenter"
-            app:iconUrl="@{model.channel.icon}"
-            app:layout_constraintStart_toEndOf="@id/genre"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/channel_number"
-            app:layout_constraintVertical_chainStyle="packed" />
+    <TextView
+        android:id="@+id/channel_name"
+        style="@style/TitleFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        app:layout_constraintEnd_toStartOf="@id/state"
+        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintTop_toTopOf="@id/guideline_content_top"
+        tools:text="@string/channel"
+        tools:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/state"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:contentDescription="@null"
-            android:scaleType="fitCenter"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:stateIcon="@{model.recording}" />
+    <TextView
+        android:id="@+id/title"
+        style="@style/SubtitleFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintTop_toBottomOf="@id/channel_name"
+        tools:text="@string/title" />
 
-        <ImageView
-            android:id="@+id/dual_pane_list_item_selection"
-            android:layout_width="12dp"
-            android:layout_height="36dp"
-            android:contentDescription="@null"
-            android:scaleType="center"
-            android:visibility="@{isDualPane ? View.VISIBLE : View.GONE}"
-            app:backgroundImage="@{isSelected}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/subtitle"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:text="@string/subtitle" />
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progressbar"
-            android:layout_width="0dp"
-            android:layout_height="4dip"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="4dp"
-            android:progress="@{model.channel.progress}"
-            android:scaleY="0.5"
-            android:visibility="@{model.channel.programId > 0 &amp;&amp; model.channel.progress >= 0 &amp;&amp; safeUnbox(viewModel.showProgressBar) == true ? View.VISIBLE : View.GONE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-            app:layout_constraintTop_toBottomOf="@id/duration" />
+    <TextView
+        android:id="@+id/start_stop_time"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintTop_toBottomOf="@id/subtitle"
+        app:layout_constraintVertical_bias="0.0"
+        tools:text="@tools:sample/date/hhmm" />
 
-        <TextView
-            android:id="@+id/genre"
-            android:layout_width="4dp"
-            android:layout_height="0dp"
-            app:genreColor="@{model.channel.programContentType}"
-            app:genreColorAlphaOffset="@{0}"
-            app:genreColorItemName="@{model.channel.programTitle}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:showGenreColor="@{safeUnbox(viewModel.showGenreColor)}" />
+    <TextView
+        android:id="@+id/duration"
+        style="@style/ContentFont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:gravity="end"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subtitle"
+        tools:text="@string/duration" />
 
-        <TextView
-            android:id="@+id/icon_text"
-            style="@style/ContentFont"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
-            android:onClick="@{(view) -> callback.onClick(view, position)}"
-            app:iconName="@{model.channel.name}"
-            app:iconUrl="@{model.channel.icon}"
-            app:layout_constraintStart_toEndOf="@id/genre"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/next_title"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:singleLine="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintTop_toBottomOf="@id/progressbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:text="@string/title" />
 
-        <TextView
-            android:id="@+id/channel_number"
-            style="@style/ContentFont"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:singleLine="true"
-            android:visibility="@{safeUnbox(viewModel.showChannelNumber) ? View.VISIBLE : View.GONE}"
-            app:channelNumber="@{model.channel.displayNumber}"
-            app:layout_constraintTop_toBottomOf="@id/icon"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/genre"
-            tools:text="@tools:sample/us_zipcodes" />
+    <TextView
+        android:id="@+id/no_programs"
+        style="@style/ContentFont"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="@string/no_data"
+        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/channel_name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
-        <TextView
-            android:id="@+id/channel_name"
-            style="@style/TitleFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:text="@{model.channel.name}"
-            android:visibility="@{safeUnbox(viewModel.showChannelName) ? View.VISIBLE : View.GONE}"
-            app:layout_constraintEnd_toStartOf="@id/state"
-            app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-            app:layout_constraintTop_toTopOf="@id/guideline_content_top"
-            tools:text="@string/channel"
-            tools:visibility="visible" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_content_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="68dp" />
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/SubtitleFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="4dp"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:visibility="@{model.channel.programId > 0 ? View.VISIBLE : View.GONE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-            app:layout_constraintTop_toBottomOf="@id/channel_name"
-            app:optionalColoredText="@{model.channel.programTitle}"
-            tools:text="@string/title" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_content_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="16dp" />
 
-        <TextView
-            android:id="@+id/subtitle"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="4dp"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:visibility="@{model.channel.programId > 0  &amp;&amp; safeUnbox(viewModel.showProgramSubtitle) == true &amp;&amp; model.channel.programSubtitle != null &amp;&amp; !model.channel.programSubtitle.equals(model.channel.programTitle) ? View.VISIBLE : View.GONE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-            app:layout_constraintTop_toBottomOf="@id/title"
-            app:optionalColoredText="@{model.channel.programSubtitle}"
-            tools:text="@string/subtitle" />
-
-        <TextView
-            android:id="@+id/start_time"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:visibility="@{model.channel.programId > 0 ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-            app:layout_constraintTop_toBottomOf="@id/subtitle"
-            app:layout_constraintVertical_bias="0.0"
-            app:timeText="@{model.channel.programStart}"
-            tools:text="@tools:sample/date/hhmm" />
-
-        <TextView
-            android:id="@+id/stop_time"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:singleLine="true"
-            android:visibility="@{model.channel.programId > 0 ? View.VISIBLE : View.GONE}"
-            app:layout_constraintStart_toEndOf="@id/start_time"
-            app:layout_constraintTop_toTopOf="@id/start_time"
-            app:timeText="@{model.channel.programStop}"
-            tools:text="@tools:sample/date/hhmm" />
-
-        <TextView
-            android:id="@+id/duration"
-            style="@style/ContentFont"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:gravity="end"
-            android:singleLine="true"
-            android:text="@{@string/minutes(model.channel.duration)}"
-            android:visibility="@{model.channel.programId > 0 ? View.VISIBLE : View.GONE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/subtitle"
-            tools:text="@string/duration" />
-
-        <TextView
-            android:id="@+id/next_title"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:singleLine="false"
-            android:text="@{model.channel.nextProgramTitle}"
-            android:visibility="@{model.channel.nextProgramId > 0 &amp;&amp; safeUnbox(viewModel.showNextProgramTitle) == true &amp;&amp; model.channel.nextProgramTitle != null ? View.VISIBLE : View.GONE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-            app:layout_constraintTop_toBottomOf="@id/progressbar"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            tools:text="@string/title" />
-
-        <TextView
-            android:id="@+id/no_programs"
-            style="@style/ContentFont"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:text="@string/no_data"
-            android:visibility="@{model.channel.programId > 0 ? View.GONE : View.VISIBLE}"
-            app:layout_constraintStart_toStartOf="@id/guideline_content_start"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/channel_name"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_content_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="68dp" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline_content_top"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="16dp" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <data>
-
-        <import type="android.view.View" />
-
-        <variable
-            name="model"
-            type="org.tvheadend.tvhclient.ui.features.channels.ChannelRecyclerViewAdapter.ItemModel" />
-
-        <variable
-            name="viewModel"
-            type="org.tvheadend.tvhclient.ui.features.channels.ChannelViewModel" />
-
-        <variable
-            name="isDualPane"
-            type="boolean" />
-
-        <variable
-            name="position"
-            type="int" />
-
-        <variable
-            name="isSelected"
-            type="boolean" />
-
-        <variable
-            name="callback"
-            type="org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface" />
-    </data>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,25 +2,27 @@ package org.tvheadend.tvhclient.ui.common
 
 import android.content.Context
 import android.content.DialogInterface
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import androidx.databinding.ViewDataBinding
 import org.tvheadend.data.entity.ChannelTag
-import org.tvheadend.tvhclient.BR
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.GenreColorListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.ChannelTagIdsSelectedInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ChannelTimeSelectedInterface
 import timber.log.Timber
 import java.text.SimpleDateFormat
-import java.util.*
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvheadend.tvhclient.databinding.ChanneltagListMultipleChoiceAdapterBinding
 import org.tvheadend.tvhclient.databinding.ChanneltagListSingleChoiceAdapterBinding
+import org.tvheadend.tvhclient.util.extensions.applyIcon
+import org.tvheadend.tvhclient.util.extensions.determineContentTypeColor
 import org.tvheadend.tvhclient.util.extensions.prefs
+import java.util.Locale
 
 
 fun showChannelTagSelectionDialog(context: Context, channelTags: MutableList<ChannelTag>, channelCount: Int, callback: ChannelTagIdsSelectedInterface): Boolean {
@@ -43,7 +45,7 @@ fun showChannelTagSelectionDialog(context: Context, channelTags: MutableList<Cha
         channelTags.add(0, tag)
     }
 
-    val adapter = ChannelTagSelectionAdapter(context, channelTags, isMultipleChoice)
+    val adapter = ChannelTagSelectionAdapter(context, channelTags, context.prefs.channelTagIconsEnabled, isMultipleChoice)
 
     // Show the dialog that shows all available channel tags. When the
     // user has selected a tag, restart the loader to loadRecordingById the updated channel list
@@ -65,9 +67,14 @@ fun showChannelTagSelectionDialog(context: Context, channelTags: MutableList<Cha
     return true
 }
 
-class ChannelTagSelectionAdapter(context: Context, private val channelTagList: List<ChannelTag>, private val isMultiChoice: Boolean) :
-    ArrayAdapter<ChannelTag>(context, 0, channelTagList) {
+class ChannelTagSelectionAdapter(
+    context: Context,
+    private val channelTagList: List<ChannelTag>,
+    private val showChannelTagIcons: Boolean,
+    private val isMultiChoice: Boolean
+) : ArrayAdapter<ChannelTag>(context, 0, channelTagList) {
 
+    private val inflater = LayoutInflater.from(context)
     private val selectedChannelTagIds = mutableSetOf<Int>()
     private lateinit var dialog: DialogInterface
 
@@ -75,27 +82,61 @@ class ChannelTagSelectionAdapter(context: Context, private val channelTagList: L
         get() = selectedChannelTagIds
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val binding = if (convertView == null) {
-            val inflater = LayoutInflater.from(context)
-
-            val binding = if (isMultiChoice) {
-                ChanneltagListMultipleChoiceAdapterBinding.inflate(inflater, parent, false)
-            } else {
-                ChanneltagListSingleChoiceAdapterBinding.inflate(inflater, parent, false)
-            }
-            binding.setVariable(BR.callback, this)
-            binding.setVariable(BR.showChannelTagIcons, context.prefs.channelTagIconsEnabled)
-            binding
-        } else {
-            convertView.tag as ViewDataBinding
-        }
-        binding.root.tag = binding
-        val channelTag = getItem(position)
-        binding.setVariable(BR.channelTag, channelTag)
-        binding.setVariable(BR.position, position)
-        if (channelTag?.isSelected == true) {
+        val channelTag = channelTagList[position]
+        if (channelTag.isSelected) {
             selectedChannelTagIds.add(channelTag.tagId)
         }
+        return if (isMultiChoice) {
+            getMultiChoiceView(convertView, parent, channelTag)
+        } else {
+            getSingleChoiceView(convertView, parent, channelTag)
+        }
+    }
+
+    private fun getSingleChoiceView(convertView: View?, parent: ViewGroup, channelTag: ChannelTag): View {
+        val binding = if (convertView == null) {
+            ChanneltagListSingleChoiceAdapterBinding.inflate(inflater, parent, false).apply {
+                root.tag = this
+            }
+        } else {
+            convertView.tag as ChanneltagListSingleChoiceAdapterBinding
+        }
+
+        binding.root.setOnClickListener { onSelected(channelTag.tagId) }
+        if (showChannelTagIcons) {
+            binding.icon.applyIcon(channelTag.tagIcon)
+        } else {
+            binding.icon.isVisible = false
+        }
+        binding.selected.apply {
+            isChecked = channelTag.isSelected
+            setOnClickListener { onSelected(channelTag.tagId) }
+        }
+        binding.title.text = channelTag.tagName
+        binding.count.text = channelTag.channelCount.toString()
+        return binding.root
+    }
+
+    private fun getMultiChoiceView(convertView: View?, parent: ViewGroup, channelTag: ChannelTag): View {
+        val binding = if (convertView == null) {
+            ChanneltagListMultipleChoiceAdapterBinding.inflate(inflater, parent, false).apply {
+                root.tag = this
+            }
+        } else {
+            convertView.tag as ChanneltagListMultipleChoiceAdapterBinding
+        }
+
+        binding.checked.apply {
+            isChecked = channelTag.isSelected
+            setOnCheckedChangeListener { _, isChecked -> onChecked(channelTag.tagId, isChecked) }
+        }
+        if (showChannelTagIcons) {
+            binding.icon.applyIcon(channelTag.tagIcon)
+        } else {
+            binding.icon.isVisible = false
+        }
+        binding.title.text = channelTag.tagName
+        binding.count.text = channelTag.channelCount.toString()
         return binding.root
     }
 
@@ -103,8 +144,7 @@ class ChannelTagSelectionAdapter(context: Context, private val channelTagList: L
         this.dialog = dialog
     }
 
-    fun onChecked(view: View, position: Int, isChecked: Boolean) {
-        val tagId = channelTagList[position].tagId
+    fun onChecked(tagId: Int, isChecked: Boolean) {
         if (isChecked) {
             selectedChannelTagIds.add(tagId)
         } else {
@@ -112,10 +152,9 @@ class ChannelTagSelectionAdapter(context: Context, private val channelTagList: L
         }
     }
 
-    fun onSelected(position: Int) {
-        val tagId = channelTagList[position].tagId
+    fun onSelected(tagId: Int) {
         selectedChannelTagIds.clear()
-        if (position != 0) {
+        if (tagId != 0) {
             selectedChannelTagIds.add(tagId)
         }
         dialog.dismiss()
@@ -147,8 +186,8 @@ class GenreColorListAdapter internal constructor(context: Context, private val c
         }
         binding.root.tag = binding
         getItem(position)?.let { contentInfo ->
-            binding.contentType = (position + 1) * 16
-            binding.contentName = contentInfo
+            binding.color.setBackgroundColor(context.determineContentTypeColor((position + 1) * 16) ?: Color.TRANSPARENT)
+            binding.genre.text = contentInfo
         }
         return binding.root
     }
