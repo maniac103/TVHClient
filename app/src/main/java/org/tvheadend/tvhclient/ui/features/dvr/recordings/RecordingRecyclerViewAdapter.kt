@@ -12,12 +12,8 @@ import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecordingListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
-import org.tvheadend.tvhclient.util.extensions.applyChannelIcon
-import org.tvheadend.tvhclient.util.extensions.applyDateText
 import org.tvheadend.tvhclient.util.extensions.applyIcon
-import org.tvheadend.tvhclient.util.extensions.applyOptionalColoredText
 import org.tvheadend.tvhclient.util.extensions.applyRecordingStateIcon
-import org.tvheadend.tvhclient.util.extensions.applyStartStopTime
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
 import org.tvheadend.tvhclient.util.extensions.determineContentTypeColor

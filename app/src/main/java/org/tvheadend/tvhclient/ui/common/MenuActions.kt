@@ -17,7 +17,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
 import org.tvheadend.tvhclient.ui.features.dvr.recordings.RecordingAddEditFragment
 import org.tvheadend.tvhclient.ui.features.dvr.recordings.download.DownloadRecordingActivity
 import org.tvheadend.tvhclient.ui.features.dvr.series_recordings.SeriesRecordingAddEditFragment
-import org.tvheadend.tvhclient.ui.features.dvr.timer_recordings.TimerRecordingAddEditFragment
+import org.tvheadend.tvhclient.ui.features.dvr.timer_recordings.TimerRecordingEditActivity
 import org.tvheadend.tvhclient.ui.features.playback.external.*
 import org.tvheadend.tvhclient.ui.features.playback.internal.PlaybackActivity
 import org.tvheadend.tvhclient.ui.features.programs.ProgramListFragment
@@ -255,11 +255,7 @@ fun editSelectedSeriesRecording(activity: FragmentActivity, id: String): Boolean
 }
 
 fun editSelectedTimerRecording(activity: FragmentActivity, id: String): Boolean {
-    val fragment = TimerRecordingAddEditFragment.newInstance(id)
-    activity.supportFragmentManager.commit {
-        replace(R.id.main, fragment)
-        addToBackStack(null)
-    }
+    activity.startActivity(TimerRecordingEditActivity.makeIntent(activity, id))
     return true
 }
 
@@ -282,11 +278,7 @@ fun addNewSeriesRecording(activity: FragmentActivity): Boolean {
 }
 
 fun addNewTimerRecording(activity: FragmentActivity): Boolean {
-    val fragment = TimerRecordingAddEditFragment.newInstance()
-    activity.supportFragmentManager.commit {
-        replace(R.id.main, fragment)
-        addToBackStack(null)
-    }
+    activity.startActivity(TimerRecordingEditActivity.makeIntent(activity))
     return true
 }
 

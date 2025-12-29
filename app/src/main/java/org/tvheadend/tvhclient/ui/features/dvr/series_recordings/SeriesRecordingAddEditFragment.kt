@@ -16,6 +16,9 @@ import org.tvheadend.tvhclient.ui.common.interfaces.HideNavigationDrawerInterfac
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.features.dvr.*
 import org.tvheadend.tvhclient.util.extensions.afterTextChanged
+import org.tvheadend.tvhclient.util.extensions.applyText
+import org.tvheadend.tvhclient.util.extensions.determineDaysOfWeekText
+import org.tvheadend.tvhclient.util.extensions.determinePriorityText
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import timber.log.Timber
 
@@ -77,7 +80,7 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
             handleChannelListSelection(ctx, seriesRecordingViewModel.getChannelList(), allowRecordingOnAllChannels, this@SeriesRecordingAddEditFragment)
         }
 
-        binding.priority.text = getPriorityName(ctx, seriesRecordingViewModel.recording.priority)
+        binding.priority.applyText { determinePriorityText(seriesRecordingViewModel.recording.priority) }
         binding.priority.setOnClickListener {
             handlePrioritySelection(ctx, seriesRecordingViewModel.recording.priority, this@SeriesRecordingAddEditFragment)
         }
@@ -105,7 +108,7 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
         binding.startExtra.setText(seriesRecordingViewModel.recording.startExtra.toString())
         binding.stopExtra.setText(seriesRecordingViewModel.recording.stopExtra.toString())
 
-        binding.daysOfWeek.text = getSelectedDaysOfWeekText(ctx, seriesRecordingViewModel.recording.daysOfWeek)
+        binding.daysOfWeek.applyText { determineDaysOfWeekText(seriesRecordingViewModel.recording.daysOfWeek) }
         binding.daysOfWeek.setOnClickListener {
             handleDayOfWeekSelection(ctx, seriesRecordingViewModel.recording.daysOfWeek, this@SeriesRecordingAddEditFragment)
         }
@@ -267,7 +270,7 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
     override fun onPrioritySelected(which: Int) {
         seriesRecordingViewModel.recording.priority = which
         context?.let {
-            binding.priority.text = getPriorityName(it, seriesRecordingViewModel.recording.priority)
+            binding.priority.applyText { determinePriorityText(seriesRecordingViewModel.recording.priority) }
         }
     }
 
@@ -302,7 +305,7 @@ class SeriesRecordingAddEditFragment : BaseFragment(), BackPressedInterface, Rec
     override fun onDaysSelected(selectedDays: Int) {
         seriesRecordingViewModel.recording.daysOfWeek = selectedDays
         context?.let {
-            binding.daysOfWeek.text = getSelectedDaysOfWeekText(it, selectedDays)
+            binding.daysOfWeek.applyText { determineDaysOfWeekText(selectedDays) }
         }
     }
 

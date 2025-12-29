@@ -13,15 +13,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
-fun getPriorityName(context: Context, priority: Int): String {
-    val priorityNames = context.resources.getStringArray(R.array.dvr_priority_names)
-    return when (priority) {
-        in 0..4 -> priorityNames[priority]
-        6 -> priorityNames[5]
-        else -> ""
-    }
-}
-
 fun getDateStringFromTimeInMillis(milliSeconds: Long): String {
     val sdf = SimpleDateFormat("dd.MM", Locale.US)
     return sdf.format(milliSeconds)
@@ -30,19 +21,6 @@ fun getDateStringFromTimeInMillis(milliSeconds: Long): String {
 fun getTimeStringFromTimeInMillis(milliSeconds: Long): String {
     val sdf = SimpleDateFormat("HH:mm", Locale.US)
     return sdf.format(milliSeconds)
-}
-
-fun getSelectedDaysOfWeekText(context: Context, daysOfWeek: Int): String {
-    val daysOfWeekList = context.resources.getStringArray(R.array.day_short_names)
-    val text = StringBuilder()
-    for (i in 0..6) {
-        val s = if (daysOfWeek shr i and 1 == 1) daysOfWeekList[i] else ""
-        if (text.isNotEmpty() && s.isNotEmpty()) {
-            text.append(", ")
-        }
-        text.append(s)
-    }
-    return text.toString()
 }
 
 fun handleDayOfWeekSelection(context: Context, daysOfWeek: Int, callback: RecordingConfigSelectedListener?) {

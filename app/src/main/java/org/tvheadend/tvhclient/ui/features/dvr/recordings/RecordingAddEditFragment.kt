@@ -16,6 +16,8 @@ import org.tvheadend.tvhclient.ui.common.interfaces.HideNavigationDrawerInterfac
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.features.dvr.*
 import org.tvheadend.tvhclient.util.extensions.afterTextChanged
+import org.tvheadend.tvhclient.util.extensions.applyText
+import org.tvheadend.tvhclient.util.extensions.determinePriorityText
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 
 class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, RecordingConfigSelectedListener, DatePickerFragment.Listener, TimePickerFragment.Listener, HideNavigationDrawerInterface {
@@ -99,7 +101,7 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
         binding.isEnabled.isChecked = recording.isEnabled
 
         binding.priority.isVisible = !recording.isRecording
-        binding.priority.text = getPriorityName(ctx, recording.priority)
+        binding.priority.applyText { determinePriorityText(recording.priority) }
         binding.priority.setOnClickListener { handlePrioritySelection(ctx, recording.priority, this@RecordingAddEditFragment) }
 
         binding.dvrConfig.isVisible = !recordingProfilesList.isEmpty() && !recording.isRecording
@@ -254,7 +256,7 @@ class RecordingAddEditFragment : BaseFragment(), BackPressedInterface, Recording
 
     override fun onPrioritySelected(which: Int) {
         context?.let {
-            binding.priority.text = getPriorityName(it, which)
+            binding.priority.applyText { determinePriorityText(which) }
         }
         recordingViewModel.recording.priority = which
     }

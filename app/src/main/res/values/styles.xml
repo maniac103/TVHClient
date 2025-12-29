@@ -47,6 +47,11 @@
         <item name="android:widgetLayout">@layout/preference_material_switch</item>
     </style>
 
+    <style name="ThemeOverlay.Material3.Button.Toggle">
+        <item name="colorContainerUnchecked">?colorSurfaceContainer</item>
+        <item name="colorOnContainerUnchecked">?colorOnSurface</item>
+    </style>
+
     <!-- Styles that will be used for the light holo theme -->
     <style name="CustomTheme" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
