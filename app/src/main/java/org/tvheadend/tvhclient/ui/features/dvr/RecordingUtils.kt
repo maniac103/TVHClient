@@ -4,7 +4,9 @@ import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.timepicker.MaterialTimePicker
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
@@ -21,6 +23,30 @@ fun getDateStringFromTimeInMillis(milliSeconds: Long): String {
 fun getTimeStringFromTimeInMillis(milliSeconds: Long): String {
     val sdf = SimpleDateFormat("HH:mm", Locale.US)
     return sdf.format(milliSeconds)
+}
+
+fun showTimePicker(millis: Long): MaterialTimePicker {
+    val c = Calendar.getInstance()
+    c.timeInMillis = millis
+    return MaterialTimePicker.Builder()
+        // TODO: clock format
+        .setHour(c.get(Calendar.HOUR_OF_DAY))
+        .setMinute(c.get(Calendar.MINUTE))
+        .build()
+}
+fun showDatePicker(millis: Long): MaterialDatePicker<Long> {
+    return MaterialDatePicker.Builder
+        .datePicker()
+        .setSelection(millis)
+        .build()
+}
+
+fun replaceHourAndMinute(millis: Long, hour: Int, minute: Int): Long {
+    val c = Calendar.getInstance()
+    c.timeInMillis = millis
+    c.set(Calendar.HOUR_OF_DAY, hour)
+    c.set(Calendar.MINUTE, minute)
+    return c.timeInMillis
 }
 
 fun handleDayOfWeekSelection(context: Context, daysOfWeek: Int, callback: RecordingConfigSelectedListener?) {

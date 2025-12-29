@@ -14,7 +14,6 @@ import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
 import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
-import org.tvheadend.tvhclient.ui.features.dvr.recordings.RecordingAddEditFragment
 import org.tvheadend.tvhclient.ui.features.dvr.recordings.download.DownloadRecordingActivity
 import org.tvheadend.tvhclient.ui.features.dvr.series_recordings.SeriesRecordingAddEditFragment
 import org.tvheadend.tvhclient.ui.features.dvr.timer_recordings.TimerRecordingEditActivity
@@ -28,6 +27,7 @@ import java.net.URLEncoder
 import androidx.core.net.toUri
 import androidx.fragment.app.commit
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.tvheadend.tvhclient.ui.features.dvr.recordings.RecordingEditActivity
 import org.tvheadend.tvhclient.util.Preferences
 import org.tvheadend.tvhclient.util.extensions.prefs
 
@@ -237,11 +237,7 @@ private fun cancelSelectedRecording(context: Context, recording: Recording, call
 }
 
 fun editSelectedRecording(activity: FragmentActivity, id: Int): Boolean {
-    val fragment = RecordingAddEditFragment.newInstance(id)
-    activity.supportFragmentManager.commit {
-        replace(R.id.main, fragment)
-        addToBackStack(null)
-    }
+    activity.startActivity(RecordingEditActivity.makeIntent(activity, id))
     return true
 }
 
@@ -260,11 +256,7 @@ fun editSelectedTimerRecording(activity: FragmentActivity, id: String): Boolean 
 }
 
 fun addNewRecording(activity: FragmentActivity): Boolean {
-    val fragment = RecordingAddEditFragment.newInstance()
-    activity.supportFragmentManager.commit {
-        replace(R.id.main, fragment)
-        addToBackStack(null)
-    }
+    activity.startActivity(RecordingEditActivity.makeIntent(activity))
     return true
 }
 

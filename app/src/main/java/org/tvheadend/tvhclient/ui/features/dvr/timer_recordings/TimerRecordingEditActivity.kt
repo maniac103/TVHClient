@@ -8,11 +8,9 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.timepicker.MaterialTimePicker
 import org.tvheadend.data.ServerCapabilities
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.ServerProfile
-import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.TimerRecordingEditActivityBinding
 import org.tvheadend.tvhclient.ui.base.BaseActivity
@@ -22,13 +20,14 @@ import org.tvheadend.tvhclient.ui.features.dvr.getTimeStringFromTimeInMillis
 import org.tvheadend.tvhclient.ui.features.dvr.handleChannelListSelection
 import org.tvheadend.tvhclient.ui.features.dvr.handlePrioritySelection
 import org.tvheadend.tvhclient.ui.features.dvr.handleRecordingProfileSelection
+import org.tvheadend.tvhclient.ui.features.dvr.replaceHourAndMinute
+import org.tvheadend.tvhclient.ui.features.dvr.showTimePicker
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.afterTextChanged
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.determinePriorityText
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
 import timber.log.Timber
-import java.util.Calendar
 
 class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
 
@@ -36,7 +35,6 @@ class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListen
     private lateinit var timerRecordingViewModel: TimerRecordingViewModel
     private lateinit var recordingProfilesList: Array<String>
 
-    private lateinit var recording: TimerRecordingWithChannel
     private lateinit var caps: ServerCapabilities
     private var profile: ServerProfile? = null
 
@@ -63,14 +61,12 @@ class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListen
             getString(if (timerRecordingViewModel.recording.id.isEmpty()) R.string.add_recording else R.string.edit_recording)
         )
 
-        recording = timerRecordingViewModel.recording
+        val recording = timerRecordingViewModel.recording
         caps = ServerCapabilities(globalStatusViewModel.htspVersionLiveData.value ?: 0)
 
         binding.save.setOnClickListener { save() }
-        binding.isEnabled.apply {
-            isVisible = caps.recordingEnabledSupported
-            isChecked = recording.isEnabled
-        }
+        binding.enabledWrapper.isVisible = caps.timerRecordingEnabledSupported
+        binding.isEnabled.isChecked = recording.isEnabled
 
         binding.title.setText(recording.title)
         binding.name.setText(recording.name)
@@ -147,24 +143,6 @@ class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListen
         binding.isEnabled.setOnCheckedChangeListener { _, isChecked ->
             recording.isEnabled = isChecked
         }
-    }
-
-    private fun showTimePicker(millis: Long): MaterialTimePicker {
-        val c = Calendar.getInstance()
-        c.timeInMillis = millis
-        return MaterialTimePicker.Builder()
-            // TODO: clock format
-            .setHour(c.get(Calendar.HOUR_OF_DAY))
-            .setMinute(c.get(Calendar.MINUTE))
-            .build()
-    }
-
-    private fun replaceHourAndMinute(millis: Long, hour: Int, minute: Int): Long {
-        val c = Calendar.getInstance()
-        c.timeInMillis = millis
-        c.set(Calendar.HOUR_OF_DAY, hour)
-        c.set(Calendar.MINUTE, minute)
-        return c.timeInMillis
     }
 
     private fun handleTimeEnabledClick(checked: Boolean) {
