@@ -69,6 +69,7 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity android:name=".ui.features.dvr.recordings.RecordingEditActivity" />
+        <activity android:name=".ui.features.dvr.series_recordings.SeriesRecordingEditActivity" />
         <activity android:name=".ui.features.dvr.timer_recordings.TimerRecordingEditActivity" />
         <activity android:name=".ui.features.dvr.recordings.RecordingDetailsActivity" />
         <activity
