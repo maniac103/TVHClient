@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!--<editor-fold desc="Toolbar main color">-->
-    <color name="toolbarPrimaryDarkColor">#363636</color>
-    <color name="toolbarPrimaryLightColor">#eeeeee</color>
-    <!--</editor-fold>-->
-
     <!--<editor-fold desc="Material components main colors">-->
     <color name="primaryColor">#808080</color>
     <color name="primaryLightColor">#707070</color>
@@ -14,16 +9,6 @@
     <color name="secondaryColor">#4db6ac</color>
     <color name="secondaryDarkColor">#80cbc4</color>
     <color name="secondaryLightColor">#80cbc4</color>
-    <!--</editor-fold>-->
-
-    <!--<editor-fold desc="Material components background color">-->
-    <color name="surfaceLightColor">#f3f3f3</color>
-    <color name="surfaceDarkColor">#202020</color>
-    <!--</editor-fold>-->
-
-    <!--<editor-fold desc="Material drawer colors">-->
-    <color name="material_drawer_background_dark">#303030</color>
-    <color name="material_drawer_background_light">#F9F9F9</color>
     <!--</editor-fold>-->
 
     <!--<editor-fold desc="Colors for the rounded edges of buttons in the startup screen">-->

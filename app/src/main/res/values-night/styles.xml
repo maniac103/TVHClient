@@ -4,10 +4,6 @@
     <style name="CustomTheme" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
 
-        <!--<editor-fold desc="Icons">-->
-        <item name="ic_arrow_drop_down_like_spinner">@drawable/ic_arrow_drop_down_like_spinner_dark</item>
-        <!--</editor-fold>-->
-
         <!--<editor-fold desc="Theme colors">-->
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>

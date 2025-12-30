@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <attr name="ic_arrow_drop_down_like_spinner" format="reference" />
-
     <attr name="rounded_corners" format="reference" />
 
     <attr name="fast_scroll_track" format="reference" />
