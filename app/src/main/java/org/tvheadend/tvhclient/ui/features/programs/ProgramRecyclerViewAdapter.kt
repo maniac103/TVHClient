@@ -13,6 +13,7 @@ import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ProgramListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.util.extensions.applyIcon
+import org.tvheadend.tvhclient.util.extensions.applyRecordingStateIcon
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
 import org.tvheadend.tvhclient.util.extensions.determineContentTypeColor
@@ -216,6 +217,7 @@ class ProgramRecyclerViewAdapter internal constructor(
                 isVisible = showGenreColor && color != null
                 color?.let { setBackgroundColor(it) }
             }
+            binding.state.applyRecordingStateIcon(model.recording)
             binding.contentType.applyTextAndAdjustVisibility { model.program.determineContentTypeText(this) }
             binding.date.applyText { formatDate(model.program.start) }
             binding.startStop.applyText { formatStartStopTime(model.program.start, model.program.stop) }

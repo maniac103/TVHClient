@@ -1,12 +1,14 @@
 package org.tvheadend.tvhclient.util.extensions
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
+import com.google.android.material.color.MaterialColors
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import org.tvheadend.data.entity.ChannelBaseInterface
@@ -72,17 +74,21 @@ fun ImageView.applyIcon(icon: String?, name: String? = null, fallbackText: TextV
 }
 
 fun ImageView.applyRecordingStateIcon(recording: RecordingInterface?) {
-    val drawableResId = recording?.let {
+    data class DrawableSpec(val drawableResId: Int, val tintColorAttr: Int)
+    val spec = recording?.let {
         when {
-            recording.isFailed -> R.drawable.ic_error_small
-            recording.isCompleted -> R.drawable.ic_success_small
-            recording.isMissed -> R.drawable.ic_error_small
-            recording.isRecording -> R.drawable.ic_rec_small
-            recording.isScheduled -> R.drawable.ic_schedule_small
+            recording.isFailed -> DrawableSpec(R.drawable.ic_rec_state_error, R.attr.recording_state_color)
+            recording.isCompleted -> DrawableSpec(R.drawable.ic_rec_state_success, R.attr.recording_success_color)
+            recording.isMissed -> DrawableSpec(R.drawable.ic_rec_state_error, R.attr.recording_state_color)
+            recording.isRecording -> DrawableSpec(R.drawable.ic_rec_state_recording, R.attr.recording_state_color)
+            recording.isScheduled -> DrawableSpec(R.drawable.ic_rec_state_scheduled, R.attr.colorOnSurface)
             else -> null
         }
     }
 
-    isVisible = drawableResId != null
-    drawableResId?.let { setImageResource(it) }
+    isVisible = spec != null
+    spec?.let { setImageResource(it.drawableResId) }
+    imageTintList = spec?.tintColorAttr?.let {
+        ColorStateList.valueOf(MaterialColors.getColor(this, it))
+    }
 }
