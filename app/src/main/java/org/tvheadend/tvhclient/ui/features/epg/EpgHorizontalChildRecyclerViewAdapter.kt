@@ -203,8 +203,9 @@ internal class EpgHorizontalChildRecyclerViewAdapter(
             binding.duration.applyText { getString(R.string.minutes, model.program.duration) }
             binding.state.applyRecordingStateIcon(model.recording)
             binding.genre.apply {
-                isVisible = showGenreColor
-                model.program.determineContentTypeColor(context, 25)?.let { setBackgroundColor(it) }
+                val color = model.program.determineContentTypeColor(context, 25)
+                isVisible = showGenreColor && color != null
+                color?.let { setBackgroundColor(it) }
             }
         }
     }
