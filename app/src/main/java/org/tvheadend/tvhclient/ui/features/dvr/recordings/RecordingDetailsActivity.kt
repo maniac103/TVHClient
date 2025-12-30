@@ -2,6 +2,7 @@ package org.tvheadend.tvhclient.ui.features.dvr.recordings
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -31,6 +32,7 @@ import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.applyIcon
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
+import org.tvheadend.tvhclient.util.extensions.determineContentTypeColor
 import org.tvheadend.tvhclient.util.extensions.determineContentTypeText
 import org.tvheadend.tvhclient.util.extensions.determineDataErrorText
 import org.tvheadend.tvhclient.util.extensions.determineDataSizeText
@@ -138,6 +140,11 @@ class RecordingDetailsActivity : BaseActivity(), RecordingRemovedInterface {
         binding.channelIcon.applyIcon(recording.channelIcon)
         binding.channel.applyTextAndAdjustVisibility { recording.channelName ?: getString(R.string.all_channels) }
         binding.contentType.applyTextAndAdjustVisibility { determineContentTypeText(recording.contentType * 16) }
+        binding.contentTypeColor.apply {
+            val color = recording.determineContentTypeColor(context)
+            isVisible = color != null
+            color?.let { imageTintList = ColorStateList.valueOf(it) }
+        }
         binding.episode.applyTextAndAdjustVisibility(recording.episode)
         binding.summary.applyTextAndAdjustVisibility(recording.summary)
         binding.summaryIcon.isVisible = binding.episode.text.isNotEmpty() || binding.summary.text.isNotEmpty()

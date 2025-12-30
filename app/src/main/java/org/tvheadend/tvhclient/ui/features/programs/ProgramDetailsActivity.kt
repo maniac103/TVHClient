@@ -2,6 +2,7 @@ package org.tvheadend.tvhclient.ui.features.programs
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -38,6 +39,7 @@ import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.applyIcon
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
+import org.tvheadend.tvhclient.util.extensions.determineContentTypeColor
 import org.tvheadend.tvhclient.util.extensions.determineContentTypeText
 import org.tvheadend.tvhclient.util.extensions.determineRecordingStateText
 import org.tvheadend.tvhclient.util.extensions.determineSeriesInfoText
@@ -186,6 +188,11 @@ class ProgramDetailsActivity : BaseActivity() {
         binding.channelIcon.applyIcon(program.channelIcon)
         binding.channel.text = program.channelName
         binding.contentType.applyText { determineContentTypeText(program.contentType) }
+        binding.contentTypeColor.apply {
+            val color = program.determineContentTypeColor(context)
+            isVisible = color != null
+            color?.let { imageTintList = ColorStateList.valueOf(it) }
+        }
 
         binding.seriesInfo.applyTextAndAdjustVisibility { program.determineSeriesInfoText(this) }
         binding.summary.applyTextAndAdjustVisibility(program.summary)
