@@ -36,7 +36,6 @@ class ProgramListFragment : BaseFragment(),
     private var loadingMoreProgramAllowed: Boolean = false
     private var programIdToBeEditedWhenBeingRecorded = 0
     private var lastProgramItemCount = 0
-    private var channelId = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = RecyclerviewFragmentBinding.inflate(inflater, container, false)
@@ -55,7 +54,7 @@ class ProgramListFragment : BaseFragment(),
         }
 
         // Show the channel icons when a search is active and all channels shall be searched
-        val showProgramChannelIcon = baseViewModel.isSearchActive && channelId == 0
+        val showProgramChannelIcon = baseViewModel.isSearchActive && programViewModel.channelId == 0
 
         recyclerViewAdapter = ProgramRecyclerViewAdapter(showProgramChannelIcon, this, this)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
@@ -66,24 +65,14 @@ class ProgramListFragment : BaseFragment(),
 
         Timber.d("Observing programs")
         programViewModel.programs.observe(viewLifecycleOwner) { progs ->
-            if (progs != null) {
-                Timber.d("View model returned ${progs.size} programs")
-                recyclerViewAdapter.addItems(progs.toMutableList())
-                observeSearchQuery()
-                observeRecordings()
-            }
+            Timber.d("View model returned ${progs.size} programs")
+            recyclerViewAdapter.addItems(progs)
+            observeSearchQuery()
+            observeRecordings()
 
             binding.recyclerView.isVisible = true
             showStatusInToolbar()
             activity?.invalidateOptionsMenu()
-        }
-
-        Timber.d("Observing channel id")
-        programViewModel.channelIdLiveData.observe(viewLifecycleOwner) { id ->
-            if (id != null) {
-                Timber.d("View model returned channel id $id")
-                channelId = id
-            }
         }
 
         programViewModel.showGenreColor.observe(viewLifecycleOwner) { recyclerViewAdapter.showGenreColor = it }
@@ -154,8 +143,8 @@ class ProgramListFragment : BaseFragment(),
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val ctx = context ?: return super.onOptionsItemSelected(item)
         return when (item.itemId) {
-            R.id.menu_play -> playSelectedChannel(ctx, channelId)
-            R.id.menu_cast -> castSelectedChannel(ctx, channelId)
+            R.id.menu_play -> playSelectedChannel(ctx, programViewModel.channelId)
+            R.id.menu_cast -> castSelectedChannel(ctx, programViewModel.channelId)
             R.id.menu_genre_color_information -> showGenreColorDialog(ctx)
             else -> super.onOptionsItemSelected(item)
         }

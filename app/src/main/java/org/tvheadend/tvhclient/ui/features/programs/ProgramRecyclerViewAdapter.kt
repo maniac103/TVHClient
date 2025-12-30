@@ -21,7 +21,6 @@ import org.tvheadend.tvhclient.util.extensions.determineSeriesInfoText
 import org.tvheadend.tvhclient.util.extensions.formatDate
 import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
 import org.tvheadend.tvhclient.util.extensions.interpretColoredText
-import org.tvheadend.tvhclient.util.extensions.isEqualTo
 
 class ProgramRecyclerViewAdapter internal constructor(
     private val showChannelIcon: Boolean,
@@ -68,7 +67,7 @@ class ProgramRecyclerViewAdapter internal constructor(
         onBindViewHolder(holder, position)
     }
 
-    internal fun addItems(items: MutableList<ProgramWithChannel>) {
+    internal fun addItems(items: List<ProgramWithChannel>) {
         val newItems = items.map { ItemModel(it) }.toMutableList()
         updateRecordingState(newItems, recordingList)
 
@@ -140,26 +139,18 @@ class ProgramRecyclerViewAdapter internal constructor(
 
     private fun updateRecordingState(items: MutableList<ItemModel>, recordings: List<Recording>) {
         items.forEachIndexed { index, model ->
-            var recordingExists = false
+            val relevantRecording = recordings.firstOrNull { model.program.eventId > 0 && model.program.eventId == it.eventId }
+            if (relevantRecording != null) {
+                val oldRecording = model.recording
+                model.recording = relevantRecording
 
-            for (recording in recordings) {
-                if (model.program.eventId > 0 && model.program.eventId == recording.eventId) {
-                    val oldRecording = model.recording
-                    model.recording = recording
-
-                    // Do a full update only when a new recording was added or the recording
-                    // state has changed which results in a different recording state icon
-                    // Otherwise do not update the UI
-                    if (oldRecording == null
-                            || !oldRecording.error.isEqualTo(recording.error)
-                            || !oldRecording.state.isEqualTo(recording.state)) {
-                        notifyItemChanged(index)
-                    }
-                    recordingExists = true
-                    break
+                // Do a full update only when a new recording was added or the recording
+                // state has changed which results in a different recording state icon
+                // Otherwise do not update the UI
+                if (oldRecording == null || oldRecording.error != relevantRecording.error || oldRecording.state != relevantRecording.state) {
+                    notifyItemChanged(index)
                 }
-            }
-            if (!recordingExists && model.recording != null) {
+            } else if (model.recording != null) {
                 model.recording = null
                 notifyItemChanged(index)
             }
@@ -191,14 +182,12 @@ class ProgramRecyclerViewAdapter internal constructor(
         private val showChannelIcon: Boolean
     ) : RecyclerView.ViewHolder(binding.root) {
         init {
-            val startMargin = binding.root.context.resources.getDimensionPixelSize(if (showChannelIcon) R.dimen.dp_80 else R.dimen.dp_16)
-            listOf(binding.title, binding.subtitle, binding.summary, binding.contentType, binding.date, binding.progress, binding.seriesInfo, binding.description)
-                .forEach { v ->
-                    (v.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
-                        lp.marginStart = startMargin
-                        v.layoutParams = lp
-                    }
-                }
+            if (!showChannelIcon) {
+                val contentStart = (16 * binding.root.context.resources.displayMetrics.density).toInt()
+                binding.contentStart.setGuidelineBegin(contentStart)
+                binding.icon.isVisible = false
+                binding.iconText.isVisible = false
+            }
         }
 
         fun bind(model: ItemModel,
@@ -212,9 +201,6 @@ class ProgramRecyclerViewAdapter internal constructor(
             }
             if (showChannelIcon) {
                 binding.icon.applyIcon(model.program.channelIcon, model.program.channelName, binding.iconText)
-            } else {
-                binding.icon.isVisible = false
-                binding.iconText.isVisible = false
             }
             binding.title.applyTextAndAdjustVisibility { interpretColoredText(model.program.title) }
             binding.subtitle.apply {
@@ -226,8 +212,9 @@ class ProgramRecyclerViewAdapter internal constructor(
                 isVisible = text.isNotEmpty() && (!showProgramSubtitle || model.program.summary != model.program.subtitle)
             }
             binding.genre.apply {
-                isVisible = showGenreColor
-                model.program.determineContentTypeColor(context)?.let { setBackgroundColor(it) }
+                val color = model.program.determineContentTypeColor(context)
+                isVisible = showGenreColor && color != null
+                color?.let { setBackgroundColor(it) }
             }
             binding.contentType.applyText { determineContentTypeText(model.program.contentType) }
             binding.date.applyText { formatDate(model.program.start) }

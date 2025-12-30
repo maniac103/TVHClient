@@ -292,8 +292,9 @@ class ChannelRecyclerViewAdapter internal constructor(
                 progress = item.channel.progress
             }
             binding.genre.apply {
-                isVisible = showGenreColor
-                item.channel.determineContentTypeColor(context)?.let { setBackgroundColor(it) }
+                val color = item.channel.determineContentTypeColor(context)
+                isVisible = showGenreColor && color != null
+                color?.let { setBackgroundColor(it) }
             }
         }
     }

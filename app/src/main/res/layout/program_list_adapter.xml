@@ -9,13 +9,13 @@
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="56dp"
+        android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:contentDescription="@null"
         android:scaleType="fitStart"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
@@ -31,10 +31,8 @@
 
     <TextView
         android:id="@+id/genre"
-        android:layout_width="8dp"
+        android:layout_width="4dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -42,26 +40,32 @@
     <TextView
         android:id="@+id/icon_text"
         style="@style/ContentFont"
-        android:layout_width="56dp"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/content_start"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="68dp" />
 
     <TextView
         android:id="@+id/title"
         style="@style/TitleFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:ellipsize="end"
-        app:layout_constraintEnd_toStartOf="@id/state"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/content_start"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/title" />
 
@@ -70,15 +74,11 @@
         style="@style/SubtitleFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:ellipsize="end"
         android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintStart_toEndOf="@id/content_start"
         app:layout_constraintTop_toBottomOf="@id/title"
         tools:text="@string/subtitle" />
 
@@ -89,7 +89,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:ellipsize="end"
@@ -104,14 +103,10 @@
         style="@style/ContentFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintStart_toEndOf="@id/content_start"
         app:layout_constraintTop_toBottomOf="@id/summary"
         tools:text="@string/content_type" />
 
@@ -120,13 +115,9 @@
         style="@style/ContentFont"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="start"
-        android:textAlignment="viewStart"
         app:layout_constraintBottom_toTopOf="@id/progress"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintStart_toEndOf="@id/content_start"
         app:layout_constraintTop_toBottomOf="@id/content_type"
         tools:text="@tools:sample/date/mmddyy" />
 
@@ -160,15 +151,11 @@
         style="@style/ContentFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="8dp"
         android:singleLine="true"
-        app:layout_constraintBottom_toTopOf="@id/series_info"
+        app:layout_constraintTop_toBottomOf="@id/date"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintStart_toEndOf="@id/content_start"
         tools:text="@string/progress" />
 
     <TextView
@@ -176,15 +163,12 @@
         style="@style/ContentFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:ellipsize="end"
-        app:layout_constraintBottom_toTopOf="@id/description"
+        app:layout_constraintTop_toBottomOf="@id/progress"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintStart_toEndOf="@id/content_start"
         tools:text="@tools:sample/lorem" />
 
     <TextView
@@ -192,29 +176,15 @@
         style="@style/ContentFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
         android:ellipsize="end"
         android:maxLines="6"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/content_start"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        app:layout_constraintTop_toBottomOf="@id/series_info"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:text="@tools:sample/lorem/random" />
-
-    <View
-        android:id="@+id/horizontal_divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:background="?attr/divider_color"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/genre" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
