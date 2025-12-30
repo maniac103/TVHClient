@@ -1,11 +1,16 @@
 package org.tvheadend.tvhclient.ui.features.epg
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
 import org.tvheadend.data.entity.EpgProgram
 import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.RecordingWithChannel
@@ -178,6 +183,19 @@ internal class EpgHorizontalChildRecyclerViewAdapter(
     internal class EpgProgramListViewHolder(
         private val binding: EpgHorizontalChildRecyclerviewAdapterBinding
     ) : RecyclerView.ViewHolder(binding.root) {
+        private val genreBackground = MaterialShapeDrawable(
+            ShapeAppearanceModel.builder()
+                .setAllCornerSizes(8f * itemView.context.resources.displayMetrics.density)
+                .build()
+        )
+
+        init {
+            genreBackground.fillColor = ColorStateList.valueOf(
+                MaterialColors.getColor(itemView, R.attr.colorSurfaceContainerHigh)
+            )
+            binding.genre.background = genreBackground
+        }
+
         fun bind(
             model: ItemModel,
             position: Int,
@@ -195,6 +213,12 @@ internal class EpgHorizontalChildRecyclerViewAdapter(
                 layoutParams = lp
             }
 
+            val contentColor = if (showGenreColor) {
+                model.program.determineContentTypeColor(itemView.context)?.let { ColorUtils.setAlphaComponent(it, 100) }
+            } else {
+                null
+            }
+
             binding.title.applyTextAndAdjustVisibility { interpretColoredText(model.program.title) }
             binding.subtitle.apply {
                 text = context.interpretColoredText(model.program.subtitle)
@@ -202,11 +226,7 @@ internal class EpgHorizontalChildRecyclerViewAdapter(
             }
             binding.duration.applyText { getString(R.string.minutes, model.program.duration) }
             binding.state.applyRecordingStateIcon(model.recording)
-            binding.genre.apply {
-                val color = model.program.determineContentTypeColor(context, 25)
-                isVisible = showGenreColor && color != null
-                color?.let { setBackgroundColor(it) }
-            }
+            genreBackground.tintList = contentColor?.let { ColorStateList.valueOf(it) }
         }
     }
 }

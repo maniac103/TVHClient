@@ -18,6 +18,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.EpgViewpagerFragmentBinding
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.formatDate
 import org.tvheadend.tvhclient.util.extensions.formatTime
@@ -46,6 +47,9 @@ class EpgViewPagerFragment : Fragment(), EpgScrollInterface {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.viewpagerRecyclerView.applyNavigationBarPadding()
+
         Timber.d("Initializing")
         epgViewModel = ViewModelProvider(requireActivity())[EpgViewModel::class.java]
 
@@ -73,26 +77,20 @@ class EpgViewPagerFragment : Fragment(), EpgScrollInterface {
                     enableScrolling = true
                 } else if (enableScrolling) {
                     enableScrolling = false
-                    activity?.let {
-                        val fragment = it.supportFragmentManager.findFragmentById(R.id.main)
-                        if (fragment is EpgScrollInterface) {
-                            (fragment as EpgScrollInterface).onScrollStateChanged()
-                        }
-                    }
+                    val fragment = activity?.supportFragmentManager?.findFragmentById(R.id.main)
+                    (fragment as? EpgScrollInterface)?.onScrollStateChanged()
                 }
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (enableScrolling) {
-                    activity?.let {
-                        val position = recyclerViewLinearLayoutManager?.findFirstVisibleItemPosition() ?: -1
-                        val childView = recyclerViewLinearLayoutManager?.getChildAt(0)
-                        val offset = if (childView == null) 0 else childView.top - recyclerView.paddingTop
-                        val fragment = it.supportFragmentManager.findFragmentById(R.id.main)
-                        if (fragment is EpgScrollInterface && position >= 0) {
-                            (fragment as EpgScrollInterface).onScroll(position, offset)
-                        }
+                    val position = recyclerViewLinearLayoutManager?.findFirstVisibleItemPosition() ?: -1
+                    val childView = recyclerViewLinearLayoutManager?.getChildAt(0)
+                    val offset = if (childView == null) 0 else childView.top - recyclerView.paddingTop
+                    val fragment = activity?.supportFragmentManager?.findFragmentById(R.id.main)
+                    if (fragment is EpgScrollInterface && position >= 0) {
+                        fragment.onScroll(position, offset)
                     }
                 }
             }

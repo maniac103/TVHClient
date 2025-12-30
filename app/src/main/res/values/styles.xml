@@ -19,6 +19,7 @@
 
     <!--<editor-fold desc="Font for the program guide screen">-->
     <style name="ProgramGuideTitleFont" parent="TextAppearance.Material3.TitleSmall.Emphasized">
+        <item name="android:textSize">12sp</item>
     </style>
 
     <style name="ProgramGuideContentFont" parent="TextAppearance.Material3.BodySmall">
