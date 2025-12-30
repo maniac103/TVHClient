@@ -187,7 +187,7 @@ class ProgramDetailsActivity : BaseActivity() {
         // Info card
         binding.channelIcon.applyIcon(program.channelIcon)
         binding.channel.text = program.channelName
-        binding.contentType.applyText { determineContentTypeText(program.contentType) }
+        binding.contentType.applyTextAndAdjustVisibility { program.determineContentTypeText(this) }
         binding.contentTypeColor.apply {
             val color = program.determineContentTypeColor(context)
             isVisible = color != null

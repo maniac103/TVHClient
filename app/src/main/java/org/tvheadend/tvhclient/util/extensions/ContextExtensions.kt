@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
-import android.util.SparseArray
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.cast.framework.CastContext
@@ -89,55 +88,6 @@ fun Context.sendSyncStateMessage(state: SyncStateResult, message: String = "", d
     LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
 }
 
-fun Context.determineContentTypeColor(contentType: Int, alphaOffset: Int = 0): Int? {
-    val type = contentType / 16 - 1
-    val colorResId = when (type) {
-        0 -> R.color.EPG_MOVIES
-        1 -> R.color.EPG_NEWS
-        2 -> R.color.EPG_SHOWS
-        3 -> R.color.EPG_SPORTS
-        4 -> R.color.EPG_CHILD
-        5 -> R.color.EPG_MUSIC
-        6 -> R.color.EPG_ARTS
-        7 -> R.color.EPG_SOCIAL
-        8 -> R.color.EPG_SCIENCE
-        9 -> R.color.EPG_HOBBY
-        10 -> R.color.EPG_SPECIAL
-        else -> null
-    }
-
-    return colorResId?.let {
-        val color = ContextCompat.getColor(this, it)
-        val alpha = max(((prefs.genreColorTransparencyPercent.toFloat() - alphaOffset) / 100.0f * 255.0f).toInt(), 0)
-        Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color))
-    }
-}
-
-fun Context.determineContentTypeText(contentType: Int): String {
-    val ret = SparseArray<String>()
-
-    val arrayResIds = listOf(
-        R.array.pr_content_type0,
-        R.array.pr_content_type1,
-        R.array.pr_content_type2,
-        R.array.pr_content_type3,
-        R.array.pr_content_type4,
-        R.array.pr_content_type5,
-        R.array.pr_content_type6,
-        R.array.pr_content_type7,
-        R.array.pr_content_type8,
-        R.array.pr_content_type9,
-        R.array.pr_content_type10,
-        R.array.pr_content_type11,
-    )
-    val arrayIndex = contentType / 16
-    val arrayValues = arrayResIds.getOrNull(arrayIndex)?.let { resources.getStringArray(it) }
-    val arrayEntryIndex = contentType.mod(16)
-    val text = arrayValues?.getOrNull(arrayEntryIndex)
-
-    return text ?: getString(R.string.no_data)
-}
-
 fun Context.determineDaysOfWeekText(daysOfWeekBitmask: Int): String {
     val daysOfWeekList = resources.getStringArray(R.array.day_short_names)
     return (0..6)
@@ -214,6 +164,49 @@ fun Context.formatDate(date: Long): String {
             df.format(date)
         }
     }
+}
+
+fun Context.determineContentTypeColor(contentType: Int, alphaOffset: Int = 0): Int? {
+    val colorResId = when (contentType / 16) {
+        1 -> R.color.EPG_MOVIES
+        2 -> R.color.EPG_NEWS
+        3 -> R.color.EPG_SHOWS
+        4 -> R.color.EPG_SPORTS
+        5 -> R.color.EPG_CHILD
+        6 -> R.color.EPG_MUSIC
+        7 -> R.color.EPG_ARTS
+        8 -> R.color.EPG_SOCIAL
+        9 -> R.color.EPG_SCIENCE
+        10 -> R.color.EPG_HOBBY
+        11 -> R.color.EPG_SPECIAL
+        else -> null
+    }
+
+    return colorResId?.let {
+        val color = ContextCompat.getColor(this, it)
+        val alpha = max(((prefs.genreColorTransparencyPercent.toFloat() - alphaOffset) / 100.0f * 255.0f).toInt(), 0)
+        Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color))
+    }
+}
+
+fun Context.determineContentTypeText(contentType: Int): String? {
+    val arrayResIds = listOf(
+        null, // 0 is undefined
+        R.array.pr_content_type1,
+        R.array.pr_content_type2,
+        R.array.pr_content_type3,
+        R.array.pr_content_type4,
+        R.array.pr_content_type5,
+        R.array.pr_content_type6,
+        R.array.pr_content_type7,
+        R.array.pr_content_type8,
+        R.array.pr_content_type9,
+        R.array.pr_content_type10,
+        R.array.pr_content_type11,
+    )
+    val arrayIndex = contentType / 16
+    val arrayValues = arrayResIds.getOrNull(arrayIndex)?.let { resources.getStringArray(it) }
+    return arrayValues?.getOrNull(contentType % 16)
 }
 
 fun Context.interpretColoredText(text: String?): CharSequence? {

@@ -8,9 +8,11 @@ import org.tvheadend.data.entity.RecordingInterface
 import org.tvheadend.tvhclient.R
 import java.util.Locale
 
-
 fun RecordingInterface.determineContentTypeColor(context: Context) =
     context.determineContentTypeColor(contentType * 16)
+
+fun RecordingInterface.determineContentTypeText(context: Context) =
+    context.determineContentTypeText(contentType * 16)
 
 fun RecordingInterface.determineRecordingStateText(context: Context): String? {
     val stateTextResId = when {
@@ -70,8 +72,14 @@ fun RecordingInterface.determineStreamErrorText(context: Context): String? {
 fun ChannelWithProgram.determineContentTypeColor(context: Context) =
     context.determineContentTypeColor(programContentType)
 
+fun ChannelWithProgram.determineContentTypeText(context: Context) =
+    context.determineContentTypeText(programContentType)
+
 fun ProgramBaseInterface.determineContentTypeColor(context: Context, alphaOffset: Int = 0) =
     context.determineContentTypeColor(contentType, alphaOffset)
+
+fun ProgramBaseInterface.determineContentTypeText(context: Context) =
+    context.determineContentTypeText(contentType)
 
 fun ProgramInterface.determineSeriesInfoText(context: Context): String {
     val season = context.getString(R.string.season)

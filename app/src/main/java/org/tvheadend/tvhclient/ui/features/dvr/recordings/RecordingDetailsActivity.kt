@@ -139,7 +139,7 @@ class RecordingDetailsActivity : BaseActivity(), RecordingRemovedInterface {
         // Info card
         binding.channelIcon.applyIcon(recording.channelIcon)
         binding.channel.applyTextAndAdjustVisibility { recording.channelName ?: getString(R.string.all_channels) }
-        binding.contentType.applyTextAndAdjustVisibility { determineContentTypeText(recording.contentType * 16) }
+        binding.contentType.applyTextAndAdjustVisibility { recording.determineContentTypeText(this) }
         binding.contentTypeColor.apply {
             val color = recording.determineContentTypeColor(context)
             isVisible = color != null

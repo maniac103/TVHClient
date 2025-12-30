@@ -216,7 +216,7 @@ class ProgramRecyclerViewAdapter internal constructor(
                 isVisible = showGenreColor && color != null
                 color?.let { setBackgroundColor(it) }
             }
-            binding.contentType.applyText { determineContentTypeText(model.program.contentType) }
+            binding.contentType.applyTextAndAdjustVisibility { model.program.determineContentTypeText(this) }
             binding.date.applyText { formatDate(model.program.start) }
             binding.startStop.applyText { formatStartStopTime(model.program.start, model.program.stop) }
             binding.duration.applyText { getString(R.string.minutes, model.program.duration) }

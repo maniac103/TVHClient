@@ -175,7 +175,7 @@ fun showGenreColorDialog(context: Context): Boolean {
     return true
 }
 
-class GenreColorListAdapter internal constructor(context: Context, private val contentInfo: Array<String>) :
+class GenreColorListAdapter internal constructor(context: Context, contentInfo: Array<String>) :
     ArrayAdapter<String>(context, R.layout.genre_color_list_adapter, R.id.genre, contentInfo) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
