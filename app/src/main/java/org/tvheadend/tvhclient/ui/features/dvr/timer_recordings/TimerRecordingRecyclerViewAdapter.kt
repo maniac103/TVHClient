@@ -11,6 +11,7 @@ import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.TimerRecordingListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
+import org.tvheadend.tvhclient.ui.features.dvr.minutesToTimeMillis
 import org.tvheadend.tvhclient.util.extensions.applyIcon
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.determineDaysOfWeekText
@@ -137,8 +138,8 @@ class TimerRecordingRecyclerViewAdapter internal constructor(
             binding.daysOfWeek.applyText { determineDaysOfWeekText(recording.daysOfWeek) }
             binding.startStop.applyText {
                 formatStartStopTime(
-                    if (recording.start == 0L) -1L else recording.startTimeInMillis,
-                    if (recording.stop == 0L) -1L else recording.stopTimeInMillis
+                    minutesToTimeMillis(recording.start),
+                    minutesToTimeMillis(recording.stop)
                 )
             }
             binding.disabled.isVisible = caps.recordingEnabledSupported && !recording.isEnabled

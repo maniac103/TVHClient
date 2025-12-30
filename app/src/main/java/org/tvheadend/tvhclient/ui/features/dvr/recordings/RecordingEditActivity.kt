@@ -8,12 +8,11 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvheadend.data.ServerCapabilities
-import org.tvheadend.data.entity.Channel
+import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecordingEditActivityBinding
 import org.tvheadend.tvhclient.ui.base.BaseActivity
-import org.tvheadend.tvhclient.ui.features.dvr.RecordingConfigSelectedListener
 import org.tvheadend.tvhclient.ui.features.dvr.getDateStringFromTimeInMillis
 import org.tvheadend.tvhclient.ui.features.dvr.getSelectedProfileId
 import org.tvheadend.tvhclient.ui.features.dvr.getTimeStringFromTimeInMillis
@@ -27,9 +26,11 @@ import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.afterTextChanged
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.determinePriorityText
+import org.tvheadend.tvhclient.util.extensions.observeOnce
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
+import org.tvheadend.tvhclient.util.livedata.CombinedPairLiveData
 
-class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
+class RecordingEditActivity : BaseActivity() {
 
     private lateinit var binding: RecordingEditActivityBinding
     private lateinit var recordingViewModel: RecordingViewModel
@@ -52,17 +53,25 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
         profile = recordingViewModel.getRecordingProfile()
         recordingViewModel.recordingProfileNameId = getSelectedProfileId(profile, recordingProfilesList)
 
+        val id = intent.getIntExtra("id", 0)
         if (savedInstanceState == null) {
-            recordingViewModel.loadRecordingByIdSync(intent.getIntExtra("id", 0))
+            recordingViewModel.currentIdLiveData.value = id
         }
 
-        setTitle(
-            if (recordingViewModel.recording.id == 0) R.string.add_recording else R.string.edit_recording
-        )
+        setTitle(if (id == 0) R.string.add_recording else R.string.edit_recording)
 
-        val recording = recordingViewModel.recording
-        caps = ServerCapabilities(globalStatusViewModel.htspVersionLiveData.value ?: 0)
+        val inputLiveData = CombinedPairLiveData(
+            recordingViewModel.recordingLiveData,
+            globalStatusViewModel.htspVersionLiveData
+        ) { rec, htspVersion -> rec to ServerCapabilities(htspVersion) }
 
+        inputLiveData.observeOnce(this) { (rec, caps) ->
+            this.caps = caps
+            updateUI(rec)
+        }
+    }
+
+    private fun updateUI(recording: RecordingWithChannel) {
         binding.titleWrapper.isVisible = caps.recordingTitleSupported
         binding.title.setText(recording.title)
 
@@ -80,9 +89,8 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
             setOnClickListener {
                 val picker = showTimePicker(recording.stop)
                 picker.addOnPositiveButtonClickListener {
-                    val millis = replaceHourAndMinute(recording.stop, picker.hour, picker.minute)
-                    recordingViewModel.recording.stop = millis
-                    setText(getTimeStringFromTimeInMillis(millis))
+                    recording.stop = replaceHourAndMinute(recording.stop, picker.hour, picker.minute)
+                    setText(getTimeStringFromTimeInMillis(recording.stop))
                 }
                 picker.show(supportFragmentManager, "stopTime")
             }
@@ -93,7 +101,7 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
                 val picker = showDatePicker(recording.stop)
                 picker.addOnPositiveButtonClickListener {
                     picker.selection?.let {
-                        recordingViewModel.recording.stop = it
+                        recording.stop = it
                         setText(getDateStringFromTimeInMillis(it))
                     }
                 }
@@ -105,15 +113,17 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
 
         binding.channelWrapper.isVisible = !recording.isRecording
         if (!binding.channelWrapper.isVisible) {
-            binding.channelName.applyText { recordingViewModel.recording.channelName ?: getString(R.string.all_channels) }
+            binding.channelName.applyText { recording.channelName ?: getString(R.string.all_channels) }
             binding.channelName.setOnClickListener {
                 // Determine if the server supports recording on all channels
                 handleChannelListSelection(
                     this,
                     recordingViewModel.getChannelList(),
-                    caps.recordingOnAllChannelsSupported,
-                    this
-                )
+                    caps.recordingOnAllChannelsSupported
+                ) { channel ->
+                    recording.channelId = channel.id
+                    binding.channelName.setText(channel.name)
+                }
             }
         }
 
@@ -123,7 +133,10 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
         binding.priority.isVisible = !recording.isRecording
         binding.priority.applyText { determinePriorityText(recording.priority) }
         binding.priority.setOnClickListener {
-            handlePrioritySelection(this, recording.priority, this)
+            handlePrioritySelection(this, recording.priority) { prio ->
+                recording.priority = prio
+                binding.priority.applyText { determinePriorityText(prio) }
+            }
         }
 
         binding.dvrConfigWrapper.isVisible = !recordingProfilesList.isEmpty() && !recording.isRecording
@@ -135,8 +148,10 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
                         this@RecordingEditActivity,
                         recordingProfilesList,
                         recordingViewModel.recordingProfileNameId,
-                        this@RecordingEditActivity
-                    )
+                    ) { profileIndex ->
+                        recordingViewModel.recordingProfileNameId = profileIndex
+                        binding.dvrConfig.setText(recordingProfilesList[profileIndex])
+                    }
                 }
             }
         }
@@ -151,9 +166,8 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
                 setOnClickListener {
                     val picker = showTimePicker(recording.start)
                     picker.addOnPositiveButtonClickListener {
-                        val millis = replaceHourAndMinute(recording.start, picker.hour, picker.minute)
-                        recordingViewModel.recording.start = millis
-                        setText(getTimeStringFromTimeInMillis(millis))
+                        recording.start = replaceHourAndMinute(recording.start, picker.hour, picker.minute)
+                        setText(getTimeStringFromTimeInMillis(recording.start))
                     }
                     picker.show(supportFragmentManager, "startTime")
                 }
@@ -164,7 +178,7 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
                     val picker = showDatePicker(recording.start)
                     picker.addOnPositiveButtonClickListener {
                         picker.selection?.let {
-                            recordingViewModel.recording.start = it
+                            recording.start = it
                             setText(getDateStringFromTimeInMillis(it))
                         }
                     }
@@ -179,10 +193,8 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
         binding.description.afterTextChanged { recording.description = it }
         binding.startExtra.afterTextChanged { recording.startExtra = it.toLong() }
         binding.stopExtra.afterTextChanged { recording.stopExtra = it.toLong() }
-        binding.isEnabled.setOnCheckedChangeListener { _, isChecked ->
-            recording.isEnabled = isChecked
-        }
-        binding.save.setOnClickListener { save() }
+        binding.isEnabled.setOnCheckedChangeListener { _, isChecked -> recording.isEnabled = isChecked }
+        binding.save.setOnClickListener { save(recording) }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -200,29 +212,29 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
      * creates the intent that will be passed to the service to save the newly
      * created recordingViewModel.recording.
      */
-    private fun save() {
-        if (recordingViewModel.recording.title.isNullOrEmpty() && caps.recordingTitleSupported) {
+    private fun save(recording: RecordingWithChannel) {
+        if (recording.title.isNullOrEmpty() && caps.recordingTitleSupported) {
             sendSnackbarMessage(R.string.error_empty_title)
             return
         }
-        if (recordingViewModel.recording.channelId == 0 && !caps.recordingOnAllChannelsSupported) {
+        if (recording.channelId == 0 && !caps.recordingOnAllChannelsSupported) {
             sendSnackbarMessage(R.string.error_no_channel_selected)
             return
         }
 
-        if (recordingViewModel.recording.start >= recordingViewModel.recording.stop) {
+        if (recording.start >= recording.stop) {
             sendSnackbarMessage(R.string.error_start_time_past_stop_time)
             return
         }
 
-        val intent = recordingViewModel.getIntentData(this, recordingViewModel.recording.base)
+        val intent = recordingViewModel.getIntentData(this, recording.base)
         if (profile != null && caps.recordingProfileSupported && binding.dvrConfig.text.isNotEmpty()) {
             intent.putExtra("configName", binding.dvrConfig.text.toString())
         }
 
-        if (recordingViewModel.recording.id > 0) {
+        if (recording.id > 0) {
             intent.action = "updateDvrEntry"
-            intent.putExtra("id", recordingViewModel.recording.id)
+            intent.putExtra("id", recording.id)
         } else {
             intent.action = "addDvrEntry"
         }
@@ -242,25 +254,6 @@ class RecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
             .setPositiveButton(R.string.discard) { _, _ -> finish() }
             .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .show()
-    }
-
-    override fun onChannelSelected(channel: Channel) {
-        recordingViewModel.recording.channelId = channel.id
-        binding.channelName.setText(channel.name)
-    }
-
-    override fun onPrioritySelected(which: Int) {
-        binding.priority.applyText { determinePriorityText(which) }
-        recordingViewModel.recording.priority = which
-    }
-
-    override fun onDaysSelected(selectedDays: Int) {
-        // NOP
-    }
-
-    override fun onProfileSelected(which: Int) {
-        binding.dvrConfig.setText(recordingProfilesList[which])
-        recordingViewModel.recordingProfileNameId = which
     }
 
     override fun onBackPressed() {

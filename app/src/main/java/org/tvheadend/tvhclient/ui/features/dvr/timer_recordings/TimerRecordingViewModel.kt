@@ -13,22 +13,26 @@ import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
-import org.tvheadend.tvhclient.util.extensions.filter
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
 import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 import org.tvheadend.tvhclient.util.extensions.timerRecordingDataSource
-import timber.log.Timber
-import java.util.*
 
 class TimerRecordingViewModel(application: Application) : BaseViewModel(application) {
 
     var selectedListPosition = 0
     val currentIdLiveData = MutableLiveData("")
-    var recording = TimerRecordingWithChannel(TimerRecording())
     val recordingLiveData = currentIdLiveData
-        .filter { it.isNotEmpty() }
-        .map { application.timerRecordingDataSource.getItemById(it) }
+        .map { id ->
+            val rec = id
+                .takeIf { it.isNotEmpty() }
+                ?.let { application.timerRecordingDataSource.getItemById(it) }
+                ?: TimerRecordingWithChannel(TimerRecording())
+            isTimeEnabled = rec.start > 0 && rec.stop > 0
+            rec
+        }
+    var isTimeEnabled: Boolean = false
+
     val recordings = application.timerRecordingDataSource.getLiveDataItems()
     var recordingProfileNameId = 0
 
@@ -45,8 +49,8 @@ class TimerRecordingViewModel(application: Application) : BaseViewModel(applicat
             intent.putExtra("start", recording.start)
             intent.putExtra("stop", recording.stop)
         } else {
-            intent.putExtra("start", (0).toLong())
-            intent.putExtra("stop", (0).toLong())
+            intent.putExtra("start", 0L)
+            intent.putExtra("stop", 0L)
         }
         intent.putExtra("daysOfWeek", recording.daysOfWeek)
         intent.putExtra("priority", recording.priority)
@@ -56,54 +60,6 @@ class TimerRecordingViewModel(application: Application) : BaseViewModel(applicat
             intent.putExtra("channelId", recording.channelId)
         }
         return intent
-    }
-
-    var isTimeEnabled: Boolean = false
-        set(value) {
-            field = value
-            if (!value) {
-                startTimeInMillis = Calendar.getInstance().timeInMillis
-                stopTimeInMillis = Calendar.getInstance().timeInMillis
-            }
-        }
-
-    fun loadRecordingByIdSync(id: String) {
-        recording = application.timerRecordingDataSource.getItemById(id) ?: TimerRecordingWithChannel(TimerRecording())
-        isTimeEnabled = recording.start > 0 && recording.stop > 0
-    }
-
-    var startTimeInMillis: Long = 0
-        get() {
-            return recording.startTimeInMillis
-        }
-        set(milliSeconds) {
-            field = milliSeconds
-            recording.start = getMinutesFromTime(milliSeconds)
-        }
-
-    var stopTimeInMillis: Long = 0
-        get() {
-            return recording.stopTimeInMillis
-        }
-        set(milliSeconds) {
-            field = milliSeconds
-            recording.stop = getMinutesFromTime(milliSeconds)
-        }
-
-    /**
-     * The start and stop time handling is done in milliseconds within the app, but the
-     * server requires and provides minutes instead. In case the start and stop times of
-     * a recording need to be updated the milliseconds will be converted to minutes.
-     */
-    private fun getMinutesFromTime(milliSeconds : Long) : Long {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = milliSeconds
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val minute = calendar.get(Calendar.MINUTE)
-
-        val minutes = (hour * 60 + minute).toLong()
-        Timber.d("Time in millis is $milliSeconds, start minutes are $minutes")
-        return minutes
     }
 
     fun getChannelList(): List<Channel> {

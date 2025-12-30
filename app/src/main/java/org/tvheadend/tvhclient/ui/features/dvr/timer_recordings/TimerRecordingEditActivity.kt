@@ -4,32 +4,32 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.tvheadend.data.ServerCapabilities
-import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.ServerProfile
+import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.TimerRecordingEditActivityBinding
 import org.tvheadend.tvhclient.ui.base.BaseActivity
-import org.tvheadend.tvhclient.ui.features.dvr.RecordingConfigSelectedListener
 import org.tvheadend.tvhclient.ui.features.dvr.getSelectedProfileId
 import org.tvheadend.tvhclient.ui.features.dvr.getTimeStringFromTimeInMillis
 import org.tvheadend.tvhclient.ui.features.dvr.handleChannelListSelection
 import org.tvheadend.tvhclient.ui.features.dvr.handlePrioritySelection
 import org.tvheadend.tvhclient.ui.features.dvr.handleRecordingProfileSelection
-import org.tvheadend.tvhclient.ui.features.dvr.replaceHourAndMinute
+import org.tvheadend.tvhclient.ui.features.dvr.minutesToTimeMillis
 import org.tvheadend.tvhclient.ui.features.dvr.showTimePicker
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.afterTextChanged
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.determinePriorityText
+import org.tvheadend.tvhclient.util.extensions.observeOnce
 import org.tvheadend.tvhclient.util.extensions.sendSnackbarMessage
+import org.tvheadend.tvhclient.util.livedata.CombinedPairLiveData
 import timber.log.Timber
 
-class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListener {
+class TimerRecordingEditActivity : BaseActivity() {
 
     private lateinit var binding: TimerRecordingEditActivityBinding
     private lateinit var timerRecordingViewModel: TimerRecordingViewModel
@@ -53,18 +53,25 @@ class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListen
         profile = timerRecordingViewModel.getRecordingProfile()
         timerRecordingViewModel.recordingProfileNameId = getSelectedProfileId(profile, recordingProfilesList)
 
+        val id = intent.getStringExtra("id") ?: ""
         if (savedInstanceState == null) {
-            timerRecordingViewModel.loadRecordingByIdSync(intent.getStringExtra("id") ?: "")
+            timerRecordingViewModel.currentIdLiveData.value = id
         }
 
-        setTitle(
-            getString(if (timerRecordingViewModel.recording.id.isEmpty()) R.string.add_recording else R.string.edit_recording)
-        )
+        setTitle(getString(if (id.isEmpty()) R.string.add_recording else R.string.edit_recording))
 
-        val recording = timerRecordingViewModel.recording
-        caps = ServerCapabilities(globalStatusViewModel.htspVersionLiveData.value ?: 0)
+        val inputLiveData = CombinedPairLiveData(
+            timerRecordingViewModel.recordingLiveData,
+            globalStatusViewModel.htspVersionLiveData
+        ) { rec, htspVersion -> rec to ServerCapabilities(htspVersion) }
 
-        binding.save.setOnClickListener { save() }
+        inputLiveData.observeOnce(this) { (rec, caps) ->
+            this.caps = caps
+            updateUI(rec)
+        }
+    }
+
+    private fun updateUI(recording: TimerRecordingWithChannel) {
         binding.enabledWrapper.isVisible = caps.timerRecordingEnabledSupported
         binding.isEnabled.isChecked = recording.isEnabled
 
@@ -80,59 +87,61 @@ class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListen
             handleChannelListSelection(
                 this,
                 timerRecordingViewModel.getChannelList(),
-                caps.recordingOnAllChannelsSupported,
-                this@TimerRecordingEditActivity
-            )
+                caps.recordingOnAllChannelsSupported
+            ) { channel ->
+                recording.channelId = channel.id
+                binding.channelName.setText(channel.name)
+            }
         }
 
         binding.priority.applyText { determinePriorityText(recording.priority) }
         binding.priority.setOnClickListener {
-            handlePrioritySelection(this, recording.priority, this@TimerRecordingEditActivity)
+            handlePrioritySelection(this, recording.priority) { prio ->
+                recording.priority = prio
+                binding.priority.applyText { determinePriorityText(recording.priority) }
+            }
         }
 
         binding.dvrConfigWrapper.isVisible = recordingProfilesList.isNotEmpty()
         if (recordingProfilesList.isNotEmpty()) {
-            binding.dvrConfig.setText(recordingProfilesList[timerRecordingViewModel.recordingProfileNameId], TextView.BufferType.NORMAL)
+            binding.dvrConfig.setText(recordingProfilesList[timerRecordingViewModel.recordingProfileNameId])
             binding.dvrConfig.setOnClickListener {
                 handleRecordingProfileSelection(
                     this,
                     recordingProfilesList,
-                    timerRecordingViewModel.recordingProfileNameId,
-                    this@TimerRecordingEditActivity
-                )
+                    timerRecordingViewModel.recordingProfileNameId
+                ) { profileIndex ->
+                    timerRecordingViewModel.recordingProfileNameId = profileIndex
+                    binding.dvrConfig.setText(recordingProfilesList[profileIndex])
+                }
             }
         }
 
-        binding.startTime.setText(getTimeStringFromTimeInMillis(timerRecordingViewModel.startTimeInMillis), TextView.BufferType.NORMAL)
+        binding.startTime.setText(getTimeStringFromTimeInMillis(minutesToTimeMillis(recording.start)))
         binding.startTime.setOnClickListener {
-            val picker = showTimePicker(timerRecordingViewModel.startTimeInMillis)
+            val picker = showTimePicker(minutesToTimeMillis(recording.start))
             picker.addOnPositiveButtonClickListener {
-                val millis = replaceHourAndMinute(timerRecordingViewModel.startTimeInMillis, picker.hour, picker.minute)
-                timerRecordingViewModel.startTimeInMillis = millis
-                handleStartStopTimeUpdate()
+                recording.start = 60L * picker.hour + picker.minute
+                handleStartStopTimeUpdate(recording)
             }
             picker.show(supportFragmentManager, "startTime")
         }
 
-        binding.stopTime.setText(getTimeStringFromTimeInMillis(timerRecordingViewModel.stopTimeInMillis), TextView.BufferType.NORMAL)
+        binding.stopTime.setText(getTimeStringFromTimeInMillis(minutesToTimeMillis(recording.stop)))
         binding.stopTime.setOnClickListener {
-            val picker = showTimePicker(timerRecordingViewModel.startTimeInMillis)
+            val picker = showTimePicker(minutesToTimeMillis(recording.stop))
             picker.addOnPositiveButtonClickListener {
-                val millis = replaceHourAndMinute(timerRecordingViewModel.stopTimeInMillis, picker.hour, picker.minute)
-                timerRecordingViewModel.stopTimeInMillis = millis
-                handleStartStopTimeUpdate()
+                recording.stop = 60L * picker.hour + picker.minute
+                handleStartStopTimeUpdate(recording)
             }
             picker.show(supportFragmentManager, "stopTime")
         }
 
         binding.daysOfWeek.selectedDaysBitmask = recording.daysOfWeek
-        binding.daysOfWeek.setOnSelectedDaysChangedListener { days ->
-            timerRecordingViewModel.recording.daysOfWeek = days
-        }
+        binding.daysOfWeek.setOnSelectedDaysChangedListener { recording.daysOfWeek = it }
 
         binding.timeEnabled.isChecked = timerRecordingViewModel.isTimeEnabled
         handleTimeEnabledClick(binding.timeEnabled.isChecked)
-
         binding.timeEnabled.setOnClickListener {
             handleTimeEnabledClick(binding.timeEnabled.isChecked)
         }
@@ -140,9 +149,8 @@ class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListen
         binding.title.afterTextChanged { recording.title = it }
         binding.name.afterTextChanged { recording.name = it }
         binding.directory.afterTextChanged { recording.directory = it }
-        binding.isEnabled.setOnCheckedChangeListener { _, isChecked ->
-            recording.isEnabled = isChecked
-        }
+        binding.isEnabled.setOnCheckedChangeListener { _, isChecked -> recording.isEnabled = isChecked }
+        binding.save.setOnClickListener { save(recording) }
     }
 
     private fun handleTimeEnabledClick(checked: Boolean) {
@@ -163,13 +171,13 @@ class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListen
         }
     }
 
-    private fun save() {
-        if (timerRecordingViewModel.recording.title.isNullOrEmpty()) {
+    private fun save(recording: TimerRecordingWithChannel) {
+        if (recording.title.isNullOrEmpty()) {
             sendSnackbarMessage(R.string.error_empty_title)
             return
         }
 
-        val intent = timerRecordingViewModel.getIntentData(this, timerRecordingViewModel.recording.base)
+        val intent = timerRecordingViewModel.getIntentData(this, recording.base)
 
         // Add the recording profile if available and enabled
         if (profile != null && caps.recordingProfileSupported && binding.dvrConfig.text.isNotEmpty()) {
@@ -178,9 +186,9 @@ class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListen
 
         // Update the recording in case the id is not empty, otherwise add a new one.
         // When adding a new recording, the id is an empty string as a default.
-        if (timerRecordingViewModel.recording.id.isNotEmpty()) {
+        if (recording.id.isNotEmpty()) {
             intent.action = "updateTimerecEntry"
-            intent.putExtra("id", timerRecordingViewModel.recording.id)
+            intent.putExtra("id", recording.id)
         } else {
             intent.action = "addTimerecEntry"
         }
@@ -204,35 +212,17 @@ class TimerRecordingEditActivity : BaseActivity(), RecordingConfigSelectedListen
             .show()
     }
 
-    override fun onChannelSelected(channel: Channel) {
-        timerRecordingViewModel.recording.channelId = channel.id
-        binding.channelName.setText(channel.name, TextView.BufferType.NORMAL)
-    }
-
-    override fun onPrioritySelected(which: Int) {
-        timerRecordingViewModel.recording.priority = which
-        binding.priority.applyText { determinePriorityText(timerRecordingViewModel.recording.priority) }
-    }
-
-    override fun onProfileSelected(which: Int) {
-        binding.dvrConfig.setText(recordingProfilesList[which], TextView.BufferType.NORMAL)
-        timerRecordingViewModel.recordingProfileNameId = which
-    }
-
-    private fun handleStartStopTimeUpdate() {
+    private fun handleStartStopTimeUpdate(recording: TimerRecordingWithChannel) {
         // If the start time is after the stop time, update the stop time with the start value
-        if (timerRecordingViewModel.startTimeInMillis > timerRecordingViewModel.stopTimeInMillis) {
-            timerRecordingViewModel.stopTimeInMillis = timerRecordingViewModel.startTimeInMillis
+        if (recording.start > recording.stop) {
+            recording.stop = recording.start
         // If the stop time is before the start time, update the start time with the stop value
-        } else if (timerRecordingViewModel.stopTimeInMillis < timerRecordingViewModel.recording.startTimeInMillis) {
-            timerRecordingViewModel.startTimeInMillis = timerRecordingViewModel.stopTimeInMillis
+        } else if (recording.stop < recording.start) {
+            recording.start = recording.stop
         }
 
-        binding.startTime.setText(getTimeStringFromTimeInMillis(timerRecordingViewModel.startTimeInMillis), TextView.BufferType.NORMAL)
-        binding.stopTime.setText(getTimeStringFromTimeInMillis(timerRecordingViewModel.stopTimeInMillis), TextView.BufferType.NORMAL)
-    }
-
-    override fun onDaysSelected(selectedDays: Int) {
+        binding.startTime.setText(getTimeStringFromTimeInMillis(minutesToTimeMillis(recording.start)))
+        binding.stopTime.setText(getTimeStringFromTimeInMillis(minutesToTimeMillis(recording.stop)))
     }
 
     override fun onBackPressed() {

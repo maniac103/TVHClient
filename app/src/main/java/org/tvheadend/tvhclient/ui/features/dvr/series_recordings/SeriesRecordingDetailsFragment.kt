@@ -18,6 +18,7 @@ import org.tvheadend.tvhclient.ui.base.BaseFragment
 import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.ClearSearchResultsOrPopBackStackInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
+import org.tvheadend.tvhclient.ui.features.dvr.minutesToTimeMillis
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
 import org.tvheadend.tvhclient.util.extensions.determineDaysOfWeekText
@@ -65,8 +66,8 @@ class SeriesRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface
             }
             binding.name.applyTextAndAdjustVisibility(rec.name?.takeIf { it.isNotEmpty() } ?: rec.title)
             binding.channel.applyText { rec.channelName ?:getString(R.string.all_channels) }
-            binding.startAfterTime.applyText { formatTime(rec.start.takeIf { it < 0 } ?: rec.startTimeInMillis) }
-            binding.startBeforeTime.applyText { formatTime(rec.startWindow.takeIf { it < 0 } ?: rec.startWindowTimeInMillis) }
+            binding.startAfterTime.applyText { formatTime(minutesToTimeMillis(rec.start)) }
+            binding.startBeforeTime.applyText { formatTime(minutesToTimeMillis(rec.startWindow)) }
             binding.duplicateDetection.text = if (rec.dupDetect < seriesRecordingViewModel.duplicateDetectionList.size) {
                 seriesRecordingViewModel.duplicateDetectionList[rec.dupDetect]
             } else {

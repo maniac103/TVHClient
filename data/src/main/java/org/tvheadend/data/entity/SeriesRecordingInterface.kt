@@ -26,6 +26,4 @@ interface SeriesRecordingInterface {
     var connectionId: Int
 
     val duration: Int
-    val startTimeInMillis: Long
-    val startWindowTimeInMillis: Long
 }

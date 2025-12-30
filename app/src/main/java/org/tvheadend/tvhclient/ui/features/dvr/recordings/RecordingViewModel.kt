@@ -13,7 +13,6 @@ import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
-import org.tvheadend.tvhclient.util.extensions.filter
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.recordingDataSource
 import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
@@ -37,10 +36,12 @@ class RecordingViewModel(private val application: Application) : BaseViewModel(a
     val showGenreColor = application.prefs.genreColorsForRecordingsLiveData()
     val showFileStatus = application.prefs.showRecordingFileStatusLiveData()
     var recordingLiveData = currentIdLiveData
-        .filter { it > 0 }
-        .map { application.recordingDataSource.getItemById(it) }
+        .map { id ->
+            id.takeIf { it > 0 }
+                ?.let { application.recordingDataSource.getItemById(it) }
+                ?: RecordingWithChannel(Recording())
+        }
 
-    var recording = RecordingWithChannel(Recording())
     var recordingProfileNameId = 0
 
     fun getIntentData(context: Context, recording: Recording): Intent {
@@ -60,10 +61,6 @@ class RecordingViewModel(private val application: Application) : BaseViewModel(a
             intent.putExtra("enabled", if (recording.isEnabled) 1 else 0)
         }
         return intent
-    }
-
-    fun loadRecordingByIdSync(id: Int) {
-        recording = application.recordingDataSource.getItemById(id) ?: RecordingWithChannel(Recording())
     }
 
     fun getChannelList(): List<Channel> {

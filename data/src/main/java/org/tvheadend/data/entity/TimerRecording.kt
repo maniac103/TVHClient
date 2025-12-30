@@ -2,7 +2,6 @@ package org.tvheadend.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import java.util.*
 
 @Entity(tableName = "timer_recordings", primaryKeys = ["id", "connection_id"])
 data class TimerRecording(
@@ -31,28 +30,4 @@ data class TimerRecording(
 ) : TimerRecordingInterface {
     override val duration: Int
         get() = (stop - start).toInt()
-
-    /**
-     * The start time in milliseconds from the current time at 0 o'clock plus the given minutes
-     */
-    override val startTimeInMillis: Long
-        get() {
-            val calendar = Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            calendar.set(Calendar.MINUTE, 0)
-            calendar.set(Calendar.SECOND, 0)
-            return calendar.timeInMillis + (start * 60 * 1000)
-        }
-
-    /**
-     * The stop time in milliseconds from the current time at 0 o'clock plus the given minutes
-     */
-    override val stopTimeInMillis: Long
-        get() {
-            val calendar = Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            calendar.set(Calendar.MINUTE, 0)
-            calendar.set(Calendar.SECOND, 0)
-            return calendar.timeInMillis + (stop * 60 * 1000)
-        }
 }

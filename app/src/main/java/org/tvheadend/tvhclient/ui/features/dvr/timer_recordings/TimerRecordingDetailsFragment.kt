@@ -18,6 +18,7 @@ import org.tvheadend.tvhclient.ui.base.BaseFragment
 import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.ClearSearchResultsOrPopBackStackInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
+import org.tvheadend.tvhclient.ui.features.dvr.minutesToTimeMillis
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
 import org.tvheadend.tvhclient.util.extensions.determineDaysOfWeekText
@@ -65,8 +66,8 @@ class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface,
             }
             binding.name.applyTextAndAdjustVisibility { rec.name?.takeIf { it.isNotEmpty() } ?: rec.title }
             binding.channel.applyText { rec.channelName ?: getString(R.string.all_channels) }
-            binding.startTime.applyText { formatTime(rec.start.takeIf { it < 0 } ?: rec.startTimeInMillis) }
-            binding.stopTime.applyText { formatTime(rec.stop.takeIf { it < 0 } ?: rec.stopTimeInMillis) }
+            binding.startTime.applyText { formatTime(minutesToTimeMillis(rec.start)) }
+            binding.stopTime.applyText { formatTime(minutesToTimeMillis(rec.stop)) }
             binding.duration.applyText { getString(R.string.minutes, rec.duration) }
             binding.daysOfWeek.applyText { determineDaysOfWeekText(rec.daysOfWeek) }
             binding.priority.applyText { determinePriorityText(rec.priority) }

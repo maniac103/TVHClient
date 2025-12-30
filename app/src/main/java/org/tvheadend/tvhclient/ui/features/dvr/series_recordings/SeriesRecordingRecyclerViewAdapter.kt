@@ -11,6 +11,7 @@ import org.tvheadend.data.entity.SeriesRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.SeriesRecordingListAdapterBinding
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
+import org.tvheadend.tvhclient.ui.features.dvr.minutesToTimeMillis
 import org.tvheadend.tvhclient.util.extensions.applyIcon
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
@@ -128,8 +129,8 @@ class SeriesRecordingRecyclerViewAdapter internal constructor(
             binding.daysOfWeek.applyText { determineDaysOfWeekText(recording.daysOfWeek) }
             binding.startStop.applyText {
                 formatStartStopTime(
-                    if (recording.start < 0) recording.start else recording.startTimeInMillis,
-                    if (recording.startWindow < 0) recording.startWindow else recording.startWindowTimeInMillis
+                    minutesToTimeMillis(recording.start),
+                    minutesToTimeMillis(recording.startWindow)
                 )
             }
             binding.icon.applyIcon(recording.channelIcon, recording.channelName, binding.iconText)

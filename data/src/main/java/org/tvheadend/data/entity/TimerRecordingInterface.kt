@@ -19,6 +19,4 @@ interface TimerRecordingInterface {
     var connectionId: Int
 
     val duration: Int
-    val startTimeInMillis: Long
-    val stopTimeInMillis: Long
 }
