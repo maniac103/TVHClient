@@ -8,55 +8,50 @@
     android:background="?android:attr/selectableItemBackground">
 
     <ImageView
-        android:id="@+id/icon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="12dp"
+        android:id="@+id/dual_pane_list_item_selection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:contentDescription="@null"
-        android:scaleType="fitCenter"
-        app:layout_constraintStart_toEndOf="@id/genre"
-        app:layout_constraintTop_toTopOf="@id/guideline_content_top" />
-
-    <ImageView
-        android:id="@+id/state"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:contentDescription="@null"
-        android:scaleType="fitCenter"
+        android:src="?dual_pane_list_selection"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <TextView
+    <View
         android:id="@+id/genre"
         android:layout_width="4dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <ImageView
-        android:id="@+id/dual_pane_list_item_selection"
-        android:layout_width="12dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:id="@+id/icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
         android:contentDescription="@null"
-        android:scaleType="center"
-        android:src="?dual_pane_list_selection"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guideline_content_top" />
 
     <TextView
         android:id="@+id/icon_text"
         style="@style/ContentFont"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toEndOf="@id/genre"
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guideline_content_top" />
+
+    <ImageView
+        android:id="@+id/state"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/guideline_content_top" />
 
     <TextView
@@ -76,12 +71,11 @@
         style="@style/SubtitleFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
         android:ellipsize="end"
         android:singleLine="true"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
         tools:text="@string/subtitle" />
 
@@ -94,8 +88,8 @@
         android:layout_marginEnd="16dp"
         android:ellipsize="end"
         android:singleLine="true"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/subtitle"
         tools:text="@string/episode" />
 
@@ -104,12 +98,12 @@
         style="@style/ContentFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginTop="4dp"
         android:ellipsize="end"
         android:singleLine="true"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/episode"
         tools:text="@string/summary" />
 
@@ -118,7 +112,7 @@
         style="@style/ContentFont"
         android:layout_width="0dip"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
         app:layout_constraintTop_toBottomOf="@id/summary"
         tools:text="@string/channel" />
@@ -128,7 +122,6 @@
         style="@style/ContentFont"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="end"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
         app:layout_constraintTop_toBottomOf="@id/channel"
         tools:text="@tools:sample/date/hhmm" />
@@ -158,12 +151,12 @@
         style="@style/ContentFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
         android:ellipsize="end"
         android:maxLines="4"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/start_stop"
         tools:text="@tools:sample/lorem/random" />
 
@@ -172,11 +165,11 @@
         style="@style/ContentFont"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
         android:text="@string/is_series_recording"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/description" />
 
     <TextView
@@ -187,9 +180,9 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
         android:text="@string/is_timer_recording"
+        app:layout_constraintStart_toStartOf="@id/guideline_content_start"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/title"
-        app:layout_constraintTop_toBottomOf="@+id/is_series_recording" />
+        app:layout_constraintTop_toBottomOf="@id/is_series_recording" />
 
     <TextView
         android:id="@+id/failed_reason"
@@ -211,8 +204,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/failed_reason"
         android:text="@string/recording_disabled" />
 
@@ -223,8 +216,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/disabled"
         android:text="@string/duplicate_recording" />
 
@@ -235,8 +228,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/duplicate"
         tools:text="@string/data_size" />
 
@@ -246,8 +239,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/data_size"
         tools:text="@string/data_errors" />
 
@@ -257,14 +250,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_content_start"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/data_errors"
         tools:text="@string/stream_errors" />
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="16dp"
+        android:layout_height="12dp"
         app:layout_constraintTop_toBottomOf="@id/stream_errors" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -279,6 +272,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="16dp" />
+        app:layout_constraintGuide_begin="12dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
