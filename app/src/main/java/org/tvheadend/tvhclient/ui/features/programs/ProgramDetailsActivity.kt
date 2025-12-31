@@ -206,7 +206,10 @@ class ProgramDetailsActivity : BaseActivity() {
         binding.date.applyText { formatDate(program.start) }
         binding.time.applyText { formatStartStopTime(program.start, program.stop) }
         binding.duration.applyText { getString(R.string.minutes, program.duration) }
-        binding.progress.applyText { getString(R.string.progress, program.progress) }
+        binding.progress.apply {
+            isVisible = program.progress > 0
+            text = context.getString(R.string.progress, program.progress)
+        }
         binding.starRating.apply {
             isVisible = program.starRating > 0
             rating = program.starRating.toFloat() / 10F
