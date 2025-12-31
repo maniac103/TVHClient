@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:orientation="horizontal">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/play"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="?materialIconButtonFilledTonalStyle"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:text="@string/play"
+        app:icon="@drawable/ic_menu_play" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/cast"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="?materialIconButtonFilledTonalStyle"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:text="@string/cast"
+        app:icon="@drawable/ic_menu_cast" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/download"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="?materialIconButtonFilledTonalStyle"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:text="@string/download"
+        app:icon="@drawable/ic_menu_download" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/edit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="?materialIconButtonFilledTonalStyle"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:text="@string/edit"
+        app:icon="@drawable/ic_menu_edit" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/remove"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="?materialIconButtonFilledTonalStyle"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:text="@string/remove"
+        app:icon="@drawable/ic_menu_delete" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/stop"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="?materialIconButtonFilledTonalStyle"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:text="@string/stop"
+        app:icon="@drawable/ic_menu_stop" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/cancel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="?materialIconButtonFilledTonalStyle"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:text="@string/cancel"
+        app:icon="@drawable/ic_menu_cancel" />
+
+</LinearLayout>

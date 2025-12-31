@@ -5,6 +5,8 @@ import android.view.*
 import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.tvheadend.data.entity.Recording
@@ -110,8 +112,22 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
             return
         }
 
-        val intent = RecordingDetailsActivity.makeIntent(requireContext(), recording)
-        startActivity(intent)
+        if (isDualPane) {
+            val fm = activity?.supportFragmentManager
+            if (fm != null && fm.findFragmentById(R.id.details) == null) {
+                val fragment = DualPaneRecordingDetailsFragment.newInstance(recording.id)
+                fm.commit(true) {
+                    replace(R.id.details, fragment)
+                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                }
+            } else if (recordingViewModel.currentIdLiveData.value != recording.id) {
+                Timber.d("Updating recording ID to ${recording.id}")
+                recordingViewModel.currentIdLiveData.value = recording.id
+            }
+        } else {
+            val intent = RecordingDetailsActivity.makeIntent(requireContext(), recording)
+            startActivity(intent)
+        }
     }
 
     private fun showPopupMenu(view: View, recording: Recording) {
