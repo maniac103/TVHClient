@@ -378,7 +378,7 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
 
         mediaRouteMenuItem = menu.findItem(R.id.media_route_menu_item)
         try {
-            CastButtonFactory.setUpMediaRouteButton(applicationContext, menu, R.id.media_route_menu_item)
+            CastButtonFactory.setUpMediaRouteButton(this, menu, R.id.media_route_menu_item)
         } catch (e: Exception) {
             Timber.e(e, "Could not setup media route button")
         }

@@ -104,6 +104,7 @@
         <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
+        <item name="mediaRouteButtonTint">?colorControlNormal</item>
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Fast scrollbar styles">-->
