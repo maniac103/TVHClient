@@ -15,6 +15,7 @@ import org.tvheadend.tvhclient.ui.common.interfaces.HideNavigationDrawerInterfac
 import org.tvheadend.tvhclient.ui.common.interfaces.LayoutControlInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.ToolbarInterface
 import org.tvheadend.tvhclient.ui.features.settings.SettingsActivity
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import timber.log.Timber
 
 class StartupFragment : Fragment(), HideNavigationDrawerInterface {
@@ -33,6 +34,9 @@ class StartupFragment : Fragment(), HideNavigationDrawerInterface {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.startupContact.applyNavigationBarPadding()
+
         startupViewModel = ViewModelProvider(requireActivity())[StartupViewModel::class.java]
         baseViewModel = ViewModelProvider(requireActivity())[BaseViewModel::class.java]
 

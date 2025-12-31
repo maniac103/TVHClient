@@ -65,7 +65,6 @@
         <item name="recording_success_color">#4CAF50</item> <!-- green 500 -->
         <item name="recording_fail_color">#F44336</item> <!-- red 500 -->
         <item name="dual_pane_list_selection">@drawable/dual_pane_selector_active_dark</item>
-        <item name="rounded_corners">@drawable/rounded_corners_dark</item>
         <item name="preferenceTheme">@style/ThemeOverlay.Custom.Preference</item>
         <!--</editor-fold>-->
     </style>

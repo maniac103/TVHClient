@@ -113,7 +113,6 @@
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Misc">-->
-        <item name="rounded_corners">@drawable/rounded_corners_light</item>
         <item name="divider_color">@color/divider_color_light</item>
         <item name="recording_state_color">#D32F2F</item> <!-- red 700 -->
         <item name="recording_success_color">#388E3C</item> <!-- green 700 -->
