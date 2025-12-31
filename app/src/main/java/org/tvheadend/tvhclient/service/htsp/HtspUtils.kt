@@ -4,577 +4,185 @@ import android.content.Intent
 import org.tvheadend.data.entity.*
 import org.tvheadend.htsp.HtspMessage
 import timber.log.Timber
-import java.util.*
+import java.util.Date
+import java.util.TimeZone
+
+private fun HtspMessage.getNonEmptyString(key: String, fallback: String?): String? =
+    getString(key)?.takeIf { it.isNotEmpty() } ?: fallback
+private fun HtspMessage.getTrimmedNonEmptyString(key: String, fallback: String?): String? =
+    getString(key)?.takeIf { it.isNotEmpty() }?.trim() ?: fallback
+private fun HtspMessage.getPositiveInteger(key: String, fallback: Int): Int =
+    getInteger(key, 0).takeIf { it > 0 } ?: fallback
+private fun HtspMessage.getPositiveLong(key: String, fallback: Long): Long =
+    getLong(key, 0L).takeIf { it > 0 } ?: fallback
 
 fun convertMessageToChannelTagModel(tag: ChannelTag, msg: HtspMessage, channels: List<Channel>): ChannelTag {
-    if (msg.containsKey("tagId")) {
-        tag.tagId = msg.getInteger("tagId")
-    }
-    if (msg.containsKey("tagName")) {
-        tag.tagName = msg.getString("tagName")
-    }
-    if (msg.containsKey("tagIndex")) {
-        if (msg.getInteger("tagIndex") > 0) {
-            tag.tagIndex = msg.getInteger("tagIndex")
-        }
-    }
-    if (msg.containsKey("tagIcon")) {
-        if (!msg.getString("tagIcon").isNullOrEmpty()) {
-            tag.tagIcon = msg.getString("tagIcon")
-        }
-    }
-    if (msg.containsKey("tagTitledIcon")) {
-        if (msg.getInteger("tagTitledIcon") > 0) {
-            tag.tagTitledIcon = msg.getInteger("tagTitledIcon")
-        }
-    }
-    if (msg.containsKey("members")) {
-        val members = msg.getIntegerList("members")
-        tag.members = members
-        tag.channelCount = members.filter { id -> channels.any { it.id == id } }.size
-    }
-    return tag
+    val members = if (msg.containsKey("members")) msg.getIntegerList("members") else tag.members
+    return ChannelTag(
+        tagId = msg.getInteger("tagId", tag.tagId),
+        tagName = msg.getString("tagName", tag.tagName),
+        tagIndex = msg.getPositiveInteger("tagIndex", tag.tagIndex),
+        tagIcon = msg.getNonEmptyString("tagIcon", tag.tagIcon),
+        tagTitledIcon = msg.getPositiveInteger("tagTitledIcon", tag.tagTitledIcon),
+        members = if (msg.containsKey("members")) msg.getIntegerList("members") else tag.members,
+        connectionId = tag.connectionId,
+        isSelected = tag.isSelected,
+        channelCount = members?.filter { id -> channels.any { it.id == id } }?.size ?: 0,
+    )
 }
 
 fun convertMessageToChannelModel(channel: Channel, msg: HtspMessage): Channel {
-    if (msg.containsKey("channelId")) {
-        channel.id = msg.getInteger("channelId")
-    }
-    if (msg.containsKey("channelNumber") && msg.containsKey("channelNumberMinor")) {
-        channel.number = msg.getInteger("channelNumber")
-        channel.numberMinor = msg.getInteger("channelNumberMinor")
-    } else if (msg.containsKey("channelNumber")) {
-        channel.number = msg.getInteger("channelNumber")
-        channel.numberMinor = 0
-    }
-    channel.displayNumber = "${channel.number}.${channel.numberMinor}"
+    val number = msg.getInteger("channelNumber", channel.number)
+    val numberMinor = if (msg.containsKey("channelNumber")) msg.getInteger("channelNumberMinor", 0) else channel.numberMinor
 
-    if (msg.containsKey("channelName")) {
-        channel.name = msg.getString("channelName")
-    }
-    if (msg.containsKey("channelIcon")) {
-        if (!msg.getString("channelIcon").isNullOrEmpty()) {
-            channel.icon = msg.getString("channelIcon")
-        }
-    }
-    if (msg.containsKey("eventId")) {
-        if (msg.getInteger("eventId") > 0) {
-            channel.eventId = msg.getInteger("eventId")
-        }
-    }
-    if (msg.containsKey("nextEventId")) {
-        if (msg.getInteger("nextEventId") > 0) {
-            channel.nextEventId = msg.getInteger("nextEventId")
-        }
-    }
-    if (msg.containsKey("tags")) {
-        val tags = msg.getIntegerList("tags")
-        channel.tags = tags
-    }
-    return channel
+    return Channel(
+        id = msg.getInteger("channelId", channel.id),
+        number = number,
+        numberMinor = numberMinor,
+        name = msg.getString("channelName", channel.name),
+        icon = msg.getNonEmptyString("channelIcon", channel.icon),
+        eventId = msg.getPositiveInteger("eventId", channel.eventId),
+        nextEventId = msg.getPositiveInteger("nextEventId", channel.nextEventId),
+        tags = if (msg.containsKey("tags")) msg.getIntegerList("tags") else channel.tags,
+        connectionId = channel.connectionId,
+        displayNumber = "$number.$numberMinor",
+        serverOrder = channel.serverOrder
+    )
 }
 
 fun convertMessageToRecordingModel(recording: Recording, msg: HtspMessage): Recording {
-    if (msg.containsKey("id")) {
-        recording.id = msg.getInteger("id")
-    }
-    if (msg.containsKey("channel")) {
-        if (msg.getInteger("channel") > 0) {
-            recording.channelId = msg.getInteger("channel")
-        }
-    }
-    if (msg.containsKey("start")) {
-        // The message value is in seconds, convert to milliseconds
-        recording.start = msg.getLong("start") * 1000
-    }
-    if (msg.containsKey("stop")) {
-        // The message value is in seconds, convert to milliseconds
-        recording.stop = msg.getLong("stop") * 1000
-    }
-    if (msg.containsKey("startExtra")) {
-        recording.startExtra = msg.getLong("startExtra")
-    }
-    if (msg.containsKey("stopExtra")) {
-        recording.stopExtra = msg.getLong("stopExtra")
-    }
-    if (msg.containsKey("retention")) {
-        recording.retention = msg.getLong("retention")
-    }
-    if (msg.containsKey("priority")) {
-        recording.priority = msg.getInteger("priority")
-    }
-    if (msg.containsKey("eventId")) {
-        if (msg.getInteger("eventId") > 0) {
-            recording.eventId = msg.getInteger("eventId")
-        }
-    }
-    if (msg.containsKey("autorecId")) {
-        if (!msg.getString("autorecId").isNullOrEmpty()) {
-            recording.autorecId = msg.getString("autorecId")
-        }
-    }
-    if (msg.containsKey("timerecId")) {
-        if (!msg.getString("timerecId").isNullOrEmpty()) {
-            recording.timerecId = msg.getString("timerecId")
-        }
-    }
-    if (msg.containsKey("contentType")) {
-        if (msg.getInteger("contentType") > 0) {
-            recording.contentType = msg.getInteger("contentType")
-        }
-    }
-    if (msg.containsKey("title")) {
-        if (!msg.getString("title").isNullOrEmpty()) {
-            recording.title = msg.getString("title")
-        }
-    }
-    if (msg.containsKey("subtitle")) {
-        if (!msg.getString("subtitle").isNullOrEmpty()) {
-            recording.subtitle = msg.getString("subtitle")
-        }
-    }
-    if (msg.containsKey("summary")) {
-        if (!msg.getString("summary").isNullOrEmpty()) {
-            recording.summary = msg.getString("summary")
-        }
-    }
-    if (msg.containsKey("description")) {
-        if (!msg.getString("description").isNullOrEmpty()) {
-            recording.description = msg.getString("description")
-        }
-    }
-    if (msg.containsKey("state")) {
-        recording.state = msg.getString("state")
-    }
-    if (msg.containsKey("error")) {
-        if (!msg.getString("error").isNullOrEmpty()) {
-            recording.error = msg.getString("error")
-        }
-    }
-    if (msg.containsKey("owner")) {
-        if (!msg.getString("owner").isNullOrEmpty()) {
-            recording.owner = msg.getString("owner")
-        }
-    }
-    if (msg.containsKey("creator")) {
-        if (!msg.getString("creator").isNullOrEmpty()) {
-            recording.creator = msg.getString("creator")
-        }
-    }
-    if (msg.containsKey("subscriptionError")) {
-        if (!msg.getString("subscriptionError").isNullOrEmpty()) {
-            recording.subscriptionError = msg.getString("subscriptionError")
-        }
-    }
-    if (msg.containsKey("streamErrors")) {
-        if (!msg.getString("streamErrors").isNullOrEmpty()) {
-            recording.streamErrors = msg.getString("streamErrors")
-        }
-    }
-    if (msg.containsKey("dataErrors")) {
-        if (!msg.getString("dataErrors").isNullOrEmpty()) {
-            recording.dataErrors = msg.getString("dataErrors")
-        }
-    }
-    if (msg.containsKey("path")) {
-        if (!msg.getString("path").isNullOrEmpty()) {
-            recording.path = msg.getString("path")
-        }
-    }
-    if (msg.containsKey("dataSize")) {
-        if (msg.getLong("dataSize") > 0) {
-            recording.dataSize = msg.getLong("dataSize")
-        }
-    }
-    if (msg.containsKey("enabled")) {
-        recording.isEnabled = msg.getInteger("enabled") == 1
-    }
-    if (msg.containsKey("duplicate")) {
-        recording.duplicate = msg.getInteger("duplicate")
-    }
-
-    if (msg.containsKey("image")) {
-        if (!msg.getString("image").isNullOrEmpty()) {
-            recording.image = msg.getString("image")
-        }
-    }
-    if (msg.containsKey("fanart_image")) {
-        if (!msg.getString("fanart_image").isNullOrEmpty()) {
-            recording.fanartImage = msg.getString("fanart_image")
-        }
-    }
-    if (msg.containsKey("copyright_year")) {
-        if (msg.getInteger("copyright_year") > 0) {
-            recording.copyrightYear = msg.getInteger("copyright_year")
-        }
-    }
-    if (msg.containsKey("removal")) {
-        if (msg.getInteger("removal") > 0) {
-            recording.removal = msg.getInteger("removal")
-        }
-    }
-
-    if (msg.containsKey("start") && msg.containsKey("stop")) {
-        val start = msg.getLong("start")
-        val stop = msg.getLong("stop")
-        recording.duration = ((stop - start) / 60).toInt()
-    }
-
-    return recording
+    val start = msg.getLong("start", recording.start / 1000)
+    val stop = msg.getLong("stop", recording.stop / 1000)
+    return Recording(
+        id = msg.getInteger("id", recording.id),
+        channelId = msg.getPositiveInteger("channel", recording.channelId),
+        start = start * 1000, // The message value is in seconds, convert to milliseconds
+        stop = stop * 1000, // The message value is in seconds, convert to milliseconds
+        startExtra = msg.getLong("startExtra", recording.startExtra),
+        stopExtra = msg.getLong("stopExtra", recording.stopExtra),
+        retention = msg.getLong("retention", recording.retention),
+        priority = msg.getInteger("priority", recording.priority),
+        eventId = msg.getPositiveInteger("eventId", recording.eventId),
+        autorecId = msg.getNonEmptyString("autorecId", recording.autorecId),
+        timerecId = msg.getNonEmptyString("timerecId", recording.timerecId),
+        contentType = msg.getPositiveInteger("contentType", recording.contentType),
+        title = msg.getTrimmedNonEmptyString("title", recording.title),
+        subtitle = msg.getTrimmedNonEmptyString("subtitle", recording.subtitle),
+        summary = msg.getTrimmedNonEmptyString("summary", recording.summary),
+        description = msg.getTrimmedNonEmptyString("description", recording.description),
+        state = msg.getString("state", recording.state),
+        error = msg.getNonEmptyString("error", recording.error),
+        owner = msg.getNonEmptyString("owner", recording.owner),
+        creator = msg.getNonEmptyString("creator", recording.creator),
+        subscriptionError = msg.getNonEmptyString("subscriptionError", recording.subscriptionError),
+        streamErrors = msg.getNonEmptyString("streamErrors", recording.streamErrors),
+        dataErrors = msg.getNonEmptyString("dataErrors", recording.dataErrors),
+        path = msg.getNonEmptyString("path", recording.path),
+        dataSize = msg.getPositiveLong("dataSize", recording.dataSize),
+        isEnabled = msg.getInteger("enabled", if (recording.isEnabled) 1 else 0) == 1,
+        duplicate = msg.getInteger("duplicate", recording.duplicate),
+        episode = recording.episode, // FIXME: doesn't seem to actually exist?
+        comment = msg.getString("comment", recording.comment),
+        image = msg.getNonEmptyString("image", recording.image),
+        fanartImage = msg.getNonEmptyString("fanart_image", recording.fanartImage),
+        copyrightYear = msg.getPositiveInteger("copyright_year", recording.copyrightYear),
+        removal = msg.getPositiveInteger("removal", recording.removal),
+        files = recording.files, // TODO
+        connectionId = recording.connectionId,
+        duration = ((stop - start) / 60).toInt()
+    )
 }
 
-fun convertMessageToProgramModel(program: Program, msg: HtspMessage): Program {
-    if (msg.containsKey("eventId")) {
-        program.eventId = msg.getInteger("eventId")
-    }
-    if (msg.containsKey("channelId")) {
-        program.channelId = msg.getInteger("channelId")
-    }
-    if (msg.containsKey("start")) {
-        // The message value is in seconds, convert to milliseconds
-        program.start = msg.getLong("start") * 1000
-    }
-    if (msg.containsKey("stop")) {
-        // The message value is in seconds, convert to milliseconds
-        program.stop = msg.getLong("stop") * 1000
-    }
-    if (msg.containsKey("title")) {
-        if (!msg.getString("title").isNullOrEmpty()) {
-            program.title = msg.getString("title")
-        }
-    }
-    if (msg.containsKey("subtitle")) {
-        if (!msg.getString("subtitle").isNullOrEmpty()) {
-            program.subtitle = msg.getString("subtitle")
-        }
-    }
-    if (msg.containsKey("summary")) {
-        if (!msg.getString("summary").isNullOrEmpty()) {
-            program.summary = msg.getString("summary")
-        }
-    }
-    if (msg.containsKey("description")) {
-        if (!msg.getString("description").isNullOrEmpty()) {
-            program.description = msg.getString("description")
-        }
-    }
-    if (msg.containsKey("serieslinkId")) {
-        if (msg.getInteger("serieslinkId") > 0) {
-            program.serieslinkId = msg.getInteger("serieslinkId")
-        }
-    }
-    if (msg.containsKey("episodeId")) {
-        if (msg.getInteger("episodeId") > 0) {
-            program.episodeId = msg.getInteger("episodeId")
-        }
-    }
-    if (msg.containsKey("seasonId")) {
-        if (msg.getInteger("seasonId") > 0) {
-            program.seasonId = msg.getInteger("seasonId")
-        }
-    }
-    if (msg.containsKey("brandId")) {
-        if (msg.getInteger("brandId") > 0) {
-            program.brandId = msg.getInteger("brandId")
-        }
-    }
-    if (msg.containsKey("contentType")) {
-        if (msg.getInteger("contentType") > 0) {
-            program.contentType = msg.getInteger("contentType")
-        }
-    }
-    if (msg.containsKey("ageRating")) {
-        if (msg.getInteger("ageRating") > 0) {
-            program.ageRating = msg.getInteger("ageRating")
-        }
-    }
-    if (msg.containsKey("starRating")) {
-        if (msg.getInteger("starRating") > 0) {
-            program.starRating = msg.getInteger("starRating")
-        }
-    }
-    if (msg.containsKey("firstAired")) {
-        if (msg.getInteger("firstAired") > 0) {
-            program.firstAired = msg.getLong("firstAired")
-        }
-    }
-    if (msg.containsKey("seasonNumber")) {
-        if (msg.getInteger("seasonNumber") > 0) {
-            program.seasonNumber = msg.getInteger("seasonNumber")
-        }
-    }
-    if (msg.containsKey("seasonCount")) {
-        if (msg.getInteger("seasonCount") > 0) {
-            program.seasonCount = msg.getInteger("seasonCount")
-        }
-    }
-    if (msg.containsKey("episodeNumber")) {
-        if (msg.getInteger("episodeNumber") > 0) {
-            program.episodeNumber = msg.getInteger("episodeNumber")
-        }
-    }
-    if (msg.containsKey("episodeCount")) {
-        if (msg.getInteger("episodeCount") > 0) {
-            program.episodeCount = msg.getInteger("episodeCount")
-        }
-    }
-    if (msg.containsKey("partNumber")) {
-        if (msg.getInteger("partNumber") > 0) {
-            program.partNumber = msg.getInteger("partNumber")
-        }
-    }
-    if (msg.containsKey("partCount")) {
-        if (msg.getInteger("partCount") > 0) {
-            program.partCount = msg.getInteger("partCount")
-        }
-    }
-    if (msg.containsKey("episodeOnscreen")) {
-        if (!msg.getString("episodeOnscreen").isNullOrEmpty()) {
-            program.episodeOnscreen = msg.getString("episodeOnscreen")
-        }
-    }
-    if (msg.containsKey("image")) {
-        if (!msg.getString("image").isNullOrEmpty()) {
-            program.image = msg.getString("image")
-        }
-    }
-    if (msg.containsKey("dvrId")) {
-        if (msg.getInteger("dvrId") > 0) {
-            program.dvrId = msg.getInteger("dvrId")
-        }
-    }
-    if (msg.containsKey("nextEventId")) {
-        if (msg.getInteger("nextEventId") > 0) {
-            program.nextEventId = msg.getInteger("nextEventId")
-        }
-    }
-    if (msg.containsKey("episodeOnscreen")) {
-        if (!msg.getString("episodeOnscreen").isNullOrEmpty()) {
-            program.episodeOnscreen = msg.getString("episodeOnscreen")
-        }
-    }
-    if (msg.containsKey("serieslinkUri")) {
-        if (!msg.getString("serieslinkUri").isNullOrEmpty()) {
-            program.serieslinkUri = msg.getString("serieslinkUri")
-        }
-    }
-    if (msg.containsKey("episodeUri")) {
-        if (!msg.getString("episodeUri").isNullOrEmpty()) {
-            program.episodeUri = msg.getString("episodeUri")
-        }
-    }
-    if (msg.containsKey("copyright_year")) {
-        if (msg.getInteger("copyright_year") > 0) {
-            program.copyrightYear = msg.getInteger("copyright_year")
-        }
-    }
-    program.modifiedTime = System.currentTimeMillis()
-    /*
-    if (msg.containsKey("credits")) {
-        StringBuilder sb = new StringBuilder();
-        for (String credit : msg.getStringArray("credits")) {
-            sb.append(credit).append(",");
-        }
-        // Remove the last separator character
-        program.setCredits(sb.substring(0, sb.lastIndexOf(",")));
-    }
-    if (msg.containsKey("category")) {
-        StringBuilder sb = new StringBuilder();
-        for (String s : msg.getStringArray("category")) {
-            sb.append(s).append(",");
-        }
-        // Remove the last separator character
-        program.setCredits(sb.substring(0, sb.lastIndexOf(",")));
+fun convertMessageToProgramModel(program: Program, msg: HtspMessage) = Program(
+    eventId = msg.getInteger("eventId", program.eventId),
+    channelId = msg.getInteger("channelId", program.channelId),
+    // The message value is in seconds, convert to milliseconds
+    start = msg.getLong("start", program.start / 1000) * 1000,
+    // The message value is in seconds, convert to milliseconds
+    stop = msg.getLong("stop", program.stop / 1000) * 1000,
+    title = msg.getTrimmedNonEmptyString("title", program.title),
+    subtitle = msg.getTrimmedNonEmptyString("subtitle", program.subtitle),
+    summary = msg.getTrimmedNonEmptyString("summary", program.summary),
+    description = msg.getTrimmedNonEmptyString("description", program.description),
+    credits = if (msg.containsKey("credits")) msg.getArrayList("credits").joinToString(",") else program.credits,
+    category = if (msg.containsKey("category")) msg.getArrayList("category").joinToString (",") else program.category,
+    keyword = if (msg.containsKey("keyword")) msg.getArrayList("keyword").joinToString (",") else program.keyword,
+    serieslinkId = msg.getPositiveInteger("seriesLinkId", program.serieslinkId),
+    episodeId = msg.getPositiveInteger("episodeId", program.episodeId),
+    seasonId = msg.getPositiveInteger("seasonId", program.seasonId),
+    brandId = msg.getPositiveInteger("brandId", program.brandId),
+    contentType = msg.getPositiveInteger("contentType", program.contentType),
+    ageRating = msg.getPositiveInteger("ageRating", program.ageRating),
+    starRating = msg.getPositiveInteger("starRating", program.starRating),
+    copyrightYear = msg.getPositiveInteger("copyright_year", program.copyrightYear),
+    firstAired = msg.getPositiveLong("firstAired", program.firstAired),
+    seasonNumber = msg.getPositiveInteger("seasonNumber", program.seasonNumber),
+    seasonCount = msg.getPositiveInteger("seasonCount", program.seasonCount),
+    episodeNumber = msg.getPositiveInteger("episodeNumber", program.episodeNumber),
+    episodeCount = msg.getPositiveInteger("episodeCount", program.episodeCount),
+    partNumber = msg.getPositiveInteger("partNumber", program.partNumber),
+    partCount = msg.getPositiveInteger("partCount", program.partCount),
+    episodeOnscreen = msg.getTrimmedNonEmptyString("episodeOnscreen", program.episodeOnscreen),
+    image = msg.getNonEmptyString("image", program.image),
+    dvrId = msg.getPositiveInteger("dvrId", program.dvrId),
+    nextEventId = msg.getPositiveInteger("nextEventId", program.nextEventId),
+    serieslinkUri = msg.getNonEmptyString("serieslinkUri", program.serieslinkUri),
+    episodeUri = msg.getNonEmptyString("episodeUri", program.episodeUri),
+    modifiedTime = System.currentTimeMillis(),
+    connectionId = program.connectionId
+)
 
-    }
-    if (msg.containsKey("keyword")) {
-        StringBuilder sb = new StringBuilder();
-        for (String s : msg.getStringArray("keyword")) {
-            sb.append(s).append(",");
-        }
-        // Remove the last separator character
-        program.setKeyword(sb.substring(0, sb.lastIndexOf(",")));
-    }
-    */
-    return program
-}
+fun convertMessageToSeriesRecordingModel(seriesRecording: SeriesRecording, msg: HtspMessage) = SeriesRecording(
+    id = msg.getString("id", seriesRecording.id),
+    isEnabled = msg.getInteger("enabled", if (seriesRecording.isEnabled) 1 else 0) == 1,
+    name = msg.getString("name", seriesRecording.name),
+    minDuration = msg.getInteger("minDuration", seriesRecording.minDuration),
+    maxDuration = msg.getInteger("maxDuration", seriesRecording.maxDuration),
+    retention = msg.getInteger("retention", seriesRecording.retention),
+    daysOfWeek = msg.getInteger("daysOfWeek", seriesRecording.daysOfWeek),
+    priority = msg.getInteger("priority", seriesRecording.priority),
+    approxTime = msg.getInteger("approxTime", seriesRecording.approxTime),
+    start = msg.getLong("start", seriesRecording.start),
+    startWindow = msg.getLong("startWindow", seriesRecording.startWindow),
+    startExtra = msg.getLong("startExtra", seriesRecording.startExtra),
+    stopExtra = msg.getLong("stopExtra", seriesRecording.stopExtra),
+    title = msg.getTrimmedNonEmptyString("title", seriesRecording.title),
+    fulltext = msg.getInteger("fulltext", seriesRecording.fulltext),
+    directory = msg.getNonEmptyString("directory", seriesRecording.directory),
+    channelId = msg.getPositiveInteger("channel", seriesRecording.channelId),
+    owner = msg.getNonEmptyString("owner", seriesRecording.owner),
+    creator = msg.getNonEmptyString("creator", seriesRecording.creator),
+    dupDetect = msg.getPositiveInteger("dupDetect", seriesRecording.dupDetect),
+    removal = msg.getPositiveInteger("removal", seriesRecording.removal),
+    maxCount = msg.getPositiveInteger("maxCount", seriesRecording.maxCount),
+    connectionId = seriesRecording.connectionId
+)
 
-fun convertMessageToSeriesRecordingModel(seriesRecording: SeriesRecording, msg: HtspMessage): SeriesRecording {
-    if (msg.containsKey("id")) {
-        seriesRecording.id = msg.getString("id")
-    }
-    if (msg.containsKey("enabled")) {
-        seriesRecording.isEnabled = msg.getInteger("enabled") == 1
-    }
-    if (msg.containsKey("name")) {
-        seriesRecording.name = msg.getString("name")
-    }
-    if (msg.containsKey("minDuration")) {
-        seriesRecording.minDuration = msg.getInteger("minDuration")
-    }
-    if (msg.containsKey("maxDuration")) {
-        seriesRecording.maxDuration = msg.getInteger("maxDuration")
-    }
-    if (msg.containsKey("retention")) {
-        seriesRecording.retention = msg.getInteger("retention")
-    }
-    if (msg.containsKey("daysOfWeek")) {
-        seriesRecording.daysOfWeek = msg.getInteger("daysOfWeek")
-    }
-    if (msg.containsKey("priority")) {
-        seriesRecording.priority = msg.getInteger("priority")
-    }
-    if (msg.containsKey("approxTime")) {
-        seriesRecording.approxTime = msg.getInteger("approxTime")
-    }
-    if (msg.containsKey("start")) {
-        // The message value is in minutes
-        seriesRecording.start = msg.getLong("start")
-    }
-    if (msg.containsKey("startWindow")) {
-        // The message value is in minutes
-        seriesRecording.startWindow = msg.getLong("startWindow")
-    }
-    if (msg.containsKey("startExtra")) {
-        seriesRecording.startExtra = msg.getLong("startExtra")
-    }
-    if (msg.containsKey("stopExtra")) {
-        seriesRecording.stopExtra = msg.getLong("stopExtra")
-    }
-    if (msg.containsKey("title")) {
-        if (!msg.getString("title").isNullOrEmpty()) {
-            seriesRecording.title = msg.getString("title")
-        }
-    }
-    if (msg.containsKey("fulltext")) {
-        if (!msg.getString("fulltext").isNullOrEmpty()) {
-            seriesRecording.fulltext = msg.getInteger("fulltext")
-        }
-    }
-    if (msg.containsKey("directory")) {
-        if (!msg.getString("directory").isNullOrEmpty()) {
-            seriesRecording.directory = msg.getString("directory")
-        }
-    }
-    if (msg.containsKey("channel")) {
-        if (msg.getInteger("channel") > 0) {
-            seriesRecording.channelId = msg.getInteger("channel")
-        }
-    }
-    if (msg.containsKey("owner")) {
-        if (!msg.getString("owner").isNullOrEmpty()) {
-            seriesRecording.owner = msg.getString("owner")
-        }
-    }
-    if (msg.containsKey("creator")) {
-        if (!msg.getString("creator").isNullOrEmpty()) {
-            seriesRecording.creator = msg.getString("creator")
-        }
-    }
-    if (msg.containsKey("dupDetect")) {
-        if (msg.getInteger("dupDetect") > 0) {
-            seriesRecording.dupDetect = msg.getInteger("dupDetect")
-        }
-    }
-    if (msg.containsKey("maxCount")) {
-        if (msg.getInteger("maxCount") > 0) {
-            seriesRecording.maxCount = msg.getInteger("maxCount")
-        }
-    }
-    if (msg.containsKey("removal")) {
-        if (msg.getInteger("removal") > 0) {
-            seriesRecording.removal = msg.getInteger("removal")
-        }
-    }
-    return seriesRecording
-}
+fun convertMessageToTimerRecordingModel(timerRecording: TimerRecording, msg: HtspMessage) = TimerRecording(
+    id = msg.getString("id", timerRecording.id),
+    title = msg.getString("title", timerRecording.title)?.trim(),
+    directory = msg.getNonEmptyString("directory", timerRecording.directory),
+    isEnabled = msg.getInteger("enabled", if (timerRecording.isEnabled) 1 else 0) == 1,
+    name = msg.getString("name", timerRecording.name)?.trim(),
+    configName = msg.getString("configName", timerRecording.configName),
+    channelId = msg.getInteger("channel", timerRecording.channelId),
+    daysOfWeek = msg.getInteger("daysOfWeek", timerRecording.daysOfWeek),
+    priority = msg.getInteger("priority", timerRecording.priority),
+    start = msg.getLong("start", timerRecording.start),
+    stop = msg.getLong("stop", timerRecording.stop),
+    retention = msg.getInteger("retention", timerRecording.retention),
+    owner = msg.getNonEmptyString("owner", timerRecording.owner),
+    creator = msg.getNonEmptyString("creator", timerRecording.creator),
+    removal = msg.getPositiveInteger("removal", timerRecording.removal),
+    connectionId = timerRecording.connectionId
+)
 
-fun convertMessageToTimerRecordingModel(timerRecording: TimerRecording, msg: HtspMessage): TimerRecording {
-    if (msg.containsKey("id")) {
-        timerRecording.id = msg.getString("id")
-    }
-    if (msg.containsKey("title")) {
-        timerRecording.title = msg.getString("title")
-    }
-    if (msg.containsKey("directory")) {
-        if (!msg.getString("directory").isNullOrEmpty()) {
-            timerRecording.directory = msg.getString("directory")
-        }
-    }
-    if (msg.containsKey("enabled")) {
-        timerRecording.isEnabled = msg.getInteger("enabled") == 1
-    }
-    if (msg.containsKey("name")) {
-        timerRecording.name = msg.getString("name")
-    }
-    if (msg.containsKey("configName")) {
-        timerRecording.configName = msg.getString("configName")
-    }
-    if (msg.containsKey("channel")) {
-        timerRecording.channelId = msg.getInteger("channel")
-    }
-    if (msg.containsKey("daysOfWeek")) {
-        if (msg.getInteger("daysOfWeek") > 0) {
-            timerRecording.daysOfWeek = msg.getInteger("daysOfWeek")
-        }
-    }
-    if (msg.containsKey("priority")) {
-        if (msg.getInteger("priority") > 0) {
-            timerRecording.priority = msg.getInteger("priority")
-        }
-    }
-    if (msg.containsKey("start")) {
-        // The message value is in minutes
-        timerRecording.start = msg.getLong("start")
-    }
-    if (msg.containsKey("stop")) {
-        // The message value is in minutes
-        timerRecording.stop = msg.getLong("stop")
-    }
-    if (msg.containsKey("retention")) {
-        if (msg.getInteger("retention") > 0) {
-            timerRecording.retention = msg.getInteger("retention")
-        }
-    }
-    if (msg.containsKey("owner")) {
-        if (!msg.getString("owner").isNullOrEmpty()) {
-            timerRecording.owner = msg.getString("owner")
-        }
-    }
-    if (msg.containsKey("creator")) {
-        if (!msg.getString("creator").isNullOrEmpty()) {
-            timerRecording.creator = msg.getString("creator")
-        }
-    }
-    if (msg.containsKey("removal")) {
-        if (msg.getInteger("removal") > 0) {
-            timerRecording.removal = msg.getInteger("removal")
-        }
-    }
-    return timerRecording
-}
-
-fun convertMessageToServerStatusModel(serverStatus: ServerStatus, msg: HtspMessage): ServerStatus {
-    if (msg.containsKey("htspversion")) {
-        serverStatus.htspVersion = msg.getInteger("htspversion", 13)
-    }
-    if (msg.containsKey("servername")) {
-        serverStatus.serverName = msg.getString("servername")
-    }
-    if (msg.containsKey("serverversion")) {
-        serverStatus.serverVersion = msg.getString("serverversion")
-    }
-    if (msg.containsKey("webroot")) {
-        val webroot = msg.getString("webroot")
-        serverStatus.webroot = webroot ?: ""
-    }
-    if (msg.containsKey("servercapability")) {
-        for (capabilitiy in msg.getArrayList("servercapability")) {
-            Timber.d("Server supports $capabilitiy")
-        }
-    }
-    return serverStatus
-}
+fun convertMessageToServerStatusModel(serverStatus: ServerStatus, msg: HtspMessage) = serverStatus.copy(
+    htspVersion = msg.getInteger("htspversion", serverStatus.htspVersion),
+    serverName = msg.getString("servername", serverStatus.serverName),
+    serverVersion = msg.getString("serverversion", serverStatus.serverVersion),
+    webroot = msg.getString("webroot", serverStatus.webroot) ?: "",
+)
 
 fun convertIntentToAutorecMessage(intent: Intent, htspVersion: Int): HtspMessage {
     val enabled = intent.getIntExtra("enabled", 1).toLong()
