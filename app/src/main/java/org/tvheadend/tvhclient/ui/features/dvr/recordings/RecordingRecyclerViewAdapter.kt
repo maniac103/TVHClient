@@ -65,6 +65,7 @@ class RecordingRecyclerViewAdapter internal constructor(
         holder.bind(
             recording,
             position,
+            recordingListFiltered.size,
             selectedPosition == position,
             caps,
             showGenreColor,
@@ -150,6 +151,7 @@ class RecordingRecyclerViewAdapter internal constructor(
         fun bind(
             recording: RecordingWithChannel,
             position: Int,
+            totalCount: Int,
             isSelected: Boolean,
             caps: ServerCapabilities,
             showGenreColor: Boolean,
@@ -159,6 +161,7 @@ class RecordingRecyclerViewAdapter internal constructor(
             binding.root.apply {
                 setOnClickListener { clickCallback.onClick(this, position, recording.base) }
                 setOnLongClickListener { clickCallback.onLongClick(this, position, recording.base) }
+                assignRole(position, totalCount, isDualPane && isSelected)
             }
             binding.title.applyTextAndAdjustVisibility { interpretColoredText(recording.title) }
             binding.subtitle.apply {
@@ -183,7 +186,6 @@ class RecordingRecyclerViewAdapter internal constructor(
             }
             binding.isSeriesRecording.isVisible = !recording.autorecId.isNullOrEmpty()
             binding.isTimerRecording.isVisible = !recording.timerecId.isNullOrEmpty()
-            binding.dualPaneListItemSelection.isVisible = isDualPane && isSelected
             binding.failedReason.applyTextAndAdjustVisibility { recording.determineFailedReasonText(this) }
             binding.disabled.isVisible = recording.isScheduled && caps.recordingEnabledSupported && !recording.isEnabled
             binding.duplicate.isVisible = recording.isScheduled && caps.recordingDuplicateSupported && recording.duplicate != 0

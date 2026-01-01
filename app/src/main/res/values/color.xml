@@ -30,8 +30,6 @@
     <!--</editor-fold>-->
 
     <!--<editor-fold desc="Misc">-->
-    <color name="divider_color_light">#e0e0e0</color>
-    <color name="divider_color_dark">#404040</color>
     <color name="epg_current_time_indicator">#60f00000</color>
     <!--</editor-fold>-->
 

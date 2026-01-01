@@ -12,6 +12,7 @@ import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ChannelListAdapterBinding
+import org.tvheadend.tvhclient.ui.common.ListItemContainerView
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.util.extensions.applyChannelIcon
 import org.tvheadend.tvhclient.util.extensions.applyRecordingStateIcon
@@ -84,6 +85,7 @@ class ChannelRecyclerViewAdapter internal constructor(
             holder.bind(
                 item,
                 position,
+                channelListFiltered.size,
                 selectedPosition == position,
                 showChannelName,
                 showChannelNumber,
@@ -233,6 +235,7 @@ class ChannelRecyclerViewAdapter internal constructor(
         fun bind(
             item: ItemModel,
             position: Int,
+            totalCount: Int,
             isSelected: Boolean,
             showChannelName: Boolean,
             showChannelNumber: Boolean,
@@ -245,6 +248,7 @@ class ChannelRecyclerViewAdapter internal constructor(
             binding.root.apply {
                 setOnClickListener { clickCallback.onClick(this, position, item.channel) }
                 setOnLongClickListener { clickCallback.onLongClick(this, position, item.channel) }
+                assignRole(position, totalCount, isDualPane && isSelected)
             }
             binding.icon.apply {
                 setOnClickListener { clickCallback.onClick(this, position, item.channel) }
@@ -286,7 +290,6 @@ class ChannelRecyclerViewAdapter internal constructor(
             }
             binding.noPrograms.isVisible = item.channel.programId == 0
             binding.state.applyRecordingStateIcon(item.recording)
-            binding.dualPaneListItemSelection.isVisible = isDualPane && isSelected
             binding.progressbar.apply {
                 isVisible = item.channel.programId > 0 && item.channel.progress > 0 && showProgressBar
                 progress = item.channel.progress

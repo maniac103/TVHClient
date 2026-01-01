@@ -11,12 +11,15 @@
         android:id="@+id/coordinator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?colorSurfaceContainerHigh"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:liftOnScroll="false"
+            android:background="@null"
             android:fitsSystemWindows="true">
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -49,8 +52,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.65" />
-
-            <include layout="@layout/view_vertical_divider" />
 
             <FrameLayout
                 android:id="@+id/details"

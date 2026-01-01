@@ -40,7 +40,7 @@ class SeriesRecordingRecyclerViewAdapter internal constructor(
     override fun onBindViewHolder(holder: SeriesRecordingViewHolder, position: Int) {
         if (recordingListFiltered.size > position) {
             val recording = recordingListFiltered[position]
-            holder.bind(recording, position, selectedPosition == position, caps, clickCallback)
+            holder.bind(recording, position, recordingListFiltered.size, selectedPosition == position, caps, clickCallback)
         }
     }
 
@@ -114,6 +114,7 @@ class SeriesRecordingRecyclerViewAdapter internal constructor(
         fun bind(
             recording: SeriesRecordingWithChannel,
             position: Int,
+            totalCount: Int,
             isSelected: Boolean,
             caps: ServerCapabilities,
             clickCallback: RecyclerViewClickInterface<SeriesRecordingWithChannel>
@@ -121,6 +122,7 @@ class SeriesRecordingRecyclerViewAdapter internal constructor(
             binding.root.apply {
                 setOnClickListener { clickCallback.onClick(it, position, recording) }
                 setOnLongClickListener { clickCallback.onLongClick(it, position, recording) }
+                assignRole(position, totalCount, isDualPane && isSelected)
             }
             binding.title.text = recording.title
             binding.name.applyTextAndAdjustVisibility(recording.name)
@@ -135,7 +137,6 @@ class SeriesRecordingRecyclerViewAdapter internal constructor(
             }
             binding.icon.applyIcon(recording.channelIcon, recording.channelName, binding.iconText)
             binding.disabled.isVisible = caps.recordingEnabledSupported && !recording.isEnabled
-            binding.dualPaneListItemSelection.isVisible = isDualPane && isSelected
         }
     }
 }

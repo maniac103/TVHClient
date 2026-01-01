@@ -1,24 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<org.tvheadend.tvhclient.ui.common.ListItemContainerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/ListItemContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="12dp"
-    android:paddingBottom="12dp"
-    android:background="?android:attr/selectableItemBackground">
-
-    <ImageView
-        android:id="@+id/dual_pane_list_item_selection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@null"
-        android:scaleType="center"
-        android:src="?dual_pane_list_selection"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+    android:paddingBottom="12dp">
 
     <ImageView
         android:id="@+id/icon"
@@ -114,4 +103,4 @@
         app:layout_constraintTop_toBottomOf="@id/days_of_week"
         android:text="@string/recording_disabled" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</org.tvheadend.tvhclient.ui.common.ListItemContainerView>

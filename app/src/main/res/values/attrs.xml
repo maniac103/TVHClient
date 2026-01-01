@@ -7,8 +7,6 @@
     <attr name="recording_state_color" format="color|reference" />
     <attr name="recording_success_color" format="color|reference" />
     <attr name="recording_fail_color" format="color|reference" />
-    <attr name="divider_color" format="reference" />
-    <attr name="dual_pane_list_selection" format="reference" />
 
     <item name="abc_action_mode_bar" type="layout" tools:override="true">@layout/action_mode_bar</item>
 </resources>

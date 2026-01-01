@@ -57,7 +57,7 @@ class ProgramRecyclerViewAdapter internal constructor(
     override fun onBindViewHolder(holder: ProgramViewHolder, position: Int) {
         if (programListFiltered.size > position) {
             val model = programListFiltered[position]
-            holder.bind(model, position, showGenreColor, showProgramSubtitle, clickCallback)
+            holder.bind(model, position, programListFiltered.size, showGenreColor, showProgramSubtitle, clickCallback)
             if (position == programList.size - 1) {
                 onLastProgramVisibleListener.onLastProgramVisible(position)
             }
@@ -193,12 +193,14 @@ class ProgramRecyclerViewAdapter internal constructor(
 
         fun bind(model: ItemModel,
                  position: Int,
+                 totalCount: Int,
                  showGenreColor: Boolean,
                  showProgramSubtitle: Boolean,
                  clickCallback: RecyclerViewClickInterface<ItemModel>) {
             binding.root.apply {
                 setOnClickListener { clickCallback.onClick(this, position, model) }
                 setOnLongClickListener { clickCallback.onLongClick(this, position, model) }
+                assignRole(position, totalCount, false)
             }
             if (showChannelIcon) {
                 binding.icon.applyIcon(model.program.channelIcon, model.program.channelName, binding.iconText)

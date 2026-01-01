@@ -21,7 +21,7 @@
         android:id="@+id/channel_list_header"
         android:layout_width="88dp"
         android:layout_height="36dp"
-        android:background="?colorSurfaceContainerLow"
+        android:background="?colorSurfaceContainerHigh"
         android:text="@null"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +32,7 @@
         android:layout_height="0dp"
         android:scrollbars="none"
         android:visibility="invisible"
-        android:background="?colorSurfaceContainerLow"
+        android:background="?colorSurfaceContainerHigh"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/channel_list_header"
         app:layout_constraintStart_toStartOf="parent"

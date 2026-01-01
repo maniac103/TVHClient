@@ -53,6 +53,14 @@
         <item name="colorOnContainerUnchecked">?colorOnSurface</item>
     </style>
 
+    <style name="ListItemContainer">
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="android:layout_marginBottom">1dp</item>
+        <item name="android:foreground">?selectableItemBackground</item>
+    </style>
+
     <!-- Styles that will be used for the light holo theme -->
     <style name="CustomTheme" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
@@ -113,11 +121,9 @@
         <!--</editor-fold>-->
 
         <!--<editor-fold desc="Misc">-->
-        <item name="divider_color">@color/divider_color_light</item>
         <item name="recording_state_color">#D32F2F</item> <!-- red 700 -->
         <item name="recording_success_color">#388E3C</item> <!-- green 700 -->
         <item name="recording_fail_color">#D32F2F</item> <!-- red 700 -->
-        <item name="dual_pane_list_selection">@drawable/dual_pane_selector_active_light</item>
         <item name="preferenceTheme">@style/ThemeOverlay.Custom.Preference</item>
         <!--</editor-fold>-->
     </style>

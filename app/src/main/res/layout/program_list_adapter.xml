@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<org.tvheadend.tvhclient.ui.common.ListItemContainerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/ListItemContainer"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground">
+    android:layout_height="wrap_content">
 
     <View
         android:id="@+id/genre"
@@ -179,4 +179,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:text="@tools:sample/lorem/random" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</org.tvheadend.tvhclient.ui.common.ListItemContainerView>

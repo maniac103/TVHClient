@@ -191,7 +191,7 @@ internal class EpgHorizontalChildRecyclerViewAdapter(
 
         init {
             genreBackground.fillColor = ColorStateList.valueOf(
-                MaterialColors.getColor(itemView, R.attr.colorSurfaceContainerHigh)
+                MaterialColors.getColor(itemView, R.attr.colorSurfaceContainerLow)
             )
             binding.genre.background = genreBackground
         }
