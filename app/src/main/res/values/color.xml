@@ -20,15 +20,6 @@
     <color name="content_text_dark">#aaffffff</color>
     <!--</editor-fold>-->
 
-    <!--<editor-fold desc="Scrolling and fast scroll indications">-->
-    <color name="scrollbar_track_light">#F0F0F0</color>
-    <color name="scrollbar_track_dark">#393939</color>
-    <color name="scrollbar_thumb_light">#C9C9C9</color>
-    <color name="scrollbar_thumb_dark">#777777</color>
-    <color name="scrollbar_thumb_selected_light">#AAAAAA</color>
-    <color name="scrollbar_thumb_selected_dark">#BBBBBB</color>
-    <!--</editor-fold>-->
-
     <!--<editor-fold desc="Misc">-->
     <color name="epg_current_time_indicator">#60f00000</color>
     <!--</editor-fold>-->

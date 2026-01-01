@@ -54,11 +54,6 @@
         <item name="mediaRouteButtonTint">?colorControlNormal</item>
         <!--</editor-fold>-->
 
-        <!--<editor-fold desc="Fast scrollbar styles">-->
-        <item name="fast_scroll_track">@drawable/fast_scroll_track_dark</item>
-        <item name="fast_scroll_thumb">@drawable/fast_scroll_thumb_dark</item>
-        <!--</editor-fold>-->
-
         <!--<editor-fold desc="Misc">-->
         <item name="recording_state_color">#F44336</item> <!-- red 500 -->
         <item name="recording_success_color">#4CAF50</item> <!-- green 500 -->
