@@ -55,7 +55,7 @@
 
             <TextView
                 android:id="@+id/is_series_recording"
-                style="@style/SubtitleFont"
+                style="@style/ContentFont"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
@@ -66,7 +66,7 @@
 
             <TextView
                 android:id="@+id/is_timer_recording"
-                style="@style/SubtitleFont"
+                style="@style/ContentFont"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toEndOf="@id/info_icon"

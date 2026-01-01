@@ -3,8 +3,12 @@ package org.tvheadend.tvhclient.ui.features.dvr.recordings
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.ServerCapabilities
@@ -12,6 +16,12 @@ import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecordingDetailsFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
+import org.tvheadend.tvhclient.ui.common.preparePopupOrToolbarSearchMenu
+import org.tvheadend.tvhclient.ui.common.searchTitleInTheLocalDatabase
+import org.tvheadend.tvhclient.ui.common.searchTitleOnFileAffinityWebsite
+import org.tvheadend.tvhclient.ui.common.searchTitleOnGoogle
+import org.tvheadend.tvhclient.ui.common.searchTitleOnImdbWebsite
+import org.tvheadend.tvhclient.ui.common.searchTitleOnYoutube
 import org.tvheadend.tvhclient.util.extensions.applyIcon
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
@@ -27,7 +37,7 @@ import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
 import org.tvheadend.tvhclient.util.extensions.interpretColoredText
 import timber.log.Timber
 
-class RecordingDetailsFragment : BaseFragment() {
+class RecordingDetailsFragment : BaseFragment(), MenuProvider {
     private lateinit var binding: RecordingDetailsFragmentBinding
     private lateinit var recordingViewModel: RecordingViewModel
     private var recording: RecordingWithChannel? = null
@@ -41,6 +51,7 @@ class RecordingDetailsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val activity = requireActivity()
         recordingViewModel = ViewModelProvider(requireActivity())[RecordingViewModel::class.java]
         recordingViewModel.recordingLiveData.observe(viewLifecycleOwner) {
             Timber.d("View model returned a recording: $it")
@@ -52,6 +63,12 @@ class RecordingDetailsFragment : BaseFragment() {
             capabilities = it?.let { ServerCapabilities(it) }
             updateContent()
         }
+        globalStatusViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) {
+            isConnectionToServerAvailable = it
+            activity.invalidateMenu()
+        }
+
+        activity.addMenuProvider(this, viewLifecycleOwner)
     }
 
     private fun updateContent() {
@@ -92,5 +109,24 @@ class RecordingDetailsFragment : BaseFragment() {
         binding.date.applyText { formatDate(recording.start) }
         binding.time.applyText { formatStartStopTime(recording.start, recording.stop) }
         binding.duration.applyText { getString(R.string.minutes, recording.duration) }
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.external_search_options_menu, menu)
+        preparePopupOrToolbarSearchMenu(menu, recording?.title, isConnectionToServerAvailable)
+    }
+
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
+        val recording = recording ?: return false
+        val activity = activity ?: return false
+
+        return when (item.itemId) {
+            R.id.menu_search_imdb -> searchTitleOnImdbWebsite(activity, recording.title)
+            R.id.menu_search_fileaffinity -> searchTitleOnFileAffinityWebsite(activity, recording.title)
+            R.id.menu_search_youtube -> searchTitleOnYoutube(activity, recording.title)
+            R.id.menu_search_google -> searchTitleOnGoogle(activity, recording.title)
+            R.id.menu_search_epg -> searchTitleInTheLocalDatabase(activity, baseViewModel, recording.title)
+            else -> false
+        }
     }
 }

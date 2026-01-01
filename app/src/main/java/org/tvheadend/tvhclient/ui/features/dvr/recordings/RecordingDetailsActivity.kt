@@ -25,9 +25,6 @@ class RecordingDetailsActivity : BaseActivity() {
 
     private lateinit var recordingViewModel: RecordingViewModel
 
-    private var recording: RecordingWithChannel? = null
-    private var isConnectionToServerAvailable: Boolean = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,48 +47,11 @@ class RecordingDetailsActivity : BaseActivity() {
             if (rec == null) {
                 finish()
             } else {
-                recording = rec
                 supportActionBar?.apply {
                     title = rec.title
                     subtitle = rec.subtitle
                 }
-                invalidateOptionsMenu()
             }
-        }
-
-        globalStatusViewModel.connectionToServerAvailableLiveData.observe(this) { isAvailable ->
-            Timber.d("Received live data, connection to server availability changed to $isAvailable")
-            isConnectionToServerAvailable = isAvailable
-            invalidateOptionsMenu()
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.external_search_options_menu, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        preparePopupOrToolbarSearchMenu(menu, recording?.title, isConnectionToServerAvailable)
-        return super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
-
-        val recording = recording ?: return super.onOptionsItemSelected(item)
-
-        return when (item.itemId) {
-            R.id.menu_search_imdb -> searchTitleOnImdbWebsite(this, recording.title)
-            R.id.menu_search_fileaffinity -> searchTitleOnFileAffinityWebsite(this, recording.title)
-            R.id.menu_search_youtube -> searchTitleOnYoutube(this, recording.title)
-            R.id.menu_search_google -> searchTitleOnGoogle(this, recording.title)
-            R.id.menu_search_epg -> searchTitleInTheLocalDatabase(this, baseViewModel, recording.title)
-
-            else -> return super.onOptionsItemSelected(item)
         }
     }
 
