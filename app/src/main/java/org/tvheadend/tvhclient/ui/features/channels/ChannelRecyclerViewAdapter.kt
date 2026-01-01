@@ -12,7 +12,6 @@ import org.tvheadend.data.entity.Recording
 import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ChannelListAdapterBinding
-import org.tvheadend.tvhclient.ui.common.ListItemContainerView
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.util.extensions.applyChannelIcon
 import org.tvheadend.tvhclient.util.extensions.applyRecordingStateIcon
@@ -291,7 +290,7 @@ class ChannelRecyclerViewAdapter internal constructor(
             binding.noPrograms.isVisible = item.channel.programId == 0
             binding.state.applyRecordingStateIcon(item.recording)
             binding.progressbar.apply {
-                isVisible = item.channel.programId > 0 && item.channel.progress > 0 && showProgressBar
+                isVisible = item.channel.programId > 0 && showProgressBar
                 progress = item.channel.progress
             }
             binding.genre.apply {
