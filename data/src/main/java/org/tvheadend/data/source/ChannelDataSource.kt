@@ -45,7 +45,7 @@ class ChannelDataSource(private val db: AppRoomDatabase) : DataSourceInterface<C
         return MutableLiveData()
     }
 
-    override fun getLiveDataItemById(id: Any): LiveData<Channel> {
+    override fun getLiveDataItemById(id: Any): LiveData<Channel?> {
         return MutableLiveData()
     }
 

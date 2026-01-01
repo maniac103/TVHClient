@@ -36,7 +36,7 @@ internal interface ServerStatusDao {
     fun loadServerStatusByIdSync(id: Int): ServerStatus?
 
     @Query("$SERVER_STATUS_BASE_QUERY WHERE s.connection_id = :id")
-    fun loadServerStatusById(id: Int): LiveData<ServerStatus>
+    fun loadServerStatusById(id: Int): LiveData<ServerStatus?>
 
     @get:Query("SELECT COUNT (*) FROM server_status AS s WHERE $CONNECTION_IS_ACTIVE")
     val serverStatusCount: LiveData<Int>

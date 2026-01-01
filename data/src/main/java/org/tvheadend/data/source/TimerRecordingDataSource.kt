@@ -30,7 +30,7 @@ class TimerRecordingDataSource(private val db: AppRoomDatabase) : DataSourceInte
     override fun getLiveDataItems(): LiveData<List<TimerRecordingWithChannel>> =
         db.timerRecordingDao.loadAllRecordings()
 
-    override fun getLiveDataItemById(id: Any): LiveData<TimerRecordingWithChannel> =
+    override fun getLiveDataItemById(id: Any): LiveData<TimerRecordingWithChannel?> =
         db.timerRecordingDao.loadRecordingById(id as String)
 
     override fun getItemById(id: Any): TimerRecordingWithChannel? = id

@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.Recording
@@ -12,6 +11,7 @@ import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
+import org.tvheadend.tvhclient.util.extensions.asStaticLiveData
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.recordingDataSource
@@ -36,10 +36,10 @@ class RecordingViewModel(private val application: Application) : BaseViewModel(a
     val showGenreColor = application.prefs.genreColorsForRecordingsLiveData()
     val showFileStatus = application.prefs.showRecordingFileStatusLiveData()
     var recordingLiveData = currentIdLiveData
-        .map { id ->
+        .switchMap { id ->
             id.takeIf { it > 0 }
-                ?.let { application.recordingDataSource.getItemById(it) }
-                ?: RecordingWithChannel(Recording())
+                ?.let { application.recordingDataSource.getLiveDataItemById(it) }
+                ?: RecordingWithChannel(Recording()).asStaticLiveData()
         }
 
     var recordingProfileNameId = 0

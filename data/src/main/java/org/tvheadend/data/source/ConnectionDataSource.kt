@@ -58,7 +58,7 @@ class ConnectionDataSource(private val db: AppRoomDatabase) : DataSourceInterfac
 
     override fun getLiveDataItems(): LiveData<List<Connection>> = db.connectionDao.loadAllConnections()
 
-    override fun getLiveDataItemById(id: Any): LiveData<Connection> = db.connectionDao.loadConnectionById(id as Int)
+    override fun getLiveDataItemById(id: Any): LiveData<Connection?> = db.connectionDao.loadConnectionById(id as Int)
 
     override fun getItemById(id: Any): Connection? = runBlocking(Dispatchers.IO) {
         db.connectionDao.loadConnectionByIdSync(id as Int)

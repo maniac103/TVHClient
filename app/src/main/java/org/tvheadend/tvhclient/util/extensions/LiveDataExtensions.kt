@@ -23,3 +23,5 @@ fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observ
         }
     })
 }
+
+inline fun <reified T> T.asStaticLiveData() = object : LiveData<T>(this) {}

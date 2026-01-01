@@ -30,7 +30,7 @@ class SeriesRecordingDataSource(private val db: AppRoomDatabase) : DataSourceInt
 
     override fun getLiveDataItems(): LiveData<List<SeriesRecordingWithChannel>> = db.seriesRecordingDao.loadAllRecordings()
 
-    override fun getLiveDataItemById(id: Any): LiveData<SeriesRecordingWithChannel> =
+    override fun getLiveDataItemById(id: Any): LiveData<SeriesRecordingWithChannel?> =
         db.seriesRecordingDao.loadRecordingById(id as String)
 
     override fun getItemById(id: Any): SeriesRecordingWithChannel? = id

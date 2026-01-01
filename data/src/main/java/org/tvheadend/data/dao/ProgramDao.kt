@@ -82,7 +82,7 @@ internal interface ProgramDao {
     @Query(PROGRAM_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND p.id = :id")
-    fun loadProgramById(id: Int): LiveData<ProgramWithChannel>
+    fun loadProgramById(id: Int): LiveData<ProgramWithChannel?>
 
     @Transaction
     @Query(PROGRAM_BASE_QUERY +

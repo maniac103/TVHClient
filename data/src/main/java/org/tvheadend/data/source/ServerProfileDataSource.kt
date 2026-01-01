@@ -60,7 +60,7 @@ class ServerProfileDataSource(private val db: AppRoomDatabase) : DataSourceInter
         return MutableLiveData()
     }
 
-    override fun getLiveDataItemById(id: Any): LiveData<ServerProfile> {
+    override fun getLiveDataItemById(id: Any): LiveData<ServerProfile?> {
         return MutableLiveData()
     }
 

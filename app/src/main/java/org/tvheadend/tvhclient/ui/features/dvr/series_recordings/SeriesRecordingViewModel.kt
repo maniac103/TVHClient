@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.SeriesRecording
 import org.tvheadend.data.entity.SeriesRecordingWithChannel
@@ -13,6 +14,7 @@ import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
+import org.tvheadend.tvhclient.util.extensions.asStaticLiveData
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.seriesRecordingDataSource
@@ -25,12 +27,13 @@ class SeriesRecordingViewModel(application: Application) : BaseViewModel(applica
     var selectedListPosition = 0
     val currentIdLiveData = MutableLiveData("")
     val recordingLiveData = currentIdLiveData
-        .map { id ->
-            val rec = id
-                .takeIf { it.isNotEmpty() }
-                ?.let { application.seriesRecordingDataSource.getItemById(it) }
-                ?: SeriesRecordingWithChannel(SeriesRecording())
-            isTimeEnabled = rec.start >= 0 && rec.startWindow >= 0
+        .switchMap { id ->
+            id.takeIf { it.isNotEmpty() }
+                ?.let { application.seriesRecordingDataSource.getLiveDataItemById(it) }
+                ?: SeriesRecordingWithChannel(SeriesRecording()).asStaticLiveData()
+        }
+        .map { rec ->
+            isTimeEnabled = rec != null && rec.start >= 0 && rec.startWindow >= 0
             rec
         }
 

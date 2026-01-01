@@ -26,7 +26,7 @@ internal interface ConnectionDao {
     fun loadConnectionByIdSync(id: Int): Connection?
 
     @Query("SELECT * FROM connections WHERE id = :id")
-    fun loadConnectionById(id: Int): LiveData<Connection>
+    fun loadConnectionById(id: Int): LiveData<Connection?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(connection: Connection): Long

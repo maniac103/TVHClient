@@ -55,7 +55,7 @@ class ServerStatusDataSource(private val db: AppRoomDatabase) : DataSourceInterf
 
     override fun getLiveDataItems(): LiveData<List<ServerStatus>> = db.serverStatusDao.loadAllServerStatus()
 
-    override fun getLiveDataItemById(id: Any): LiveData<ServerStatus> = db.serverStatusDao.loadServerStatusById(id as Int)
+    override fun getLiveDataItemById(id: Any): LiveData<ServerStatus?> = db.serverStatusDao.loadServerStatusById(id as Int)
 
     override fun getItemById(id: Any): ServerStatus? = runBlocking(Dispatchers.IO) {
         db.serverStatusDao.loadServerStatusByIdSync(id as Int)

@@ -38,7 +38,7 @@ class TagAndChannelDataSource(private val db: AppRoomDatabase) : DataSourceInter
         return MutableLiveData()
     }
 
-    override fun getLiveDataItemById(id: Any): LiveData<TagAndChannel> {
+    override fun getLiveDataItemById(id: Any): LiveData<TagAndChannel?> {
         return MutableLiveData()
     }
 

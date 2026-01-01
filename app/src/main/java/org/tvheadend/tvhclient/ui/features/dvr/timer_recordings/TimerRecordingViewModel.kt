@@ -6,12 +6,14 @@ import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import org.tvheadend.data.entity.Channel
 import org.tvheadend.data.entity.ServerProfile
 import org.tvheadend.data.entity.TimerRecording
 import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.service.ConnectionService
 import org.tvheadend.tvhclient.ui.base.BaseViewModel
+import org.tvheadend.tvhclient.util.extensions.asStaticLiveData
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
 import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
@@ -23,12 +25,13 @@ class TimerRecordingViewModel(application: Application) : BaseViewModel(applicat
     var selectedListPosition = 0
     val currentIdLiveData = MutableLiveData("")
     val recordingLiveData = currentIdLiveData
-        .map { id ->
-            val rec = id
-                .takeIf { it.isNotEmpty() }
-                ?.let { application.timerRecordingDataSource.getItemById(it) }
-                ?: TimerRecordingWithChannel(TimerRecording())
-            isTimeEnabled = rec.start > 0 && rec.stop > 0
+        .switchMap { id ->
+            id.takeIf { it.isNotEmpty() }
+                ?.let { application.timerRecordingDataSource.getLiveDataItemById(it) }
+                ?: TimerRecordingWithChannel(TimerRecording()).asStaticLiveData()
+        }
+        .map { rec ->
+            isTimeEnabled = rec != null && rec.start > 0 && rec.stop > 0
             rec
         }
     var isTimeEnabled: Boolean = false

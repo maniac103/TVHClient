@@ -26,7 +26,7 @@ internal interface TimerRecordingDao {
     @Query(RECORDING_BASE_QUERY +
             " WHERE $CONNECTION_IS_ACTIVE" +
             " AND rec.id = :id")
-    fun loadRecordingById(id: String): LiveData<TimerRecordingWithChannel>
+    fun loadRecordingById(id: String): LiveData<TimerRecordingWithChannel?>
 
     @Transaction
     @Query(RECORDING_BASE_QUERY +

@@ -52,7 +52,7 @@ class ProgramDataSource(private val db: AppRoomDatabase) : DataSourceInterface<P
 
     override fun getLiveDataItems(): LiveData<List<ProgramWithChannel>> = db.programDao.loadPrograms()
 
-    override fun getLiveDataItemById(id: Any): LiveData<ProgramWithChannel> =
+    override fun getLiveDataItemById(id: Any): LiveData<ProgramWithChannel?> =
         db.programDao.loadProgramById(id as Int)
 
     override fun getItemById(id: Any): ProgramWithChannel? = runBlocking(Dispatchers.IO) {

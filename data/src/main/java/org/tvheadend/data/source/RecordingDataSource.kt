@@ -38,7 +38,7 @@ class RecordingDataSource(private val db: AppRoomDatabase) : DataSourceInterface
     override fun getLiveDataItems(): LiveData<List<RecordingWithChannel>> =
         db.recordingDao.loadRecordings()
 
-    override fun getLiveDataItemById(id: Any): LiveData<RecordingWithChannel> =
+    override fun getLiveDataItemById(id: Any): LiveData<RecordingWithChannel?> =
         db.recordingDao.loadRecordingById(id as Int)
 
     fun getLiveDataItemsByChannelId(channelId: Int): LiveData<List<RecordingWithChannel>> =

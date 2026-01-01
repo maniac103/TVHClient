@@ -57,7 +57,7 @@ class ChannelTagDataSource(private val db: AppRoomDatabase) : DataSourceInterfac
 
     override fun getLiveDataItems(): LiveData<List<ChannelTag>> = db.channelTagDao.loadAllChannelTags()
 
-    override fun getLiveDataItemById(id: Any): LiveData<ChannelTag> {
+    override fun getLiveDataItemById(id: Any): LiveData<ChannelTag?> {
         return MutableLiveData()
     }
 

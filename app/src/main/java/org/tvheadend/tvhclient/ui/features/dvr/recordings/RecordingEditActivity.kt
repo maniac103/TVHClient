@@ -66,8 +66,12 @@ class RecordingEditActivity : BaseActivity() {
         ) { rec, htspVersion -> rec to ServerCapabilities(htspVersion) }
 
         inputLiveData.observeOnce(this) { (rec, caps) ->
-            this.caps = caps
-            updateUI(rec)
+            if (rec == null) {
+                finish()
+            } else {
+                this.caps = caps
+                updateUI(rec)
+            }
         }
     }
 
