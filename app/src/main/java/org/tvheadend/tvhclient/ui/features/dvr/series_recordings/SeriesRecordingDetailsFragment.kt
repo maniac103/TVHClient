@@ -45,7 +45,7 @@ class SeriesRecordingDetailsFragment : BaseFragment(), MenuProvider {
 
         val activity = requireActivity()
 
-        seriesRecordingViewModel = ViewModelProvider(requireActivity())[SeriesRecordingViewModel::class.java]
+        seriesRecordingViewModel = ViewModelProvider(activity)[SeriesRecordingViewModel::class.java]
         seriesRecordingViewModel.recordingLiveData.observe(viewLifecycleOwner) {
             recording = it
             updateContent()

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/title"
+        style="?textAppearanceHeadlineMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        android:maxLines="2" />
+
+    <TextView
+        android:id="@+id/name"
+        style="?textAppearanceTitleMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal"
+        android:maxLines="3" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="org.tvheadend.tvhclient.ui.features.dvr.series_recordings.TimerRecordingActionButtonsFragment" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="org.tvheadend.tvhclient.ui.features.dvr.timer_recordings.TimerRecordingDetailsFragment" />
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

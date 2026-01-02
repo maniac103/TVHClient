@@ -7,7 +7,6 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.tvheadend.data.entity.TimerRecording
@@ -18,6 +17,8 @@ import org.tvheadend.tvhclient.ui.base.BaseFragment
 import org.tvheadend.tvhclient.ui.common.*
 import org.tvheadend.tvhclient.ui.common.interfaces.RecyclerViewClickInterface
 import org.tvheadend.tvhclient.ui.common.interfaces.SearchRequestInterface
+import org.tvheadend.tvhclient.ui.features.dvr.series_recordings.DualPaneTimerRecordingDetailsFragment
+import org.tvheadend.tvhclient.ui.features.dvr.series_recordings.TimerRecordingDetailsActivity
 import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 import org.tvheadend.tvhclient.util.extensions.prefs
 import timber.log.Timber
@@ -126,31 +127,21 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface<Ti
             return
         }
 
-        val fm = activity?.supportFragmentManager
-        if (!isDualPane) {
-            val fragment = TimerRecordingDetailsFragment.newInstance(recording.id)
-            fm?.commit {
-                replace(R.id.main, fragment)
-                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                addToBackStack(null)
-            }
-        } else {
-            var fragment = activity?.supportFragmentManager?.findFragmentById(R.id.details)
-            if (fragment !is TimerRecordingDetailsFragment) {
-                fragment = TimerRecordingDetailsFragment.newInstance(recording.id)
-
-                // Check the lifecycle state to avoid committing the transaction
-                // after the onSaveInstance method was already called which would
-                // trigger an illegal state exception.
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    fm?.commit {
-                        replace(R.id.details, fragment)
-                        setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    }
+        if (isDualPane) {
+            val fm = activity?.supportFragmentManager
+            if (fm != null && fm.findFragmentById(R.id.details) == null) {
+                val fragment = DualPaneTimerRecordingDetailsFragment.newInstance(recording.id)
+                fm.commit(true) {
+                    replace(R.id.details, fragment)
+                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 }
             } else if (timerRecordingViewModel.currentIdLiveData.value != recording.id) {
+                Timber.d("Updating recording ID to ${recording.id}")
                 timerRecordingViewModel.currentIdLiveData.value = recording.id
             }
+        } else {
+            val intent = TimerRecordingDetailsActivity.makeIntent(requireContext(), recording)
+            startActivity(intent)
         }
     }
 

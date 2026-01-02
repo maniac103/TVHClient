@@ -7,29 +7,33 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
-import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.ServerCapabilities
 import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.TimerRecordingDetailsFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
-import org.tvheadend.tvhclient.ui.common.*
-import org.tvheadend.tvhclient.ui.common.interfaces.ClearSearchResultsOrPopBackStackInterface
-import org.tvheadend.tvhclient.ui.common.interfaces.RecordingRemovedInterface
+import org.tvheadend.tvhclient.ui.common.preparePopupOrToolbarSearchMenu
+import org.tvheadend.tvhclient.ui.common.searchTitleInTheLocalDatabase
+import org.tvheadend.tvhclient.ui.common.searchTitleOnFileAffinityWebsite
+import org.tvheadend.tvhclient.ui.common.searchTitleOnGoogle
+import org.tvheadend.tvhclient.ui.common.searchTitleOnImdbWebsite
+import org.tvheadend.tvhclient.ui.common.searchTitleOnYoutube
 import org.tvheadend.tvhclient.ui.features.dvr.minutesToTimeMillis
+import org.tvheadend.tvhclient.util.extensions.applyIcon
 import org.tvheadend.tvhclient.util.extensions.applyText
-import org.tvheadend.tvhclient.util.extensions.applyTextAndAdjustVisibility
 import org.tvheadend.tvhclient.util.extensions.determineDaysOfWeekText
 import org.tvheadend.tvhclient.util.extensions.determinePriorityText
+import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
 import org.tvheadend.tvhclient.util.extensions.formatTime
 
-class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface, ClearSearchResultsOrPopBackStackInterface {
-
+class TimerRecordingDetailsFragment : BaseFragment(), MenuProvider {
+    private lateinit var binding: TimerRecordingDetailsFragmentBinding
     private lateinit var timerRecordingViewModel: TimerRecordingViewModel
     private var recording: TimerRecordingWithChannel? = null
-    private lateinit var binding: TimerRecordingDetailsFragmentBinding
+    private var capabilities: ServerCapabilities? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = TimerRecordingDetailsFragmentBinding.inflate(inflater, container, false)
@@ -38,105 +42,57 @@ class TimerRecordingDetailsFragment : BaseFragment(), RecordingRemovedInterface,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        timerRecordingViewModel = ViewModelProvider(requireActivity())[TimerRecordingViewModel::class.java]
 
-        if (!isDualPane) {
-            toolbarInterface.setTitle(getString(R.string.details))
-            toolbarInterface.setSubtitle(null)
-        }
+        val activity = requireActivity()
 
-        arguments?.let {
-            timerRecordingViewModel.currentIdLiveData.value = it.getString("id", "")
-        }
-
+        timerRecordingViewModel = ViewModelProvider(activity)[TimerRecordingViewModel::class.java]
         timerRecordingViewModel.recordingLiveData.observe(viewLifecycleOwner) {
             recording = it
-            showRecordingDetails()
+            updateContent()
         }
-    }
 
-    private fun showRecordingDetails() {
-        recording?.let { rec ->
-            val caps = ServerCapabilities(htspVersion)
-            binding.disabled.isVisible = caps.recordingEnabledSupported == true && !rec.isEnabled
-            binding.titleLabel.isVisible = !isDualPane
-            binding.title.apply {
-                text = rec.title?.takeIf { it.isNotEmpty() } ?: context.getString(R.string.hint_not_set)
-                isVisible = !isDualPane
-            }
-            binding.name.applyTextAndAdjustVisibility { rec.name?.takeIf { it.isNotEmpty() } ?: rec.title }
-            binding.channel.applyText { rec.channelName ?: getString(R.string.all_channels) }
-            binding.startTime.applyText { formatTime(minutesToTimeMillis(rec.start)) }
-            binding.stopTime.applyText { formatTime(minutesToTimeMillis(rec.stop)) }
-            binding.duration.applyText { getString(R.string.minutes, rec.duration) }
-            binding.daysOfWeek.applyText { determineDaysOfWeekText(rec.daysOfWeek) }
-            binding.priority.applyText { determinePriorityText(rec.priority) }
-            binding.directory.applyText { rec.directory ?: getString(R.string.hint_not_set) }
-
-            // The toolbar is hidden as a default to prevent pressing any icons if no recording
-            // has been loaded yet. The toolbar is shown here because a recording was loaded
-            binding.nestedToolbar.isVisible = true
-            activity?.invalidateOptionsMenu()
-        } ?: run {
-            binding.scrollview.isVisible = false
-            binding.status.text = getString(R.string.error_loading_recording_details)
-            binding.status.isVisible = true
+        globalStatusViewModel.htspVersionLiveData.observe(viewLifecycleOwner) {
+            capabilities = it?.let { ServerCapabilities(it) }
+            updateContent()
         }
+
+        activity.addMenuProvider(this, viewLifecycleOwner)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        val recording = this.recording ?: return
-        preparePopupOrToolbarSearchMenu(menu, recording.title, isConnectionToServerAvailable)
+    private fun updateContent() {
+        val recording = recording ?: return
+        val caps = capabilities ?: return
 
-        binding.nestedToolbar.menu.findItem(R.id.menu_edit_recording)?.isVisible = true
-        binding.nestedToolbar.menu.findItem(R.id.menu_remove_recording)?.isVisible = true
+        binding.disabled.isVisible = caps.recordingEnabledSupported && !recording.isEnabled
+        binding.disabledIcon.isVisible = binding.disabled.isVisible
+
+        binding.channel.applyText { recording.channelName ?: getString(R.string.all_channels) }
+        binding.channelIcon.applyIcon(recording.channelIcon)
+
+        binding.startStopTime.applyText { formatStartStopTime(recording.start, recording.stop) }
+        binding.duration.applyText { getString(R.string.minutes, recording.duration) }
+        binding.daysOfWeek.applyText { determineDaysOfWeekText(recording.daysOfWeek) }
+
+        binding.priority.applyText { determinePriorityText(recording.priority) }
+        binding.directory.applyText { recording.directory ?: getString(R.string.hint_not_set) }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.external_search_options_menu, menu)
-        binding.nestedToolbar.inflateMenu(R.menu.recording_details_toolbar_menu)
-        binding.nestedToolbar.setOnMenuItemClickListener { this.onOptionsItemSelected(it) }
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.external_search_options_menu, menu)
+        preparePopupOrToolbarSearchMenu(menu, recording?.title, isConnectionToServerAvailable)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val ctx = context ?: return super.onOptionsItemSelected(item)
-        val recording = this.recording?.base ?: return super.onOptionsItemSelected(item)
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
+        val recording = recording ?: return false
+        val activity = activity ?: return false
 
         return when (item.itemId) {
-            R.id.menu_edit_recording -> editSelectedTimerRecording(requireActivity(), recording.id)
-            R.id.menu_remove_recording -> showConfirmationToRemoveSelectedTimerRecording(ctx, recording, this)
-
-            R.id.menu_search_imdb -> return searchTitleOnImdbWebsite(ctx, recording.title)
-            R.id.menu_search_fileaffinity -> return searchTitleOnFileAffinityWebsite(ctx, recording.title)
-            R.id.menu_search_youtube -> return searchTitleOnYoutube(ctx, recording.title)
-            R.id.menu_search_google -> return searchTitleOnGoogle(ctx, recording.title)
-            R.id.menu_search_epg -> return searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, recording.title)
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    override fun onRecordingRemoved() {
-        if (!isDualPane) {
-            activity?.onBackPressed()
-        } else {
-            val detailsFragment = activity?.supportFragmentManager?.findFragmentById(R.id.details)
-            if (detailsFragment != null) {
-                activity?.supportFragmentManager?.commit {
-                    remove(detailsFragment)
-                }
-            }
-        }
-    }
-
-    companion object {
-
-        fun newInstance(id: String): TimerRecordingDetailsFragment {
-            val f = TimerRecordingDetailsFragment()
-            val args = Bundle()
-            args.putString("id", id)
-            f.arguments = args
-            return f
+            R.id.menu_search_imdb -> searchTitleOnImdbWebsite(activity, recording.title)
+            R.id.menu_search_fileaffinity -> searchTitleOnFileAffinityWebsite(activity, recording.title)
+            R.id.menu_search_youtube -> searchTitleOnYoutube(activity, recording.title)
+            R.id.menu_search_google -> searchTitleOnGoogle(activity, recording.title)
+            R.id.menu_search_epg -> searchTitleInTheLocalDatabase(activity, baseViewModel, recording.title)
+            else -> false
         }
     }
 }

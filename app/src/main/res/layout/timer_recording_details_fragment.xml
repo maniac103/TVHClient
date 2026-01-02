@@ -5,202 +5,126 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
+        style="?materialCardViewFilledStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/nested_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/actionBarSize"
-            android:visibility="gone" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:alpha="0.12"
-            android:background="@android:color/black" />
-
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="16dp"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <ScrollView
-        android:id="@+id/scrollview"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:paddingBottom="16dp">
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="?colorSurfaceContainerLow">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/channel_info_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/ic_tv_station"
+                android:scaleType="center"
+                app:tint="?colorOnSurfaceVariant" />
+
+            <ImageView
+                android:id="@+id/channel_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:layout_constraintStart_toEndOf="@id/channel_info_icon"
+                app:layout_constraintTop_toTopOf="@id/channel_info_icon" />
+
+            <TextView
+                android:id="@+id/channel"
+                style="@style/ContentFont"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                app:layout_goneMarginStart="0dp"
+                app:layout_constraintStart_toEndOf="@id/channel_icon"
+                app:layout_constraintTop_toTopOf="@id/channel_info_icon"
+                app:layout_constraintBottom_toBottomOf="@id/channel_info_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:gravity="center_vertical"
+                tools:text="@string/channel" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/channel_barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="channel_info_icon,channel_icon,channel" />
+
+            <ImageView
+                android:id="@+id/disabled_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/channel_barrier"
+                android:src="@drawable/ic_disabled"
+                android:scaleType="center"
+                app:tint="?colorOnSurfaceVariant" />
 
             <TextView
                 android:id="@+id/disabled"
                 style="@style/ContentFont"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
+                app:layout_constraintStart_toEndOf="@id/disabled_icon"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toTopOf="@id/disabled_icon"
+                app:layout_constraintBottom_toBottomOf="@id/disabled_icon"
                 android:text="@string/recording_disabled" />
 
-            <TextView
-                android:id="@+id/title_label"
-                style="@style/TitleFont"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/title"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/disabled" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/title"
-                style="@style/ContentFont"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:hint="@string/name"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/title_label"
-                tools:text="@string/title" />
+    </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/name_label"
-                style="@style/TitleFont"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/name"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/title" />
+    <com.google.android.material.card.MaterialCardView
+        style="?materialCardViewFilledStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="?colorSurfaceContainerLow">
 
-            <TextView
-                android:id="@+id/name"
-                style="@style/ContentFont"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:hint="@string/name"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/name_label"
-                tools:text="@string/name" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
 
-            <TextView
-                android:id="@+id/channel_label"
-                style="@style/TitleFont"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/channel"
-                app:layout_constraintEnd_toEndOf="parent"
+            <ImageView
+                android:id="@+id/time_info_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/name" />
-
-            <TextView
-                android:id="@+id/channel"
-                style="@style/ContentFont"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/channel_label"
-                tools:text="@string/channel" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/ic_rec_state_scheduled"
+                android:scaleType="center"
+                app:tint="?colorOnSurfaceVariant" />
 
             <TextView
                 android:id="@+id/recording_time_label"
-                style="@style/TitleFont"
+                style="@style/ContentLabelFont"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
                 android:text="@string/recording_time"
+                app:layout_constraintStart_toEndOf="@id/time_info_icon"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/channel" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/start_label"
+                android:id="@+id/start_stop_time"
                 style="@style/ContentFont"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:text="@string/start_after_time"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@id/recording_time_label"
                 app:layout_constraintTop_toBottomOf="@id/recording_time_label"
-                tools:text="@string/start_time" />
-
-            <TextView
-                android:id="@+id/start_time"
-                style="@style/ContentFont"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                app:layout_constraintStart_toEndOf="@id/start_label"
-                app:layout_constraintTop_toTopOf="@id/start_label"
                 tools:text="@tools:sample/date/hhmm" />
-
-            <TextView
-                android:id="@+id/stop_label"
-                style="@style/ContentFont"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:text="@string/start_after_time"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/start_label"
-                tools:text="@string/stop_time" />
-
-            <TextView
-                android:id="@+id/stop_time"
-                style="@style/ContentFont"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="@id/start_time"
-                app:layout_constraintTop_toTopOf="@id/stop_label"
-                tools:text="@tools:sample/date/hhmm" />
-
-            <TextView
-                android:id="@+id/duration_label"
-                style="@style/ContentFont"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:text="@string/duration"
-                app:layout_constraintEnd_toStartOf="@id/duration"
-                app:layout_constraintTop_toTopOf="@id/stop_time" />
 
             <TextView
                 android:id="@+id/duration"
@@ -208,92 +132,113 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/duration_label"
+                app:layout_constraintStart_toStartOf="@id/recording_time_label"
+                app:layout_constraintTop_toBottomOf="@id/start_stop_time"
                 tools:text="@string/minutes" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/time_barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:barrierMargin="16dp"
+                app:constraint_referenced_ids="time_info_icon,start_stop_time,duration" />
+
+            <ImageView
+                android:id="@+id/calendar_info_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/time_barrier"
+                android:src="@drawable/ic_calendar"
+                android:scaleType="center"
+                app:tint="?colorOnSurfaceVariant" />
 
             <TextView
                 android:id="@+id/days_of_week_label"
-                style="@style/TitleFont"
-                android:layout_width="0dp"
+                style="@style/ContentLabelFont"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/days_of_week"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/duration" />
+                app:layout_constraintStart_toEndOf="@id/calendar_info_icon"
+                app:layout_constraintTop_toTopOf="@id/calendar_info_icon"
+                android:text="@string/days_of_week" />
 
             <TextView
                 android:id="@+id/days_of_week"
                 style="@style/ContentFont"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@id/days_of_week_label"
                 app:layout_constraintTop_toBottomOf="@id/days_of_week_label"
                 tools:text="@string/days_of_week" />
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        style="?materialCardViewFilledStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="?colorSurfaceContainerLow">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/settings_info_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/ic_menu_settings"
+                android:scaleType="center"
+                app:tint="?colorOnSurfaceVariant" />
+
             <TextView
                 android:id="@+id/priority_label"
-                style="@style/TitleFont"
+                style="@style/ContentLabelFont"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
                 android:text="@string/priority"
+                app:layout_constraintStart_toEndOf="@id/settings_info_icon"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/days_of_week" />
+                app:layout_constraintTop_toTopOf="@id/settings_info_icon" />
 
             <TextView
                 android:id="@+id/priority"
                 style="@style/ContentFont"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@id/priority_label"
                 app:layout_constraintTop_toBottomOf="@id/priority_label"
                 tools:text="@string/priority" />
 
             <TextView
                 android:id="@+id/directory_label"
-                style="@style/TitleFont"
+                style="@style/ContentLabelFont"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/directory"
+                app:layout_constraintStart_toEndOf="@id/settings_info_icon"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/priority" />
 
             <TextView
                 android:id="@+id/directory"
                 style="@style/ContentFont"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                android:hint="@string/add_recording_directory"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@id/directory_label"
                 app:layout_constraintTop_toBottomOf="@id/directory_label"
                 tools:text="@string/add_recording_directory" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

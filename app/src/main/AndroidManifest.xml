@@ -73,6 +73,7 @@
         <activity android:name=".ui.features.dvr.timer_recordings.TimerRecordingEditActivity" />
         <activity android:name=".ui.features.dvr.recordings.RecordingDetailsActivity" />
         <activity android:name=".ui.features.dvr.series_recordings.SeriesRecordingDetailsActivity" />
+        <activity android:name=".ui.features.dvr.series_recordings.TimerRecordingDetailsActivity" />
         <activity
             android:name=".ui.features.programs.ProgramDetailsActivity"
             android:excludeFromRecents="true"
