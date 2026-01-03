@@ -79,12 +79,19 @@
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:taskAffinity="" />
-        <activity android:name=".ui.features.playback.external.PlayRecordingActivity" />
-        <activity android:name=".ui.features.playback.external.PlayChannelActivity" />
-        <activity android:name=".ui.features.playback.external.CastChannelActivity" />
-        <activity android:name=".ui.features.playback.external.CastRecordingActivity" />
-        <activity android:name=".ui.features.playback.external.ShareRecordingActivity" />
-        <activity android:name=".ui.features.dvr.recordings.download.DownloadRecordingActivity" />
+        <activity
+            android:name=".ui.features.playback.external.PlayRecordingActivity"
+            android:theme="@style/CustomTheme.Translucent" />
+        <activity android:name=".ui.features.playback.external.PlayChannelActivity"
+            android:theme="@style/CustomTheme.Translucent" />
+        <activity android:name=".ui.features.playback.external.CastChannelActivity"
+            android:theme="@style/CustomTheme.Translucent" />
+        <activity android:name=".ui.features.playback.external.CastRecordingActivity"
+            android:theme="@style/CustomTheme.Translucent" />
+        <activity android:name=".ui.features.playback.external.ShareRecordingActivity"
+            android:theme="@style/CustomTheme.Translucent" />
+        <activity android:name=".ui.features.dvr.recordings.download.DownloadRecordingActivity"
+            android:theme="@style/CustomTheme.Translucent" />
         <activity
             android:name=".ui.features.playback.internal.PlaybackActivity"
             android:autoRemoveFromRecents="true"

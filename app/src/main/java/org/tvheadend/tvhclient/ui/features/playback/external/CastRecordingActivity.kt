@@ -11,6 +11,7 @@ import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.util.extensions.getCastSession
 import timber.log.Timber
 import androidx.core.net.toUri
+import androidx.core.view.isInvisible
 
 class CastRecordingActivity : BasePlaybackActivity() {
 
@@ -18,7 +19,7 @@ class CastRecordingActivity : BasePlaybackActivity() {
 
         val castSession = this.getCastSession()
         if (castSession == null) {
-            binding.progressBar.isVisible = false
+            binding.progress.isVisible = false
             binding.status.text = getString(R.string.no_cast_session)
             return
         }
@@ -44,7 +45,7 @@ class CastRecordingActivity : BasePlaybackActivity() {
 
         val castingProfileId = viewModel.getServerStatus().castingServerProfileId
         if (castingProfileId == 0) {
-            binding.progressBar.isVisible = false
+            binding.progress.isVisible = false
             binding.status.text = getString(R.string.error_starting_playback_no_profile)
             return
         }
@@ -60,7 +61,7 @@ class CastRecordingActivity : BasePlaybackActivity() {
 
         val remoteMediaClient = castSession.remoteMediaClient
         if (remoteMediaClient == null) {
-            binding.progressBar.isVisible = false
+            binding.progress.isInvisible = false
             binding.status.setText(R.string.cast_error_no_media_client_available)
             return
         }

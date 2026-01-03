@@ -3,7 +3,9 @@ package org.tvheadend.tvhclient.ui.features.playback.external
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
@@ -12,7 +14,13 @@ import org.tvheadend.tvhclient.databinding.PlayActivityBinding
 import org.tvheadend.tvhclient.ui.common.onAttach
 import timber.log.Timber
 import androidx.core.net.toUri
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.internal.EdgeToEdgeUtils
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
+import org.tvheadend.tvhclient.util.applyNavigationBarPadding
 
 abstract class BasePlaybackActivity : AppCompatActivity() {
 
@@ -25,6 +33,36 @@ abstract class BasePlaybackActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        EdgeToEdgeUtils.applyEdgeToEdge(window, true)
+        binding.content.applyNavigationBarPadding()
+
+        binding.content.background = MaterialShapeDrawable().apply {
+            val cornerSize = resources.getDimension(R.dimen.bottom_sheet_corner_size)
+            shapeAppearanceModel = ShapeAppearanceModel.builder()
+                .setTopLeftCornerSize(cornerSize)
+                .setTopRightCornerSize(cornerSize)
+                .build()
+            fillColor = ColorStateList.valueOf(
+                MaterialColors.getColor(binding.content, R.attr.colorSurfaceContainer)
+            )
+        }
+
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.content)
+        // Expanded by default
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        bottomSheetBehavior.skipCollapsed = true
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    finish()
+                    //Cancels animation on finish()
+                    overridePendingTransition(0, 0)
+                }
+            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            }
+        })
+
         binding.status.setText(R.string.connecting_to_server)
 
         viewModel = ViewModelProvider(this)[ExternalPlayerViewModel::class.java]
@@ -36,7 +74,7 @@ abstract class BasePlaybackActivity : AppCompatActivity() {
                 viewModel.requestTicketFromServer(intent.extras)
             } else {
                 Timber.d("Received live data, not connected to server")
-                binding.progressBar.isVisible = false
+                binding.progress.isVisible = false
                 binding.status.setText(R.string.connection_failed)
             }
         }
@@ -44,7 +82,7 @@ abstract class BasePlaybackActivity : AppCompatActivity() {
         viewModel.isTicketReceived.observe(this) { isTicketReceived ->
             Timber.d("Received ticket $isTicketReceived")
             if (isTicketReceived) {
-                binding.progressBar.isVisible = false
+                binding.progress.isVisible = false
                 binding.status.text = getString(R.string.connected_to_server)
                 onTicketReceived()
             }

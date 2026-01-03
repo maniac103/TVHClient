@@ -1,7 +1,6 @@
 package org.tvheadend.tvhclient.ui.features.playback.external
 
 import android.content.Intent
-import android.net.Uri
 import androidx.core.view.isVisible
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaLoadOptions
@@ -19,7 +18,7 @@ class CastChannelActivity : BasePlaybackActivity() {
 
         val castSession = this.getCastSession()
         if (castSession == null) {
-            binding.progressBar.isVisible = false
+            binding.progress.isVisible = false
             binding.status.text = getString(R.string.no_cast_session)
             return
         }
@@ -45,7 +44,7 @@ class CastChannelActivity : BasePlaybackActivity() {
 
         val castingProfileId = viewModel.getServerStatus().castingServerProfileId
         if (castingProfileId == 0) {
-            binding.progressBar.isVisible = false
+            binding.progress.isVisible = false
             binding.status.text = getString(R.string.error_starting_playback_no_profile)
             return
         }
@@ -61,7 +60,7 @@ class CastChannelActivity : BasePlaybackActivity() {
 
         val remoteMediaClient = castSession.remoteMediaClient
         if (remoteMediaClient == null) {
-            binding.progressBar.isVisible = false
+            binding.progress.isVisible = false
             binding.status.setText(R.string.cast_error_no_media_client_available)
             return
         }
