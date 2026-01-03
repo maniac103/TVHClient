@@ -37,10 +37,6 @@ android {
         // The cast ID that the app shall use
         buildConfigField "String", "CAST_ID", "\"${appProperties['castId']}\""
 
-        // Support vector drawable and animated vector drawable on devices
-        // running platform versions lower than Android 5.0 (API level 21)
-        vectorDrawables.useSupportLibrary = true
-
         multiDexEnabled true
 
         lintOptions {
