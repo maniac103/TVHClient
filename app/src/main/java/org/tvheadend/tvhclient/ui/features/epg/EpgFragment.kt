@@ -4,7 +4,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.DisplayMetrics
 import android.view.*
 import android.widget.Filter
 import androidx.appcompat.widget.PopupMenu
@@ -251,19 +250,19 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
         popupMenu.menuInflater.inflate(R.menu.program_popup_and_toolbar_menu, popupMenu.menu)
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
-        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, isConnectionToServerAvailable, htspVersion)
-        preparePopupOrToolbarSearchMenu(popupMenu.menu, program.title, isConnectionToServerAvailable)
-        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, program, isConnectionToServerAvailable)
+        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, serverData)
+        preparePopupOrToolbarSearchMenu(popupMenu.menu, program.title, serverData)
+        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, program, serverData)
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.menu_stop_recording -> showConfirmationToStopSelectedRecording(ctx, recording, null)
                 R.id.menu_cancel_recording -> showConfirmationToCancelSelectedRecording(ctx, recording, null)
                 R.id.menu_remove_recording -> showConfirmationToRemoveSelectedRecording(ctx, recording, null)
-                R.id.menu_record_program -> recordSelectedProgram(ctx, program.eventId, epgViewModel.getRecordingProfile(), htspVersion)
+                R.id.menu_record_program -> recordSelectedProgram(ctx, program.eventId, epgViewModel.getRecordingProfile(), serverData)
                 R.id.menu_record_program_and_edit -> {
                     programIdToBeEditedWhenBeingRecorded = program.eventId
-                    recordSelectedProgram(ctx, program.eventId, epgViewModel.getRecordingProfile(), htspVersion)
+                    recordSelectedProgram(ctx, program.eventId, epgViewModel.getRecordingProfile(), serverData)
                 }
                 R.id.menu_record_program_with_custom_profile ->
                     recordSelectedProgramWithCustomProfile(
@@ -274,7 +273,7 @@ class EpgFragment : BaseFragment(), EpgScrollInterface, RecyclerViewClickInterfa
                         epgViewModel.getRecordingProfile()
                     )
                 R.id.menu_record_program_as_series_recording ->
-                    recordSelectedProgramAsSeriesRecording(ctx, program.title, program.channelId, epgViewModel.getRecordingProfile(), htspVersion)
+                    recordSelectedProgramAsSeriesRecording(ctx, program.title, program.channelId, epgViewModel.getRecordingProfile(), serverData)
                 R.id.menu_play -> playSelectedChannel(ctx, program.channelId)
                 R.id.menu_cast -> castSelectedChannel(ctx, program.channelId)
 

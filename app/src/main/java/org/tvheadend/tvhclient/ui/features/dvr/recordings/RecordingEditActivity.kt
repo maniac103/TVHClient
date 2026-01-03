@@ -36,7 +36,6 @@ class RecordingEditActivity : BaseActivity() {
     private lateinit var recordingViewModel: RecordingViewModel
     private lateinit var recordingProfilesList: Array<String>
     private var profile: ServerProfile? = null
-    private lateinit var caps: ServerCapabilities
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,20 +61,19 @@ class RecordingEditActivity : BaseActivity() {
 
         val inputLiveData = CombinedPairLiveData(
             recordingViewModel.recordingLiveData,
-            globalStatusViewModel.htspVersionLiveData
-        ) { rec, htspVersion -> rec to ServerCapabilities(htspVersion) }
+            globalStatusViewModel.connectedServerLiveData
+        ) { rec, serverData -> rec to serverData?.capabilities }
 
         inputLiveData.observeOnce(this) { (rec, caps) ->
-            if (rec == null) {
+            if (rec == null || caps == null) {
                 finish()
             } else {
-                this.caps = caps
-                updateUI(rec)
+                updateUI(rec, caps)
             }
         }
     }
 
-    private fun updateUI(recording: RecordingWithChannel) {
+    private fun updateUI(recording: RecordingWithChannel, caps: ServerCapabilities) {
         binding.titleWrapper.isVisible = caps.recordingTitleSupported
         binding.title.setText(recording.title)
 
@@ -198,7 +196,7 @@ class RecordingEditActivity : BaseActivity() {
         binding.startExtra.afterTextChanged { recording.startExtra = it.toLong() }
         binding.stopExtra.afterTextChanged { recording.stopExtra = it.toLong() }
         binding.isEnabled.setOnCheckedChangeListener { _, isChecked -> recording.isEnabled = isChecked }
-        binding.save.setOnClickListener { save(recording) }
+        binding.save.setOnClickListener { save(recording, caps) }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -216,7 +214,7 @@ class RecordingEditActivity : BaseActivity() {
      * creates the intent that will be passed to the service to save the newly
      * created recordingViewModel.recording.
      */
-    private fun save(recording: RecordingWithChannel) {
+    private fun save(recording: RecordingWithChannel, caps: ServerCapabilities) {
         if (recording.title.isNullOrEmpty() && caps.recordingTitleSupported) {
             sendSnackbarMessage(R.string.error_empty_title)
             return

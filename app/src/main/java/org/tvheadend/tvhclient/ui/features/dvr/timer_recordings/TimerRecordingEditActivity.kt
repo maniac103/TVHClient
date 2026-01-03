@@ -35,7 +35,6 @@ class TimerRecordingEditActivity : BaseActivity() {
     private lateinit var timerRecordingViewModel: TimerRecordingViewModel
     private lateinit var recordingProfilesList: Array<String>
 
-    private lateinit var caps: ServerCapabilities
     private var profile: ServerProfile? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,20 +61,19 @@ class TimerRecordingEditActivity : BaseActivity() {
 
         val inputLiveData = CombinedPairLiveData(
             timerRecordingViewModel.recordingLiveData,
-            globalStatusViewModel.htspVersionLiveData
-        ) { rec, htspVersion -> rec to ServerCapabilities(htspVersion) }
+            globalStatusViewModel.connectedServerLiveData
+        ) { rec, serverData -> rec to serverData?.capabilities }
 
         inputLiveData.observeOnce(this) { (rec, caps) ->
-            if (rec == null) {
+            if (rec == null || caps == null) {
                 finish()
             } else {
-                this.caps = caps
-                updateUI(rec)
+                updateUI(rec, caps)
             }
         }
     }
 
-    private fun updateUI(recording: TimerRecordingWithChannel) {
+    private fun updateUI(recording: TimerRecordingWithChannel, caps: ServerCapabilities) {
         binding.enabledWrapper.isVisible = caps.timerRecordingEnabledSupported
         binding.isEnabled.isChecked = recording.isEnabled
 
@@ -154,7 +152,7 @@ class TimerRecordingEditActivity : BaseActivity() {
         binding.name.afterTextChanged { recording.name = it }
         binding.directory.afterTextChanged { recording.directory = it }
         binding.isEnabled.setOnCheckedChangeListener { _, isChecked -> recording.isEnabled = isChecked }
-        binding.save.setOnClickListener { save(recording) }
+        binding.save.setOnClickListener { save(recording, caps) }
     }
 
     private fun handleTimeEnabledClick(checked: Boolean) {
@@ -175,7 +173,7 @@ class TimerRecordingEditActivity : BaseActivity() {
         }
     }
 
-    private fun save(recording: TimerRecordingWithChannel) {
+    private fun save(recording: TimerRecordingWithChannel, caps: ServerCapabilities) {
         if (recording.title.isNullOrEmpty()) {
             sendSnackbarMessage(R.string.error_empty_title)
             return

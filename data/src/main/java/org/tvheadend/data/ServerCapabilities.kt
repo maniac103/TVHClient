@@ -1,7 +1,9 @@
 package org.tvheadend.data
 
 class ServerCapabilities(private val htspVersion: Int) {
+    val seriesRecordingSupported get() = htspVersion >= 13
     val recordingProfileSupported get() = htspVersion >= 16
+    val timerRecordingSupported get() = htspVersion >= 18
     val timerRecordingEnabledSupported get() = htspVersion >= 19
     val recordingDirectorySupported get() = htspVersion >= 19
     val duplicateDetectionSupported get() = htspVersion >= 20

@@ -29,10 +29,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class RecordingRecyclerViewAdapter internal constructor(
     private val isDualPane: Boolean,
-    private val clickCallback: RecyclerViewClickInterface<Recording>,
-    htspVersion: Int
+    private val clickCallback: RecyclerViewClickInterface<Recording>
 ) : RecyclerView.Adapter<RecordingRecyclerViewAdapter.RecordingViewHolder>(), Filterable {
-    private val caps = ServerCapabilities(htspVersion)
     private val recordingList = ArrayList<RecordingWithChannel>()
     private var recordingListFiltered: MutableList<RecordingWithChannel> = ArrayList()
     private var selectedPosition = 0
@@ -49,6 +47,11 @@ class RecordingRecyclerViewAdapter internal constructor(
                 field = value
                 notifyDataSetChanged()
             }
+        }
+    var serverCapabilities: ServerCapabilities? = null
+        set(value) {
+            field = value
+            notifyDataSetChanged()
         }
 
     val items: List<RecordingWithChannel>
@@ -67,7 +70,7 @@ class RecordingRecyclerViewAdapter internal constructor(
             position,
             recordingListFiltered.size,
             selectedPosition == position,
-            caps,
+            serverCapabilities,
             showGenreColor,
             showFileStatus,
             clickCallback
@@ -153,7 +156,7 @@ class RecordingRecyclerViewAdapter internal constructor(
             position: Int,
             totalCount: Int,
             isSelected: Boolean,
-            caps: ServerCapabilities,
+            caps: ServerCapabilities?,
             showGenreColor: Boolean,
             showFileStatus: Boolean,
             clickCallback: RecyclerViewClickInterface<Recording>
@@ -187,8 +190,8 @@ class RecordingRecyclerViewAdapter internal constructor(
             binding.isSeriesRecording.isVisible = !recording.autorecId.isNullOrEmpty()
             binding.isTimerRecording.isVisible = !recording.timerecId.isNullOrEmpty()
             binding.failedReason.applyTextAndAdjustVisibility { recording.determineFailedReasonText(this) }
-            binding.disabled.isVisible = recording.isScheduled && caps.recordingEnabledSupported && !recording.isEnabled
-            binding.duplicate.isVisible = recording.isScheduled && caps.recordingDuplicateSupported && recording.duplicate != 0
+            binding.disabled.isVisible = recording.isScheduled && caps?.recordingEnabledSupported == true && !recording.isEnabled
+            binding.duplicate.isVisible = recording.isScheduled && caps?.recordingDuplicateSupported == true && recording.duplicate != 0
             binding.dataSize.apply {
                 text = recording.determineDataSizeText(context)
                 isVisible = text.isNotEmpty() && showFileStatus

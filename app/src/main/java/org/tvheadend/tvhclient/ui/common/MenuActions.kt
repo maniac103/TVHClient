@@ -34,13 +34,12 @@ import org.tvheadend.tvhclient.util.extensions.prefs
 fun preparePopupOrToolbarRecordingMenu(context: Context,
                                        menu: Menu,
                                        recording: Recording?,
-                                       isConnectionToServerAvailable: Boolean,
-                                       htspVersion: Int) {
+                                       serverData: GlobalStatusViewModel.ConnectedServerData?) {
 
     // Hide the menus because the ones in the toolbar are not hidden when set in the xml
     menu.children.forEach { it.isVisible = false }
 
-    if (isConnectionToServerAvailable) {
+    if (serverData?.connected == true) {
         if (recording == null || (!recording.isRecording
                         && !recording.isScheduled
                         && !recording.isCompleted
@@ -52,7 +51,7 @@ fun preparePopupOrToolbarRecordingMenu(context: Context,
             menu.findItem(R.id.menu_record_program)?.isVisible = true
             menu.findItem(R.id.menu_record_program_and_edit)?.isVisible = true
             menu.findItem(R.id.menu_record_program_with_custom_profile)?.isVisible = true
-            menu.findItem(R.id.menu_record_program_as_series_recording)?.isVisible = htspVersion >= 13
+            menu.findItem(R.id.menu_record_program_as_series_recording)?.isVisible = serverData.capabilities.seriesRecordingSupported
 
         } else if (recording.isCompleted) {
             Timber.d("Recording is completed ")
@@ -66,8 +65,8 @@ fun preparePopupOrToolbarRecordingMenu(context: Context,
             Timber.d("Recording is scheduled")
             menu.findItem(R.id.menu_cancel_recording)?.isVisible = true
             menu.findItem(R.id.menu_edit_recording)?.isVisible = true
-            menu.findItem(R.id.menu_disable_recording)?.isVisible = htspVersion >= 23 && recording.isEnabled
-            menu.findItem(R.id.menu_enable_recording)?.isVisible = htspVersion >= 23 && !recording.isEnabled
+            menu.findItem(R.id.menu_disable_recording)?.isVisible = serverData.capabilities.recordingEnabledSupported && recording.isEnabled
+            menu.findItem(R.id.menu_enable_recording)?.isVisible = serverData.capabilities.recordingEnabledSupported && !recording.isEnabled
 
         } else if (recording.isRecording) {
             Timber.d("Recording is being recorded")
@@ -92,13 +91,13 @@ fun preparePopupOrToolbarRecordingMenu(context: Context,
 fun preparePopupOrToolbarMiscMenu(context: Context,
                                   menu: Menu,
                                   program: ProgramBaseInterface?,
-                                  isConnectionToServerAvailable: Boolean) {
+                                  serverData: GlobalStatusViewModel.ConnectedServerData?) {
 
     menu.findItem(R.id.menu_cast)?.isVisible = false
     menu.findItem(R.id.menu_play)?.isVisible = false
     menu.findItem(R.id.menu_add_notification)?.isVisible = false
 
-    if (isConnectionToServerAvailable) {
+    if (serverData?.connected == true) {
         // Show the play menu item and the cast menu item (if available)
         // when the current time is between the program start and end time
         val currentTime = System.currentTimeMillis()
@@ -123,8 +122,8 @@ fun preparePopupOrToolbarMiscMenu(context: Context,
     }
 }
 
-fun preparePopupOrToolbarSearchMenu(menu: Menu, title: String?, isConnectionToServerAvailable: Boolean) {
-    val visible = isConnectionToServerAvailable && !title.isNullOrEmpty()
+fun preparePopupOrToolbarSearchMenu(menu: Menu, title: String?, serverData: GlobalStatusViewModel.ConnectedServerData?) {
+    val visible = serverData?.connected == true && !title.isNullOrEmpty()
     menu.findItem(R.id.menu_search)?.isVisible = visible
     menu.findItem(R.id.menu_search_imdb)?.isVisible = visible
     menu.findItem(R.id.menu_search_fileaffinity)?.isVisible = visible
@@ -145,25 +144,36 @@ fun showConfirmationToReconnectToServer(context: Context, viewModel: BaseViewMod
     return true
 }
 
-fun recordSelectedProgram(context: Context, eventId: Int, profile: ServerProfile?, htspVersion: Int): Boolean {
+fun recordSelectedProgram(
+    context: Context,
+    eventId: Int,
+    profile: ServerProfile?,
+    serverData: GlobalStatusViewModel.ConnectedServerData?
+): Boolean {
     val intent = Intent(context, ConnectionService::class.java)
     intent.action = "addDvrEntry"
     intent.putExtra("eventId", eventId)
 
-    if (profile != null && htspVersion >= 16) {
+    if (profile != null && serverData?.capabilities?.recordingProfileSupported == true) {
         intent.putExtra("configName", profile.name)
     }
     context.startService(intent)
     return true
 }
 
-fun recordSelectedProgramAsSeriesRecording(context: Context, title: String?, channelId: Int, profile: ServerProfile?, htspVersion: Int): Boolean {
+fun recordSelectedProgramAsSeriesRecording(
+    context: Context,
+    title: String?,
+    channelId: Int,
+    profile: ServerProfile?,
+    serverData: GlobalStatusViewModel.ConnectedServerData?
+): Boolean {
     val intent = Intent(context, ConnectionService::class.java)
     intent.action = "addAutorecEntry"
     intent.putExtra("title", title)
     intent.putExtra("channelId", channelId)
 
-    if (profile != null && htspVersion >= 16) {
+    if (profile != null && serverData?.capabilities?.recordingProfileSupported == true) {
         intent.putExtra("configName", profile.name)
     }
     context.startService(intent)

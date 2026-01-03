@@ -41,7 +41,7 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
             recordingViewModel.selectedListPosition = it.getInt("listPosition")
         }
 
-        recyclerViewAdapter = RecordingRecyclerViewAdapter(isDualPane, this, htspVersion)
+        recyclerViewAdapter = RecordingRecyclerViewAdapter(isDualPane, this)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
@@ -50,6 +50,7 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
 
         recordingViewModel.showFileStatus.observe(viewLifecycleOwner) { recyclerViewAdapter.showFileStatus = it }
         recordingViewModel.showGenreColor.observe(viewLifecycleOwner) { recyclerViewAdapter.showGenreColor = it }
+        globalStatusViewModel.connectedServerLiveData.observe(viewLifecycleOwner) { recyclerViewAdapter.serverCapabilities = it?.capabilities }
     }
 
     private fun observeSearchQuery() {
@@ -137,9 +138,9 @@ abstract class RecordingListFragment : BaseFragment(), RecyclerViewClickInterfac
         popupMenu.menuInflater.inflate(R.menu.recordings_popup_menu, popupMenu.menu)
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
-        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, null, isConnectionToServerAvailable)
-        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, isConnectionToServerAvailable, htspVersion)
-        preparePopupOrToolbarSearchMenu(popupMenu.menu, recording.title, isConnectionToServerAvailable)
+        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, null, serverData)
+        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, serverData)
+        preparePopupOrToolbarSearchMenu(popupMenu.menu, recording.title, serverData)
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {

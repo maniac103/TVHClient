@@ -16,6 +16,7 @@ import org.tvheadend.data.entity.RecordingInterface
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.ProgramDetailsActivityBinding
 import org.tvheadend.tvhclient.ui.base.BaseActivity
+import org.tvheadend.tvhclient.ui.common.GlobalStatusViewModel
 import org.tvheadend.tvhclient.ui.common.addNotificationProgramIsAboutToStart
 import org.tvheadend.tvhclient.ui.common.castSelectedChannel
 import org.tvheadend.tvhclient.ui.common.editSelectedRecording
@@ -55,9 +56,7 @@ class ProgramDetailsActivity : BaseActivity() {
 
     private var program: ProgramWithChannel? = null
     private var recording: Recording? = null
-
-    private var htspVersion: Int = 13
-    private var isConnectionToServerAvailable: Boolean = false
+    private var serverData: GlobalStatusViewModel.ConnectedServerData? = null
     private var programIdToBeEditedWhenBeingRecorded = 0
     private var showProgramImage = false
 
@@ -111,16 +110,10 @@ class ProgramDetailsActivity : BaseActivity() {
             invalidateOptionsMenu()
         }
 
-        globalStatusViewModel.connectionToServerAvailableLiveData.observe(this) { isAvailable ->
-            Timber.d("Received live data, connection to server availability changed to $isAvailable")
-            isConnectionToServerAvailable = isAvailable
+        globalStatusViewModel.connectedServerLiveData.observe(this) { data ->
+            Timber.d("Received live data, connected server data changed to $data")
+            serverData = data
             updateActionButtons()
-            invalidateOptionsMenu()
-        }
-
-        globalStatusViewModel.htspVersionLiveData.observe(this) {
-            htspVersion = it ?: 0
-            updateContent()
             invalidateOptionsMenu()
         }
 
@@ -131,7 +124,7 @@ class ProgramDetailsActivity : BaseActivity() {
             program?.let { castSelectedChannel(this, it.channelId) }
         }
         binding.record.setOnClickListener {
-            program?.let { recordSelectedProgram(this, it.eventId, programViewModel.getRecordingProfile(), htspVersion) }
+            program?.let { recordSelectedProgram(this, it.eventId, programViewModel.getRecordingProfile(), serverData) }
         }
         binding.recordingAction.setOnClickListener {
             when {
@@ -145,7 +138,7 @@ class ProgramDetailsActivity : BaseActivity() {
         binding.recordOverflow.setOnClickListener {
             val menu = PopupMenu(this, binding.recordOverflow)
             menu.inflate(R.menu.recording_options)
-            preparePopupOrToolbarRecordingMenu(this, menu.menu, recording, isConnectionToServerAvailable, htspVersion)
+            preparePopupOrToolbarRecordingMenu(this, menu.menu, recording, serverData)
 
             menu.setOnMenuItemClickListener { item ->
                 val program = program ?: return@setOnMenuItemClickListener false
@@ -153,14 +146,14 @@ class ProgramDetailsActivity : BaseActivity() {
                 when (item.itemId) {
                     R.id.menu_record_program_and_edit -> {
                         programIdToBeEditedWhenBeingRecorded = program.eventId
-                        recordSelectedProgram(this, program.eventId, profile, htspVersion)
+                        recordSelectedProgram(this, program.eventId, profile, serverData)
                     }
 
                     R.id.menu_record_program_with_custom_profile ->
                         recordSelectedProgramWithCustomProfile(this, program.eventId, program.channelId, programViewModel.getRecordingProfileNames(), profile)
 
                     R.id.menu_record_program_as_series_recording ->
-                        recordSelectedProgramAsSeriesRecording(this, program.title, program.channelId, profile, htspVersion)
+                        recordSelectedProgramAsSeriesRecording(this, program.title, program.channelId, profile, serverData)
 
                     else -> false
                 }
@@ -174,10 +167,7 @@ class ProgramDetailsActivity : BaseActivity() {
     }
 
     private fun updateContent() {
-        val program = program
-        if (program == null || htspVersion == 0) {
-            return
-        }
+        val program = program ?: return
 
         supportActionBar?.apply {
             title = program.title
@@ -244,7 +234,7 @@ class ProgramDetailsActivity : BaseActivity() {
         val currentTime = System.currentTimeMillis()
 
         binding.play.isVisible = when {
-            !isConnectionToServerAvailable -> false
+            serverData?.connected != true -> false
             recording != null && recording.dataSize > 0 -> true
             currentTime > program.start && currentTime < program.stop -> true
             else -> false
@@ -252,7 +242,7 @@ class ProgramDetailsActivity : BaseActivity() {
         binding.cast.isVisible = binding.play.isVisible && getCastSession() != null
 
         binding.record.isVisible = when {
-            !isConnectionToServerAvailable -> false
+            serverData?.connected != true -> false
             recording == null -> true
             recording.isRecording -> false
             recording.isScheduled -> false
@@ -284,9 +274,9 @@ class ProgramDetailsActivity : BaseActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        preparePopupOrToolbarRecordingMenu(this, menu, recording, isConnectionToServerAvailable, htspVersion)
-        preparePopupOrToolbarMiscMenu(this, menu, program, isConnectionToServerAvailable)
-        preparePopupOrToolbarSearchMenu(menu, program?.title, isConnectionToServerAvailable)
+        preparePopupOrToolbarRecordingMenu(this, menu, recording, serverData)
+        preparePopupOrToolbarMiscMenu(this, menu, program, serverData)
+        preparePopupOrToolbarSearchMenu(menu, program?.title, serverData)
 
         return super.onPrepareOptionsMenu(menu)
     }

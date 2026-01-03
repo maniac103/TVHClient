@@ -21,16 +21,20 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class TimerRecordingRecyclerViewAdapter internal constructor(
     private val isDualPane: Boolean,
-    private val clickCallback: RecyclerViewClickInterface<TimerRecordingWithChannel>,
-    htspVersion: Int
+    private val clickCallback: RecyclerViewClickInterface<TimerRecordingWithChannel>
 ) : RecyclerView.Adapter<TimerRecordingRecyclerViewAdapter.TimerRecordingViewHolder>(), Filterable {
-    private val caps = ServerCapabilities(htspVersion)
     private val recordingList = ArrayList<TimerRecordingWithChannel>()
     private var recordingListFiltered: MutableList<TimerRecordingWithChannel> = ArrayList()
     private var selectedPosition = 0
 
     val items: List<TimerRecordingWithChannel>
         get() = recordingListFiltered
+
+    var serverCapabilities: ServerCapabilities? = null
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TimerRecordingViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -41,7 +45,14 @@ class TimerRecordingRecyclerViewAdapter internal constructor(
     override fun onBindViewHolder(holder: TimerRecordingViewHolder, position: Int) {
         if (recordingListFiltered.size > position) {
             val recording = recordingListFiltered[position]
-            holder.bind(recording, position, recordingListFiltered.size, selectedPosition == position, caps, clickCallback)
+            holder.bind(
+                recording,
+                position,
+                recordingListFiltered.size,
+                selectedPosition == position,
+                serverCapabilities,
+                clickCallback
+            )
         }
     }
 
@@ -122,7 +133,7 @@ class TimerRecordingRecyclerViewAdapter internal constructor(
             position: Int,
             totalCount: Int,
             isSelected: Boolean,
-            caps: ServerCapabilities,
+            caps: ServerCapabilities?,
             clickCallback: RecyclerViewClickInterface<TimerRecordingWithChannel>
         ) {
             binding.root.apply {
@@ -144,7 +155,7 @@ class TimerRecordingRecyclerViewAdapter internal constructor(
                     minutesToTimeMillis(recording.stop)
                 )
             }
-            binding.disabled.isVisible = caps.recordingEnabledSupported && !recording.isEnabled
+            binding.disabled.isVisible = caps?.recordingEnabledSupported == true && !recording.isEnabled
             binding.icon.applyIcon(recording.channelIcon, recording.channelName, binding.iconText)
         }
     }

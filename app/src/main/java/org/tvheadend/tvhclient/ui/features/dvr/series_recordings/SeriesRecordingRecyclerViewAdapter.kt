@@ -20,16 +20,20 @@ import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
 
 class SeriesRecordingRecyclerViewAdapter internal constructor(
     private val isDualPane: Boolean,
-    private val clickCallback: RecyclerViewClickInterface<SeriesRecordingWithChannel>,
-    htspVersion: Int
+    private val clickCallback: RecyclerViewClickInterface<SeriesRecordingWithChannel>
 ) : RecyclerView.Adapter<SeriesRecordingRecyclerViewAdapter.SeriesRecordingViewHolder>(), Filterable {
-    private val caps = ServerCapabilities(htspVersion)
     private val recordingList = ArrayList<SeriesRecordingWithChannel>()
     private var recordingListFiltered: MutableList<SeriesRecordingWithChannel> = ArrayList()
     private var selectedPosition = 0
 
     val items: List<SeriesRecordingWithChannel>
         get() = recordingListFiltered
+
+    var serverCapabilities: ServerCapabilities? = null
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeriesRecordingViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -40,7 +44,14 @@ class SeriesRecordingRecyclerViewAdapter internal constructor(
     override fun onBindViewHolder(holder: SeriesRecordingViewHolder, position: Int) {
         if (recordingListFiltered.size > position) {
             val recording = recordingListFiltered[position]
-            holder.bind(recording, position, recordingListFiltered.size, selectedPosition == position, caps, clickCallback)
+            holder.bind(
+                recording,
+                position,
+                recordingListFiltered.size,
+                selectedPosition == position,
+                serverCapabilities,
+                clickCallback
+            )
         }
     }
 
@@ -116,7 +127,7 @@ class SeriesRecordingRecyclerViewAdapter internal constructor(
             position: Int,
             totalCount: Int,
             isSelected: Boolean,
-            caps: ServerCapabilities,
+            caps: ServerCapabilities?,
             clickCallback: RecyclerViewClickInterface<SeriesRecordingWithChannel>
         ) {
             binding.root.apply {
@@ -136,7 +147,7 @@ class SeriesRecordingRecyclerViewAdapter internal constructor(
                 )
             }
             binding.icon.applyIcon(recording.channelIcon, recording.channelName, binding.iconText)
-            binding.disabled.isVisible = caps.recordingEnabledSupported && !recording.isEnabled
+            binding.disabled.isVisible = caps?.recordingEnabledSupported == true && !recording.isEnabled
         }
     }
 }

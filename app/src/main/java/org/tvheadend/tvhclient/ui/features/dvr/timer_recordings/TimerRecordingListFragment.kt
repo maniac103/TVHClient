@@ -43,12 +43,14 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface<Ti
             timerRecordingViewModel.selectedListPosition = it.getInt("listPosition")
         }
 
-        recyclerViewAdapter = TimerRecordingRecyclerViewAdapter(isDualPane, this, htspVersion)
+        recyclerViewAdapter = TimerRecordingRecyclerViewAdapter(isDualPane, this)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
         binding.recyclerView.isVisible = false
         binding.searchProgress.isVisible = baseViewModel.isSearchActive
+
+        globalStatusViewModel.connectedServerLiveData.observe(viewLifecycleOwner) { recyclerViewAdapter.serverCapabilities = it?.capabilities }
 
         timerRecordingViewModel.recordings.observe(viewLifecycleOwner) { recordings ->
             if (recordings != null) {
@@ -152,9 +154,10 @@ class TimerRecordingListFragment : BaseFragment(), RecyclerViewClickInterface<Ti
         popupMenu.menuInflater.inflate(R.menu.timer_recordings_popup_menu, popupMenu.menu)
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
-        preparePopupOrToolbarSearchMenu(popupMenu.menu, timerRecording.title, isConnectionToServerAvailable)
-        popupMenu.menu.findItem(R.id.menu_disable_recording)?.isVisible = htspVersion >= 19 && timerRecording.isEnabled
-        popupMenu.menu.findItem(R.id.menu_enable_recording)?.isVisible = htspVersion >= 19 && !timerRecording.isEnabled
+        preparePopupOrToolbarSearchMenu(popupMenu.menu, timerRecording.title, serverData)
+        val enableSupported = serverData?.capabilities?.recordingEnabledSupported == true
+        popupMenu.menu.findItem(R.id.menu_disable_recording)?.isVisible = enableSupported && timerRecording.isEnabled
+        popupMenu.menu.findItem(R.id.menu_enable_recording)?.isVisible = enableSupported && !timerRecording.isEnabled
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {

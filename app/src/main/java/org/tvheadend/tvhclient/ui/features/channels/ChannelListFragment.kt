@@ -347,40 +347,42 @@ class ChannelListFragment : BaseFragment(), RecyclerViewClickInterface<ChannelWi
         popupMenu.menuInflater.inflate(R.menu.program_popup_and_toolbar_menu, popupMenu.menu)
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
-        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, isConnectionToServerAvailable, htspVersion)
-        preparePopupOrToolbarSearchMenu(popupMenu.menu, channel.programTitle, isConnectionToServerAvailable)
-        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, program, isConnectionToServerAvailable)
+        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, recording, serverData)
+        preparePopupOrToolbarSearchMenu(popupMenu.menu, channel.programTitle, serverData)
+        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, program, serverData)
 
         // If no program data is available for the channel, hide all menu items except
         // playing the channel. This is the only option possible
-        if (program == null && isConnectionToServerAvailable) {
+        if (program == null && serverData?.connected == true) {
             popupMenu.menu.children.forEach { it.isVisible = false }
             popupMenu.menu.findItem(R.id.menu_play)?.isVisible = true
         }
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.menu_stop_recording -> return@setOnMenuItemClickListener showConfirmationToStopSelectedRecording(ctx, recording, null)
-                R.id.menu_cancel_recording -> return@setOnMenuItemClickListener showConfirmationToCancelSelectedRecording(ctx, recording, null)
-                R.id.menu_remove_recording -> return@setOnMenuItemClickListener showConfirmationToRemoveSelectedRecording(ctx, recording, null)
-                R.id.menu_record_program -> return@setOnMenuItemClickListener recordSelectedProgram(ctx, channel.programId, channelViewModel.getRecordingProfile(), htspVersion)
+                R.id.menu_stop_recording -> showConfirmationToStopSelectedRecording(ctx, recording, null)
+                R.id.menu_cancel_recording -> showConfirmationToCancelSelectedRecording(ctx, recording, null)
+                R.id.menu_remove_recording -> showConfirmationToRemoveSelectedRecording(ctx, recording, null)
+                R.id.menu_record_program -> recordSelectedProgram(ctx, channel.programId, channelViewModel.getRecordingProfile(), serverData)
                 R.id.menu_record_program_and_edit -> {
                     programIdToBeEditedWhenBeingRecorded = channel.programId
-                    return@setOnMenuItemClickListener recordSelectedProgram(ctx, channel.programId, channelViewModel.getRecordingProfile(), htspVersion)
+                    recordSelectedProgram(ctx, channel.programId, channelViewModel.getRecordingProfile(), serverData)
                 }
-                R.id.menu_record_program_with_custom_profile -> return@setOnMenuItemClickListener recordSelectedProgramWithCustomProfile(ctx, channel.programId, channel.id, channelViewModel.getRecordingProfileNames(), channelViewModel.getRecordingProfile())
-                R.id.menu_record_program_as_series_recording -> return@setOnMenuItemClickListener recordSelectedProgramAsSeriesRecording(ctx, channel.programTitle, channel.id, channelViewModel.getRecordingProfile(), htspVersion)
-                R.id.menu_play -> return@setOnMenuItemClickListener playSelectedChannel(ctx, channel.id)
-                R.id.menu_cast -> return@setOnMenuItemClickListener castSelectedChannel(ctx, channel.id)
+                R.id.menu_record_program_with_custom_profile ->
+                    recordSelectedProgramWithCustomProfile(ctx, channel.programId, channel.id, channelViewModel.getRecordingProfileNames(), channelViewModel.getRecordingProfile())
+                R.id.menu_record_program_as_series_recording ->
+                    recordSelectedProgramAsSeriesRecording(ctx, channel.programTitle, channel.id, channelViewModel.getRecordingProfile(), serverData)
+                R.id.menu_play -> playSelectedChannel(ctx, channel.id)
+                R.id.menu_cast -> castSelectedChannel(ctx, channel.id)
 
-                R.id.menu_search_imdb -> return@setOnMenuItemClickListener searchTitleOnImdbWebsite(ctx, channel.programTitle)
-                R.id.menu_search_fileaffinity -> return@setOnMenuItemClickListener searchTitleOnFileAffinityWebsite(ctx, channel.programTitle)
-                R.id.menu_search_youtube -> return@setOnMenuItemClickListener searchTitleOnYoutube(ctx, channel.programTitle)
-                R.id.menu_search_google -> return@setOnMenuItemClickListener searchTitleOnGoogle(ctx, channel.programTitle)
-                R.id.menu_search_epg -> return@setOnMenuItemClickListener searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, channel.programTitle, channel.id)
+                R.id.menu_search_imdb -> searchTitleOnImdbWebsite(ctx, channel.programTitle)
+                R.id.menu_search_fileaffinity -> searchTitleOnFileAffinityWebsite(ctx, channel.programTitle)
+                R.id.menu_search_youtube -> searchTitleOnYoutube(ctx, channel.programTitle)
+                R.id.menu_search_google -> searchTitleOnGoogle(ctx, channel.programTitle)
+                R.id.menu_search_epg -> searchTitleInTheLocalDatabase(requireActivity(), baseViewModel, channel.programTitle, channel.id)
 
-                R.id.menu_add_notification -> return@setOnMenuItemClickListener addNotificationProgramIsAboutToStart(ctx, program, channelViewModel.getRecordingProfile())
-                else -> return@setOnMenuItemClickListener false
+                R.id.menu_add_notification -> addNotificationProgramIsAboutToStart(ctx, program, channelViewModel.getRecordingProfile())
+                else -> false
             }
         }
         popupMenu.show()

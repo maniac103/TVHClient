@@ -11,11 +11,11 @@ import android.view.ViewGroup
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import org.tvheadend.data.ServerCapabilities
 import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.RecordingDetailsFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
+import org.tvheadend.tvhclient.ui.common.GlobalStatusViewModel
 import org.tvheadend.tvhclient.ui.common.preparePopupOrToolbarSearchMenu
 import org.tvheadend.tvhclient.ui.common.searchTitleInTheLocalDatabase
 import org.tvheadend.tvhclient.ui.common.searchTitleOnFileAffinityWebsite
@@ -41,7 +41,6 @@ class RecordingDetailsFragment : BaseFragment(), MenuProvider {
     private lateinit var binding: RecordingDetailsFragmentBinding
     private lateinit var recordingViewModel: RecordingViewModel
     private var recording: RecordingWithChannel? = null
-    private var capabilities: ServerCapabilities? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = RecordingDetailsFragmentBinding.inflate(inflater, container, false)
@@ -59,21 +58,18 @@ class RecordingDetailsFragment : BaseFragment(), MenuProvider {
             updateContent()
         }
 
-        globalStatusViewModel.htspVersionLiveData.observe(viewLifecycleOwner) {
-            capabilities = it?.let { ServerCapabilities(it) }
-            updateContent()
-        }
-        globalStatusViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) {
-            isConnectionToServerAvailable = it
-            activity.invalidateMenu()
-        }
-
         activity.addMenuProvider(this, viewLifecycleOwner)
+    }
+
+    override fun onConnectedServerChanged(data: GlobalStatusViewModel.ConnectedServerData?) {
+        super.onConnectedServerChanged(data)
+        updateContent()
+        activity?.invalidateMenu()
     }
 
     private fun updateContent() {
         val recording = recording ?: return
-        val caps = capabilities ?: return
+        val caps = serverData?.capabilities ?: return
 
         binding.state.applyTextAndAdjustVisibility { recording.determineRecordingStateText(this) }
         binding.dataSize.applyTextAndAdjustVisibility { recording.determineDataSizeText(this) }
@@ -113,7 +109,7 @@ class RecordingDetailsFragment : BaseFragment(), MenuProvider {
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.external_search_options_menu, menu)
-        preparePopupOrToolbarSearchMenu(menu, recording?.title, isConnectionToServerAvailable)
+        preparePopupOrToolbarSearchMenu(menu, recording?.title, serverData)
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {

@@ -121,6 +121,11 @@ class ProgramListFragment : BaseFragment(),
         }
     }
 
+    override fun onConnectedServerChanged(data: GlobalStatusViewModel.ConnectedServerData?) {
+        super.onConnectedServerChanged(data)
+        activity?.invalidateOptionsMenu()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.program_list_options_menu, menu)
@@ -160,19 +165,19 @@ class ProgramListFragment : BaseFragment(),
         popupMenu.menuInflater.inflate(R.menu.program_popup_and_toolbar_menu, popupMenu.menu)
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
-        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, model.recording, isConnectionToServerAvailable, htspVersion)
-        preparePopupOrToolbarSearchMenu(popupMenu.menu, programTitle, isConnectionToServerAvailable)
-        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, model.program, isConnectionToServerAvailable)
+        preparePopupOrToolbarRecordingMenu(ctx, popupMenu.menu, model.recording, serverData)
+        preparePopupOrToolbarSearchMenu(popupMenu.menu, programTitle, serverData)
+        preparePopupOrToolbarMiscMenu(ctx, popupMenu.menu, model.program, serverData)
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.menu_stop_recording -> showConfirmationToStopSelectedRecording(ctx, model.recording, null)
                 R.id.menu_cancel_recording -> showConfirmationToCancelSelectedRecording(ctx, model.recording, null)
                 R.id.menu_remove_recording -> showConfirmationToRemoveSelectedRecording(ctx, model.recording, null)
-                R.id.menu_record_program -> recordSelectedProgram(ctx, eventId, programViewModel.getRecordingProfile(), htspVersion)
+                R.id.menu_record_program -> recordSelectedProgram(ctx, eventId, programViewModel.getRecordingProfile(), serverData)
                 R.id.menu_record_program_and_edit -> {
                     programIdToBeEditedWhenBeingRecorded = eventId
-                    recordSelectedProgram(ctx, eventId, programViewModel.getRecordingProfile(), htspVersion)
+                    recordSelectedProgram(ctx, eventId, programViewModel.getRecordingProfile(), serverData)
                 }
                 R.id.menu_record_program_with_custom_profile ->
                     recordSelectedProgramWithCustomProfile(
@@ -183,7 +188,7 @@ class ProgramListFragment : BaseFragment(),
                         programViewModel.getRecordingProfile()
                     )
                 R.id.menu_record_program_as_series_recording ->
-                    recordSelectedProgramAsSeriesRecording(ctx, programTitle, channelId, programViewModel.getRecordingProfile(), htspVersion)
+                    recordSelectedProgramAsSeriesRecording(ctx, programTitle, channelId, programViewModel.getRecordingProfile(), serverData)
                 R.id.menu_play -> playSelectedChannel(ctx, channelId)
                 R.id.menu_cast -> castSelectedChannel(ctx, channelId)
 

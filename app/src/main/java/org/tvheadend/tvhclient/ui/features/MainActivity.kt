@@ -255,18 +255,14 @@ class MainActivity : BaseActivity(), LayoutControlInterface, SearchView.OnQueryT
             }
         }
 
-        globalStatusViewModel.connectionLiveData.observe(this) { conn ->
-            connection = conn
-            invalidateOptionsMenu()
-        }
-
-        globalStatusViewModel.connectionToServerAvailableLiveData.observe(this) { isAvailable ->
-            Timber.d("Connection to server availability changed to $isAvailable")
-            invalidateOptionsMenu()
+        globalStatusViewModel.connectedServerLiveData.observe(this) { data ->
+            Timber.d("Connected server data changed to $data")
+            connection = data?.connection
             statusViewModel.stopDiskSpaceUpdateHandler()
-            if (isAvailable) {
+            if (data?.connected == true) {
                 statusViewModel.startDiskSpaceUpdateHandler()
             }
+            invalidateOptionsMenu()
         }
 
         navigationViewModel.getNavigationMenuId().observe(this) { event ->

@@ -67,23 +67,18 @@ class StatusFragment : BaseFragment() {
             }
         }
 
-        globalStatusViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { connectionAvailable ->
-            Timber.d("Connection to server availability changed to $connectionAvailable")
-            if (connectionAvailable) {
+        globalStatusViewModel.connectedServerLiveData.observe(viewLifecycleOwner) { serverData ->
+            Timber.d("Connected server data changed to $serverData")
+            if (serverData?.connected == true) {
                 Timber.d("Starting additional information update handler")
                 loadDataHandler.post(loadDataTask)
             } else {
                 loadDataHandler.removeCallbacks(loadDataTask)
             }
-            binding.contentContainer.isVisible = connectionAvailable
-            binding.notConnected.isVisible = !connectionAvailable
-        }
-
-        globalStatusViewModel.htspVersionLiveData.observe(viewLifecycleOwner) { version ->
-            version?.let {
-                binding.seriesRecordings.isVisible = htspVersion >= 13
-                binding.timerRecordings.isVisible = htspVersion >= 18
-            }
+            binding.contentContainer.isVisible = serverData != null
+            binding.notConnected.isVisible = serverData == null
+            binding.seriesRecordings.isVisible = serverData?.capabilities?.seriesRecordingSupported == true
+            binding.timerRecordings.isVisible = serverData?.capabilities?.timerRecordingSupported == true
         }
 
         val statusViewModel = ViewModelProvider(activity)[StatusViewModel::class.java]

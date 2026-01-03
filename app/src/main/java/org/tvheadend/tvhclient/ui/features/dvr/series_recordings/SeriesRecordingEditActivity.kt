@@ -35,7 +35,6 @@ class SeriesRecordingEditActivity : BaseActivity() {
     private lateinit var seriesRecordingViewModel: SeriesRecordingViewModel
     private lateinit var recordingProfilesList: Array<String>
     private var profile: ServerProfile? = null
-    private lateinit var caps: ServerCapabilities
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,20 +60,19 @@ class SeriesRecordingEditActivity : BaseActivity() {
 
         val inputLiveData = CombinedPairLiveData(
             seriesRecordingViewModel.recordingLiveData,
-            globalStatusViewModel.htspVersionLiveData
-        ) { rec, htspVersion -> rec to ServerCapabilities(htspVersion) }
+            globalStatusViewModel.connectedServerLiveData
+        ) { rec, serverData -> rec to serverData?.capabilities }
 
         inputLiveData.observeOnce(this) { (rec, caps) ->
-            if (rec == null) {
+            if (rec == null || caps == null) {
                 finish()
             } else {
-                this.caps = caps
-                updateUI(rec)
+                updateUI(rec, caps)
             }
         }
     }
 
-    private fun updateUI(recording: SeriesRecordingWithChannel) {
+    private fun updateUI(recording: SeriesRecordingWithChannel, caps: ServerCapabilities) {
         binding.enabledWrapper.isVisible = caps.recordingEnabledSupported
         binding.isEnabled.isChecked = recording.isEnabled
 
@@ -180,7 +178,7 @@ class SeriesRecordingEditActivity : BaseActivity() {
         binding.startExtra.afterTextChanged { recording.startExtra = it.toLong() }
         binding.stopExtra.afterTextChanged { recording.stopExtra = it.toLong() }
         binding.isEnabled.setOnCheckedChangeListener { _, isChecked -> recording.isEnabled = isChecked }
-        binding.save.setOnClickListener { save(recording) }
+        binding.save.setOnClickListener { save(recording, caps) }
     }
 
     private fun handleTimeEnabledClick(checked: Boolean) {
@@ -205,7 +203,7 @@ class SeriesRecordingEditActivity : BaseActivity() {
      * creates the intent that will be passed to the service to save the newly
      * created recording.
      */
-    private fun save(recording: SeriesRecordingWithChannel) {
+    private fun save(recording: SeriesRecordingWithChannel, caps: ServerCapabilities) {
         if (recording.title.isNullOrEmpty()) {
             sendSnackbarMessage(R.string.error_empty_title)
             return

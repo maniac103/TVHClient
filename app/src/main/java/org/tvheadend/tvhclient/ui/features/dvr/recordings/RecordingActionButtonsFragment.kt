@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import org.tvheadend.data.entity.RecordingWithChannel
 import org.tvheadend.tvhclient.databinding.RecordingActionButtonsFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
+import org.tvheadend.tvhclient.ui.common.GlobalStatusViewModel
 import org.tvheadend.tvhclient.ui.common.castSelectedRecording
 import org.tvheadend.tvhclient.ui.common.downloadSelectedRecording
 import org.tvheadend.tvhclient.ui.common.editSelectedRecording
@@ -41,11 +42,6 @@ class RecordingActionButtonsFragment : BaseFragment(), RecordingRemovedInterface
             updateActionButtons()
         }
 
-        globalStatusViewModel.connectionToServerAvailableLiveData.observe(viewLifecycleOwner) { isAvailable ->
-            isConnectionToServerAvailable = isAvailable
-            updateActionButtons()
-        }
-
         binding.play.setOnClickListener {
             recording?.let { playSelectedRecording(activity, it.id) }
         }
@@ -67,6 +63,11 @@ class RecordingActionButtonsFragment : BaseFragment(), RecordingRemovedInterface
         binding.edit.setOnClickListener {
             recording?.let { editSelectedRecording(activity, it.id) }
         }
+    }
+
+    override fun onConnectedServerChanged(data: GlobalStatusViewModel.ConnectedServerData?) {
+        super.onConnectedServerChanged(data)
+        updateActionButtons()
     }
 
     override fun onRecordingRemoved() {

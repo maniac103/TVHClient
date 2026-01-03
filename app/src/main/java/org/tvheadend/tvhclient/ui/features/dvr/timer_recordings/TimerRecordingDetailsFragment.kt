@@ -10,30 +10,27 @@ import android.view.ViewGroup
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import org.tvheadend.data.ServerCapabilities
 import org.tvheadend.data.entity.TimerRecordingWithChannel
 import org.tvheadend.tvhclient.R
 import org.tvheadend.tvhclient.databinding.TimerRecordingDetailsFragmentBinding
 import org.tvheadend.tvhclient.ui.base.BaseFragment
+import org.tvheadend.tvhclient.ui.common.GlobalStatusViewModel
 import org.tvheadend.tvhclient.ui.common.preparePopupOrToolbarSearchMenu
 import org.tvheadend.tvhclient.ui.common.searchTitleInTheLocalDatabase
 import org.tvheadend.tvhclient.ui.common.searchTitleOnFileAffinityWebsite
 import org.tvheadend.tvhclient.ui.common.searchTitleOnGoogle
 import org.tvheadend.tvhclient.ui.common.searchTitleOnImdbWebsite
 import org.tvheadend.tvhclient.ui.common.searchTitleOnYoutube
-import org.tvheadend.tvhclient.ui.features.dvr.minutesToTimeMillis
 import org.tvheadend.tvhclient.util.extensions.applyIcon
 import org.tvheadend.tvhclient.util.extensions.applyText
 import org.tvheadend.tvhclient.util.extensions.determineDaysOfWeekText
 import org.tvheadend.tvhclient.util.extensions.determinePriorityText
 import org.tvheadend.tvhclient.util.extensions.formatStartStopTime
-import org.tvheadend.tvhclient.util.extensions.formatTime
 
 class TimerRecordingDetailsFragment : BaseFragment(), MenuProvider {
     private lateinit var binding: TimerRecordingDetailsFragmentBinding
     private lateinit var timerRecordingViewModel: TimerRecordingViewModel
     private var recording: TimerRecordingWithChannel? = null
-    private var capabilities: ServerCapabilities? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = TimerRecordingDetailsFragmentBinding.inflate(inflater, container, false)
@@ -51,17 +48,18 @@ class TimerRecordingDetailsFragment : BaseFragment(), MenuProvider {
             updateContent()
         }
 
-        globalStatusViewModel.htspVersionLiveData.observe(viewLifecycleOwner) {
-            capabilities = it?.let { ServerCapabilities(it) }
-            updateContent()
-        }
-
         activity.addMenuProvider(this, viewLifecycleOwner)
+    }
+
+    override fun onConnectedServerChanged(data: GlobalStatusViewModel.ConnectedServerData?) {
+        super.onConnectedServerChanged(data)
+        updateContent()
+        activity?.invalidateMenu()
     }
 
     private fun updateContent() {
         val recording = recording ?: return
-        val caps = capabilities ?: return
+        val caps = serverData?.capabilities ?: return
 
         binding.disabled.isVisible = caps.recordingEnabledSupported && !recording.isEnabled
         binding.disabledIcon.isVisible = binding.disabled.isVisible
@@ -79,7 +77,7 @@ class TimerRecordingDetailsFragment : BaseFragment(), MenuProvider {
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.external_search_options_menu, menu)
-        preparePopupOrToolbarSearchMenu(menu, recording?.title, isConnectionToServerAvailable)
+        preparePopupOrToolbarSearchMenu(menu, recording?.title, serverData)
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {

@@ -40,12 +40,14 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface<S
             seriesRecordingViewModel.selectedListPosition = it.getInt("listPosition")
         }
 
-        recyclerViewAdapter = SeriesRecordingRecyclerViewAdapter(isDualPane, this, htspVersion)
+        recyclerViewAdapter = SeriesRecordingRecyclerViewAdapter(isDualPane, this)
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = recyclerViewAdapter
         binding.recyclerView.applyNavigationBarPadding()
         binding.recyclerView.isVisible = false
         binding.searchProgress.isVisible = baseViewModel.isSearchActive
+
+        globalStatusViewModel.connectedServerLiveData.observe(viewLifecycleOwner) { recyclerViewAdapter.serverCapabilities = it?.capabilities }
 
         seriesRecordingViewModel.recordings.observe(viewLifecycleOwner) { recordings ->
             if (recordings != null) {
@@ -149,10 +151,11 @@ class SeriesRecordingListFragment : BaseFragment(), RecyclerViewClickInterface<S
         popupMenu.menuInflater.inflate(R.menu.series_recordings_popup_menu, popupMenu.menu)
         popupMenu.menuInflater.inflate(R.menu.external_search_options_menu, popupMenu.menu)
 
-        preparePopupOrToolbarSearchMenu(popupMenu.menu, seriesRecording.title, isConnectionToServerAvailable)
+        val enableSupported = serverData?.capabilities?.recordingEnabledSupported == true
+        preparePopupOrToolbarSearchMenu(popupMenu.menu, seriesRecording.title, serverData)
         popupMenu.menu.findItem(R.id.menu_edit_recording)?.isVisible = true
-        popupMenu.menu.findItem(R.id.menu_disable_recording)?.isVisible = htspVersion >= 19 && seriesRecording.isEnabled
-        popupMenu.menu.findItem(R.id.menu_enable_recording)?.isVisible = htspVersion >= 19 && !seriesRecording.isEnabled
+        popupMenu.menu.findItem(R.id.menu_disable_recording)?.isVisible = enableSupported && seriesRecording.isEnabled
+        popupMenu.menu.findItem(R.id.menu_enable_recording)?.isVisible = enableSupported && !seriesRecording.isEnabled
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
