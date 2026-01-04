@@ -6,14 +6,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.MutableLiveData
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultAllocator
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.video.VideoListener
 import org.tvheadend.api.AuthenticationStateResult
 import org.tvheadend.api.ConnectionStateResult
 import org.tvheadend.api.ServerConnectionStateListener
@@ -31,6 +23,20 @@ import java.util.concurrent.ScheduledExecutorService
 import kotlin.math.max
 import androidx.core.net.toUri
 import androidx.lifecycle.application
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.VideoSize
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.exoplayer.upstream.DefaultAllocator
 import org.tvheadend.tvhclient.util.extensions.channelDataSource
 import org.tvheadend.tvhclient.util.extensions.connectionDataSource
 import org.tvheadend.tvhclient.util.extensions.prefs
@@ -39,7 +45,8 @@ import org.tvheadend.tvhclient.util.extensions.serverProfileDataSource
 import org.tvheadend.tvhclient.util.extensions.serverStatusDataSource
 
 
-class PlayerViewModel(application: Application) : BaseViewModel(application), ServerConnectionStateListener, VideoListener, Player.EventListener {
+@UnstableApi
+class PlayerViewModel(application: Application) : BaseViewModel(application), ServerConnectionStateListener, Player.Listener {
 
     private var channelId: Int = 0
     private val channelList: List<Channel>
@@ -52,7 +59,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
     private var dataSource: HtspDataSourceInterface? = null
 
     // Player and helpers
-    val player: SimpleExoPlayer
+    val player: ExoPlayer
     val trackSelector: DefaultTrackSelector
 
     // Video dimension and aspect ratio related properties
@@ -108,33 +115,33 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
             htspConnection.authenticate()
         }
 
-        trackSelector = DefaultTrackSelector(application.applicationContext, AdaptiveTrackSelection.Factory())
-        trackSelector.buildUponParameters().setRendererDisabled(C.TRACK_TYPE_TEXT, true)
-        if (application.prefs.audioTunnelingEnabled) {
-            trackSelector.buildUponParameters().setTunnelingAudioSessionId(C.generateAudioSessionIdV21(application.applicationContext))
-        }
+        trackSelector = DefaultTrackSelector(application, AdaptiveTrackSelection.Factory())
+        trackSelector.buildUponParameters()
+            .setRendererDisabled(C.TRACK_TYPE_TEXT, true)
+            .setTunnelingEnabled(application.prefs.audioTunnelingEnabled)
 
         Timber.d("Creating load control")
         val loadControl = DefaultLoadControl.Builder()
-                .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE))
-                .setBufferDurationsMs(DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
-                        DefaultLoadControl.DEFAULT_MAX_BUFFER_MS,
-                        application.prefs.bufferPlaybackMs,
-                        DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS)
-                .setTargetBufferBytes(C.DEFAULT_BUFFER_SEGMENT_SIZE)
-                .setPrioritizeTimeOverSizeThresholds(true)
-                .createDefaultLoadControl()
+            .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE))
+            .setBufferDurationsMs(
+                DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
+                DefaultLoadControl.DEFAULT_MAX_BUFFER_MS,
+                application.prefs.bufferPlaybackMs,
+                DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS)
+            .setTargetBufferBytes(C.DEFAULT_BUFFER_SEGMENT_SIZE)
+            .setPrioritizeTimeOverSizeThresholds(true)
+            .build()
 
         Timber.d("Creating player instance")
-        val rendererFactory = DefaultRenderersFactory(application.applicationContext)
+        val rendererFactory = DefaultRenderersFactory(application)
                 .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
                 .setAllowedVideoJoiningTimeMs(DefaultRenderersFactory.DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS)
 
-        player = SimpleExoPlayer.Builder(application.applicationContext, rendererFactory)
+        player = ExoPlayer.Builder(application, rendererFactory)
                 .setTrackSelector(trackSelector)
-                .setLoadControl(loadControl).build()
+                .setLoadControl(loadControl)
+                .build()
 
-        player.addVideoListener(this)
         player.addListener(this)
         player.addAnalyticsListener(CustomEventLogger(trackSelector))
 
@@ -148,8 +155,8 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
 
 
     fun isPlaybackProfileSelected(bundle: Bundle?): Boolean {
-        val channelId = bundle?.getInt("channelId", 0) ?: 0
-        if (channelId > 0) {
+        // val channelId = bundle?.getInt("channelId", 0) ?: 0
+        if (true) { // channelId > 0) {
             val serverStatus = application.serverStatusDataSource.activeItem
             val serverProfile = application.serverProfileDataSource.getItemById(serverStatus.htspPlaybackServerProfileId)
             if (serverProfile != null && !serverProfile.name.isNullOrEmpty() && serverProfile.name != "None") {
@@ -187,14 +194,15 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         playbackInformation = PlaybackInformation(application.channelDataSource.getItemByIdWithPrograms(channelId, Date().time))
         val serverStatus = application.serverStatusDataSource.activeItem
         val serverProfile = application.serverProfileDataSource.getItemById(serverStatus.htspPlaybackServerProfileId)
-        htspSubscriptionDataSourceFactory = HtspSubscriptionDataSource.Factory(context, htspConnection, serverProfile?.name)
-        dataSource = htspSubscriptionDataSourceFactory?.currentDataSource
+        val factory = HtspSubscriptionDataSource.Factory(context, htspConnection, serverProfile?.name).also {
+            htspSubscriptionDataSourceFactory = it
+        }
+        dataSource = factory.currentDataSource
 
         Timber.d("Preparing player with media source")
-        player.prepare(ProgressiveMediaSource.Factory(
-                htspSubscriptionDataSourceFactory,
-                TvheadendExtractorsFactory())
-                .createMediaSource("htsp://channel/$channelId".toUri()))
+        val mediaSourceFactory = ProgressiveMediaSource.Factory(factory, TvheadendExtractorsFactory())
+        player.setMediaSource(mediaSourceFactory.createMediaSource(MediaItem.fromUri("htsp://channel/$channelId".toUri())))
+        player.prepare()
 
         liveTvIsPlaying.value = true
         player.playWhenReady = true
@@ -203,14 +211,15 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
     private fun loadMediaSourceForRecording(recordingId: Int) {
         Timber.d("Loading media source for recording id $recordingId")
         playbackInformation = PlaybackInformation(application.recordingDataSource.getItemById(recordingId))
-        htspFileInputStreamDataSourceFactory = HtspFileInputStreamDataSource.Factory(htspConnection)
-        dataSource = htspFileInputStreamDataSourceFactory?.currentDataSource
+        val factory = HtspFileInputStreamDataSource.Factory(htspConnection).also {
+            htspFileInputStreamDataSourceFactory = it
+        }
+        dataSource = factory.currentDataSource
 
         Timber.d("Preparing player with media source")
-        player.prepare(ProgressiveMediaSource.Factory(
-                htspFileInputStreamDataSourceFactory,
-                TvheadendExtractorsFactory())
-            .createMediaSource("htsp://dvrfile/$recordingId".toUri()))
+        val mediaSourceFactory = ProgressiveMediaSource.Factory(factory, TvheadendExtractorsFactory())
+        player.setMediaSource(mediaSourceFactory.createMediaSource(MediaItem.fromUri("htsp://dvrfile/$recordingId".toUri())))
+        player.prepare()
 
         liveTvIsPlaying.value = false
         player.playWhenReady = true
@@ -220,9 +229,9 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         Timber.d("Preparing player with local media source '$localUri'")
         playbackInformation = PlaybackInformation()
 
-        player.prepare(ProgressiveMediaSource.Factory(
-                DefaultDataSourceFactory(context, "Exoplayer-local"))
-            .createMediaSource(localUri.toUri()))
+        val mediaSourceFactory = ProgressiveMediaSource.Factory(DefaultDataSource.Factory(context))
+        player.setMediaSource(mediaSourceFactory.createMediaSource(MediaItem.fromUri(localUri.toUri())))
+        player.prepare()
 
         liveTvIsPlaying.value = false
         player.playWhenReady = true
@@ -288,40 +297,35 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         htspConnection.closeConnection()
     }
 
-    override fun onVideoSizeChanged(width: Int, height: Int, unappliedRotationDegrees: Int, pixelWidthHeightRatio: Float) {
-        Timber.d("Video size changed to width $width, height $height, pixel aspect ratio $pixelWidthHeightRatio")
-        var newPixelWidthHeightRatio = pixelWidthHeightRatio
+    override fun onVideoSizeChanged(videoSize: VideoSize) {
+        Timber.d("Video size changed to width ${videoSize.width}, height ${videoSize.height}, pixel aspect ratio ${videoSize.pixelWidthHeightRatio}")
+        var newPixelWidthHeightRatio = videoSize.pixelWidthHeightRatio
 
         if (application.prefs.forceAspectRatioForSdContent) {
             Timber.d("Video aspect shall be forced, checking original video aspect ratio")
 
-            val aspectRatio = DecimalFormat("#.##").format(width.toFloat() / height.toFloat())
+            val aspectRatio = DecimalFormat("#.##").format(videoSize.width.toFloat() / videoSize.height.toFloat())
             if (aspectRatio == "1,25") {
-                newPixelWidthHeightRatio = ((16f / 9f) * height.toFloat()) / width.toFloat()
+                newPixelWidthHeightRatio = ((16f / 9f) * videoSize.height.toFloat()) / videoSize.width.toFloat()
                 Timber.d("Video aspect ratio is 5:4, updating pixel aspect ratio to $newPixelWidthHeightRatio")
             }
         }
-        videoAspectRatio.postValue(VideoAspect((width * newPixelWidthHeightRatio).toInt(), height))
+        videoAspectRatio.postValue(VideoAspect((videoSize.width * newPixelWidthHeightRatio).toInt(), videoSize.height))
     }
 
     override fun onRenderedFirstFrame() {
         // NOP
     }
 
-    override fun onSeekProcessed() {
+    override fun onIsLoadingChanged(isLoading: Boolean) {
         // NOP
     }
 
-    override fun onLoadingChanged(isLoading: Boolean) {
-        // NOP
-    }
-
-    override fun onPositionDiscontinuity(reason: Int) {
+    override fun onPositionDiscontinuity(oldPosition: Player.PositionInfo, newPosition: Player.PositionInfo, reason: Int) {
         when (reason) {
-            Player.DISCONTINUITY_REASON_PERIOD_TRANSITION -> Timber.d("Automatic playback transition from one period in the timeline to the next.")
+            Player.DISCONTINUITY_REASON_AUTO_TRANSITION -> Timber.d("Automatic playback transition from one period in the timeline to the next.")
             Player.DISCONTINUITY_REASON_SEEK -> Timber.d("Seek within the current period or to another period.")
             Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT -> Timber.d("Seek adjustment due to being unable to seek to the requested position or because the seek was permitted to be inexact.")
-            Player.DISCONTINUITY_REASON_AD_INSERTION -> Timber.d("Discontinuity to or from an ad within one period in the timeline.")
             Player.DISCONTINUITY_REASON_INTERNAL -> Timber.d("Discontinuity introduced internally by the source.")
         }
     }
@@ -394,7 +398,7 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         return max(seekPts, timeshiftStartPts) / 1000
     }
 
-    fun playNextChannel(context: Context) {
+    fun playNextChannel() {
         var newChannelId = channelId
         channelList.forEachIndexed { index, channel ->
             if (channel.id == channelId) {
@@ -407,10 +411,10 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         }
         val bundle = Bundle()
         bundle.putInt("channelId", newChannelId)
-        loadMediaSource(context, bundle)
+        loadMediaSource(application, bundle)
     }
 
-    fun playPreviousChannel(context: Context) {
+    fun playPreviousChannel() {
         var newChannelId = channelId
         channelList.forEachIndexed { index, channel ->
             if (channel.id == channelId) {
@@ -423,26 +427,11 @@ class PlayerViewModel(application: Application) : BaseViewModel(application), Se
         }
         val bundle = Bundle()
         bundle.putInt("channelId", newChannelId)
-        loadMediaSource(context, bundle)
+        loadMediaSource(application, bundle)
     }
 
-    override fun onPlayerError(playbackException: ExoPlaybackException) {
-        when (playbackException.type) {
-            ExoPlaybackException.TYPE_SOURCE -> {
-                Timber.d("Player error occurred while loading media source: ${playbackException.sourceException}")
-            }
-            ExoPlaybackException.TYPE_RENDERER -> {
-                Timber.d("Player error occurred in the renderer")
-            }
-            ExoPlaybackException.TYPE_REMOTE -> {
-                Timber.d("Player error occurred in a remote component")
-            }
-            ExoPlaybackException.TYPE_OUT_OF_MEMORY -> {
-                Timber.d("Player error out of memory")
-            }
-            ExoPlaybackException.TYPE_UNEXPECTED -> {
-                Timber.d("Player error unexpected runtime exception")
-            }
-        }
+
+    override fun onPlayerError(error: PlaybackException) {
+        Timber.d(error, "Player error")
     }
 }

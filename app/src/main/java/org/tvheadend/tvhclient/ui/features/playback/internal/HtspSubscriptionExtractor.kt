@@ -17,9 +17,16 @@
 package org.tvheadend.tvhclient.ui.features.playback.internal
 
 import android.util.SparseArray
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.extractor.*
-import com.google.android.exoplayer2.util.ParsableByteArray
+import androidx.annotation.OptIn
+import androidx.media3.common.C
+import androidx.media3.common.util.ParsableByteArray
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.extractor.Extractor
+import androidx.media3.extractor.ExtractorInput
+import androidx.media3.extractor.ExtractorOutput
+import androidx.media3.extractor.PositionHolder
+import androidx.media3.extractor.SeekMap
+import androidx.media3.extractor.SeekPoint
 import org.tvheadend.htsp.HtspMessage
 import org.tvheadend.tvhclient.ui.features.playback.internal.reader.StreamReader
 import org.tvheadend.tvhclient.ui.features.playback.internal.reader.StreamReadersFactory
@@ -29,6 +36,7 @@ import java.io.IOException
 import java.io.ObjectInputStream
 import java.util.*
 
+@UnstableApi
 internal class HtspSubscriptionExtractor : Extractor {
 
     private lateinit var mOutput: ExtractorOutput
@@ -44,8 +52,8 @@ internal class HtspSubscriptionExtractor : Extractor {
             return C.TIME_UNSET
         }
 
-        override fun getSeekPoints(timeUs: Long): SeekMap.SeekPoints? {
-            return null
+        override fun getSeekPoints(timeUs: Long): SeekMap.SeekPoints {
+            return SeekMap.SeekPoints(SeekPoint.START)
         }
     }
 
@@ -64,6 +72,7 @@ internal class HtspSubscriptionExtractor : Extractor {
         mOutput.seekMap(HtspSeekMap())
     }
 
+    @OptIn(UnstableApi::class)
     @Throws(IOException::class, InterruptedException::class)
     override fun read(input: ExtractorInput, seekPosition: PositionHolder): Int {
         val bytesRead = input.read(mRawBytes, 0, mRawBytes.size)
@@ -116,6 +125,7 @@ internal class HtspSubscriptionExtractor : Extractor {
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun handleSubscriptionStart(message: HtspMessage) {
         Timber.d("Handling Subscription Start")
 
@@ -131,7 +141,7 @@ internal class HtspSubscriptionExtractor : Extractor {
                 streamReader.createTracks(stream, mOutput)
                 mStreamReaders.put(streamIndex, streamReader)
             } else {
-                Timber.d("Discarding stream at index $streamIndex, no suitable StreamReader")
+                Timber.d("Discarding stream at index $streamIndex (type $streamType), no suitable StreamReader")
             }
         }
 

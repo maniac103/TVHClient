@@ -16,16 +16,18 @@
 
 package org.tvheadend.tvhclient.ui.features.playback.internal.reader
 
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.Format
-import com.google.android.exoplayer2.extractor.ExtractorOutput
-import com.google.android.exoplayer2.extractor.TrackOutput
-import com.google.android.exoplayer2.util.ParsableByteArray
+import androidx.media3.common.C
+import androidx.media3.common.Format
+import androidx.media3.common.util.ParsableByteArray
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.extractor.ExtractorOutput
+import androidx.media3.extractor.TrackOutput
 import org.tvheadend.htsp.HtspMessage
 
 /**
  * A PlainStreamReader simply copies the raw bytes from muxpkt's over onto the track output
  */
+@UnstableApi
 abstract class PlainStreamReader(private val mTrackType: Int) : StreamReader {
     private var mTrackOutput: TrackOutput? = null
 
@@ -33,35 +35,35 @@ abstract class PlainStreamReader(private val mTrackType: Int) : StreamReader {
 
     override fun createTracks(stream: HtspMessage, output: ExtractorOutput) {
         val streamIndex = stream.getInteger("index")
-        mTrackOutput = output.track(streamIndex, trackType)
-        mTrackOutput!!.format(buildFormat(streamIndex, stream))
+        mTrackOutput = output.track(streamIndex, trackType).also {
+            it.format(buildFormat(streamIndex, stream))
+        }
     }
 
     override fun consume(message: HtspMessage) {
+        val output = mTrackOutput ?: return
         val pts = message.getLong("pts")
         val frameType = message.getInteger("frametype", -1)
         val payload = message.getByteArray("payload")
         val pba = ParsableByteArray(payload)
 
-        var bufferFlags = 0
-
-        if (mTrackType == C.TRACK_TYPE_VIDEO) {
+        val isKeyFrame = if (mTrackType == C.TRACK_TYPE_VIDEO) {
             // We're looking at a Video stream, be picky about what frames are called keyframes
 
             // Type -1 = TVHeadend has not provided us a frame type, so everything "is a keyframe"
             // Type 73 = I - Intra-coded picture - Full Picture
             // Type 66 = B - Predicted picture - Depends on previous frames
             // Type 80 = P - Bidirectional predicted picture - Depends on previous+future frames
-            if (frameType == -1 || frameType == 73) {
-                bufferFlags = bufferFlags or C.BUFFER_FLAG_KEY_FRAME
-            }
+            frameType == -1 || frameType == 73
         } else {
             // We're looking at a Audio / Text etc stream, consider everything a key frame
-            bufferFlags = bufferFlags or C.BUFFER_FLAG_KEY_FRAME
+            true
         }
+        val bufferFlags = if (isKeyFrame) C.BUFFER_FLAG_KEY_FRAME else 0
 
-        mTrackOutput!!.sampleData(pba, payload.size)
-        mTrackOutput!!.sampleMetadata(pts, bufferFlags, payload.size, 0, null)
+        timber.log.Timber.d("Stream type $mTrackType got ${payload.size} payload bytes")
+        output.sampleData(pba, payload.size)
+        output.sampleMetadata(pts, bufferFlags, payload.size, 0, null)
     }
 
     protected abstract fun buildFormat(streamIndex: Int, stream: HtspMessage): Format

@@ -16,8 +16,12 @@
 
 package org.tvheadend.tvhclient.ui.features.playback.internal.reader
 
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
+
 class StreamReadersFactory {
 
+    @OptIn(UnstableApi::class)
     fun createStreamReader(streamType: String): StreamReader? {
         when (streamType) {
             // Video Stream Types

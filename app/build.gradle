@@ -113,12 +113,13 @@ dependencies {
 
     // ----------------------------------------------------------------------------
     // Required internal libraries for the application
-    def exoplayerVersion = '2.11.7'
+    def exoplayerVersion = '1.9.0'
 
-    implementation "org.tvheadend.tvhclient.exoplayer:exoplayer-ui:$exoplayerVersion"
-    implementation "org.tvheadend.tvhclient.exoplayer:exoplayer-core:$exoplayerVersion"
-    implementation "org.tvheadend.tvhclient.exoplayer:exoplayer-dash:$exoplayerVersion"
-    implementation "org.tvheadend.tvhclient.exoplayer:extension-ffmpeg:$exoplayerVersion"
+    implementation "androidx.media3:media3-exoplayer:$exoplayerVersion"
+    implementation "androidx.media3:media3-exoplayer-dash:$exoplayerVersion"
+    implementation "androidx.media3:media3-ui:$exoplayerVersion"
+    implementation "androidx.media3:media3-common:$exoplayerVersion"
+    // implementation "androidx.media3:media3-decode-ffmpeg:$exoplayerVersion"
 
     //implementation "org.tvheadend.tvhclient.htsp:htsp:1.2.1"
     //implementation "org.tvheadend.tvhclient.data:data:2.1.3"

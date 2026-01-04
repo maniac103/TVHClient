@@ -20,12 +20,16 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ui.PlayerView
+import androidx.media3.common.C
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.PlayerView
+import androidx.media3.ui.TrackSelectionDialogBuilder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
@@ -39,6 +43,7 @@ import org.tvheadend.tvhclient.util.extensions.*
 import org.tvheadend.tvhclient.util.getIconUrl
 import timber.log.Timber
 
+@UnstableApi
 class PlaybackActivity : AppCompatActivity() {
 
     private lateinit var playerStatus: TextView
@@ -77,6 +82,7 @@ class PlaybackActivity : AppCompatActivity() {
     private var value0 = -10000f
     private var value1 = -10000f
 
+    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.player_overlay_view)
@@ -294,6 +300,7 @@ class PlaybackActivity : AppCompatActivity() {
         super.attachBaseContext(onAttach(context))
     }
 
+    @OptIn(UnstableApi::class)
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Timber.d("New intent")
@@ -303,6 +310,7 @@ class PlaybackActivity : AppCompatActivity() {
         viewModel.loadMediaSource(applicationContext, intent.extras)
     }
 
+    @OptIn(UnstableApi::class)
     override fun onPause() {
         Timber.d("Pausing")
         viewModel.pause()
@@ -312,6 +320,7 @@ class PlaybackActivity : AppCompatActivity() {
         super.onPause()
     }
 
+    @OptIn(UnstableApi::class)
     override fun onStop() {
         super.onStop()
         Timber.d("Stopping")
@@ -323,6 +332,7 @@ class PlaybackActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(UnstableApi::class)
     override fun onResume() {
         super.onResume()
         Timber.d("Resuming")
@@ -408,11 +418,13 @@ class PlaybackActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun onPauseButtonSelected() {
         Timber.d("Pause button selected")
         viewModel.pause()
     }
 
+    @OptIn(androidx.media3.common.util.UnstableApi::class)
     private fun onPlayButtonSelected() {
         Timber.d("Play button selected")
         viewModel.play()
@@ -420,8 +432,8 @@ class PlaybackActivity : AppCompatActivity() {
 
     private fun onSettingsButtonSelected() {
         Timber.d("Settings button selected")
-        if (TrackSelectionDialog.willHaveContent(viewModel.trackSelector)) {
-            val trackSelectionDialog = TrackSelectionDialog.createForTrackSelector(viewModel.trackSelector)
+        if (TrackSelectionDialog.willHaveContent(viewModel.player)) {
+            val trackSelectionDialog = TrackSelectionDialog.createForPlayer(viewModel.player)
             trackSelectionDialog.show(supportFragmentManager, null)
         }
     }
@@ -432,6 +444,7 @@ class PlaybackActivity : AppCompatActivity() {
         trackInformationDialog.show(supportFragmentManager, null)
     }
 
+    @OptIn(UnstableApi::class)
     private fun onChangeAspectRatioSelected() {
         Timber.d("Change aspect ratio button selected")
         val width = selectedVideoAspectRatio?.width ?: 0
@@ -479,24 +492,28 @@ class PlaybackActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(UnstableApi::class)
     private fun onRewindButtonSelected() {
         Timber.d("Rewind button selected")
         viewModel.seekBackward()
     }
 
+    @OptIn(UnstableApi::class)
     private fun onForwardButtonSelected() {
         Timber.d("Forward button selected")
         viewModel.seekForward()
     }
 
+    @OptIn(UnstableApi::class)
     private fun onPlayPreviousChannelButtonSelected() {
         Timber.d("Play previous channel button selected")
-        viewModel.playPreviousChannel(applicationContext)
+        viewModel.playPreviousChannel()
     }
 
+    @OptIn(UnstableApi::class)
     private fun onPlayNextChannelButtonSelected() {
         Timber.d("Play next channel button selected")
-        viewModel.playNextChannel(applicationContext)
+        viewModel.playNextChannel()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

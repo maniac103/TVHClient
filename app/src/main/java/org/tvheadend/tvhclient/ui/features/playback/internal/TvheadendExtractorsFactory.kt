@@ -16,35 +16,40 @@
 
 package org.tvheadend.tvhclient.ui.features.playback.internal
 
-import com.google.android.exoplayer2.extractor.Extractor
-import com.google.android.exoplayer2.extractor.ExtractorsFactory
-import com.google.android.exoplayer2.extractor.flv.FlvExtractor
-import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor
-import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor
-import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor
-import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
-import com.google.android.exoplayer2.extractor.ogg.OggExtractor
-import com.google.android.exoplayer2.extractor.ts.Ac3Extractor
-import com.google.android.exoplayer2.extractor.ts.AdtsExtractor
-import com.google.android.exoplayer2.extractor.ts.PsExtractor
-import com.google.android.exoplayer2.extractor.ts.TsExtractor
-import com.google.android.exoplayer2.extractor.wav.WavExtractor
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.extractor.Extractor
+import androidx.media3.extractor.ExtractorsFactory
+import androidx.media3.extractor.flv.FlvExtractor
+import androidx.media3.extractor.mkv.MatroskaExtractor
+import androidx.media3.extractor.mp3.Mp3Extractor
+import androidx.media3.extractor.mp4.FragmentedMp4Extractor
+import androidx.media3.extractor.mp4.Mp4Extractor
+import androidx.media3.extractor.ogg.OggExtractor
+import androidx.media3.extractor.text.SubtitleParser
+import androidx.media3.extractor.ts.Ac3Extractor
+import androidx.media3.extractor.ts.AdtsExtractor
+import androidx.media3.extractor.ts.PsExtractor
+import androidx.media3.extractor.ts.TsExtractor
+import androidx.media3.extractor.wav.WavExtractor
 
+@UnstableApi
 internal class TvheadendExtractorsFactory : ExtractorsFactory {
 
     override fun createExtractors(): Array<Extractor> {
+        val subtitleParserFactory = SubtitleParser.Factory.UNSUPPORTED
         return arrayOf(
-                HtspSubscriptionExtractor(),
-                MatroskaExtractor(),
-                FragmentedMp4Extractor(),
-                Mp4Extractor(),
-                Mp3Extractor(),
-                AdtsExtractor(),
-                Ac3Extractor(),
-                TsExtractor(),
-                FlvExtractor(),
-                OggExtractor(),
-                PsExtractor(),
-                WavExtractor())
+            HtspSubscriptionExtractor(),
+            MatroskaExtractor(subtitleParserFactory),
+            FragmentedMp4Extractor(subtitleParserFactory),
+            Mp4Extractor(subtitleParserFactory),
+            Mp3Extractor(),
+            AdtsExtractor(),
+            Ac3Extractor(),
+            TsExtractor(subtitleParserFactory),
+            FlvExtractor(),
+            OggExtractor(),
+            PsExtractor(),
+            WavExtractor()
+        )
     }
 }

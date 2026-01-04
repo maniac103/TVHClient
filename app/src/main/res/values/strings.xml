@@ -413,4 +413,7 @@
     <string name="recording_state_missed">Recording missed</string>
     <string name="recording_state_recording">Recording active</string>
     <string name="recording_state_scheduled">Recording scheduled</string>
+    <string name="player_track_type_audio">Audio</string>
+    <string name="player_track_type_text">Text</string>
+    <string name="player_track_type_video">Video</string>
 </resources>

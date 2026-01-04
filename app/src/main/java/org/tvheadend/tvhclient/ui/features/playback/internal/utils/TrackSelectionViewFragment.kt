@@ -5,38 +5,37 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo
-import com.google.android.exoplayer2.ui.TrackSelectionView
-import com.google.android.exoplayer2.ui.TrackSelectionView.TrackSelectionListener
+import androidx.media3.common.TrackGroup
+import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.TrackSelectionView
 import org.tvheadend.tvhclient.R
 
-class TrackSelectionViewFragment : Fragment(), TrackSelectionListener {
+@UnstableApi
+class TrackSelectionViewFragment : Fragment(), TrackSelectionView.TrackSelectionListener {
 
-    private lateinit var mappedTrackInfo: MappedTrackInfo
-    private var rendererIndex = 0
+    private lateinit var trackGroups: List<Tracks.Group>
     private var allowAdaptiveSelections = false
     private var allowMultipleOverrides = false
 
     var isDisabled = false
-    var overrides: List<SelectionOverride> = emptyList()
+    var overrides: Map<TrackGroup, TrackSelectionOverride> = emptyMap()
 
     init {
         // Retain instance across activity re-creation to prevent losing access to init data.
         retainInstance = true
     }
 
-    fun init(mappedTrackInfo: MappedTrackInfo,
-             rendererIndex: Int,
+    fun init(trackGroups: List<Tracks.Group>,
              initialIsDisabled: Boolean,
-             initialOverride: SelectionOverride?,
+             initialOverrides: Map<TrackGroup, TrackSelectionOverride>,
              allowAdaptiveSelections: Boolean = true,
              allowMultipleOverrides: Boolean = false) {
 
-        this.mappedTrackInfo = mappedTrackInfo
-        this.rendererIndex = rendererIndex
+        this.trackGroups = trackGroups
         this.isDisabled = initialIsDisabled
-        this.overrides = initialOverride?.let { listOf(it) } ?: emptyList()
+        this.overrides = initialOverrides
         this.allowAdaptiveSelections = allowAdaptiveSelections
         this.allowMultipleOverrides = allowMultipleOverrides
     }
@@ -48,11 +47,14 @@ class TrackSelectionViewFragment : Fragment(), TrackSelectionListener {
         trackSelectionView.setShowDisableOption(true)
         trackSelectionView.setAllowMultipleOverrides(allowMultipleOverrides)
         trackSelectionView.setAllowAdaptiveSelections(allowAdaptiveSelections)
-        trackSelectionView.init(mappedTrackInfo, rendererIndex, isDisabled, overrides, this)
+        trackSelectionView.init(trackGroups, isDisabled, overrides, null, this)
         return rootView
     }
 
-    override fun onTrackSelectionChanged(isDisabled: Boolean, overrides: List<SelectionOverride>) {
+    override fun onTrackSelectionChanged(
+        isDisabled: Boolean,
+        overrides: Map<TrackGroup, TrackSelectionOverride>
+    ) {
         this.isDisabled = isDisabled
         this.overrides = overrides
     }

@@ -23,12 +23,12 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.media3.common.C;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DataSpec;
+import androidx.media3.datasource.TransferListener;
 import androidx.preference.PreferenceManager;
-
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.TransferListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.tvheadend.htsp.HtspConnection;
@@ -51,6 +51,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import timber.log.Timber;
 
+@UnstableApi
 public class HtspSubscriptionDataSource implements DataSource, Closeable, ServerMessageListener<HtspMessage>, HtspDataSourceInterface {
 
     private static final AtomicInteger dataSourceCount = new AtomicInteger();

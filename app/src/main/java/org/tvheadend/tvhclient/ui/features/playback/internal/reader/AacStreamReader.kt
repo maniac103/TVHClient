@@ -16,22 +16,26 @@
 
 package org.tvheadend.tvhclient.ui.features.playback.internal.reader
 
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.Format
-import com.google.android.exoplayer2.extractor.ExtractorOutput
-import com.google.android.exoplayer2.extractor.TrackOutput
-import com.google.android.exoplayer2.util.CodecSpecificDataUtil
-import com.google.android.exoplayer2.util.MimeTypes
-import com.google.android.exoplayer2.util.ParsableByteArray
+import androidx.annotation.OptIn
+import androidx.media3.common.C
+import androidx.media3.common.Format
+import androidx.media3.common.MimeTypes
+import androidx.media3.common.util.ParsableByteArray
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.extractor.AacUtil
+import androidx.media3.extractor.ExtractorOutput
+import androidx.media3.extractor.TrackOutput
 import org.tvheadend.htsp.HtspMessage
 import org.tvheadend.tvhclient.ui.features.playback.internal.utils.TvhMappings
 
 // See https://wiki.multimedia.cx/index.php?title=ADTS
 
+@UnstableApi
 internal class AacStreamReader : StreamReader {
 
     private var mTrackOutput: TrackOutput? = null
 
+    @OptIn(UnstableApi::class)
     override fun createTracks(stream: HtspMessage, output: ExtractorOutput) {
         val streamIndex = stream.getInteger("index")
         mTrackOutput = output.track(streamIndex, C.TRACK_TYPE_AUDIO)
@@ -62,33 +66,28 @@ internal class AacStreamReader : StreamReader {
     }
 
     private fun buildFormat(streamIndex: Int, stream: HtspMessage): Format {
-        val initializationData: List<ByteArray>
-
         var rate = Format.NO_VALUE
         if (stream.containsKey("rate")) {
             rate = TvhMappings.sriToRate(stream.getInteger("rate"))
         }
 
         val channels = stream.getInteger("channels", Format.NO_VALUE)
-
-        initializationData = if (stream.containsKey("meta")) {
+        val initializationData = if (stream.containsKey("meta")) {
             listOf(stream.getByteArray("meta"))
         } else {
-            listOf(CodecSpecificDataUtil.buildAacLcAudioSpecificConfig(rate, channels))
+            listOf(AacUtil.buildAacLcAudioSpecificConfig(rate, channels))
         }
 
-        return Format.createAudioSampleFormat(
-                streamIndex.toString(),
-                MimeTypes.AUDIO_AAC, null,
-                Format.NO_VALUE,
-                Format.NO_VALUE,
-                channels,
-                rate,
-                C.ENCODING_PCM_16BIT,
-                initializationData, null,
-                C.SELECTION_FLAG_AUTOSELECT,
-                stream.getString("language", "und")
-        )
+        return Format.Builder()
+            .setId(streamIndex)
+            .setSampleMimeType(MimeTypes.AUDIO_AAC)
+            .setChannelCount(channels)
+            .setSampleRate(rate)
+            .setPcmEncoding(C.ENCODING_PCM_16BIT)
+            .setInitializationData(initializationData)
+            .setSelectionFlags(C.SELECTION_FLAG_AUTOSELECT)
+            .setLanguage(stream.getString("language", "und"))
+            .build()
     }
 
     private fun hasCrc(b: Byte): Boolean {

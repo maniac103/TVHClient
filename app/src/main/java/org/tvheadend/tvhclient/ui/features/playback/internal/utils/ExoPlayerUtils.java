@@ -2,8 +2,10 @@ package org.tvheadend.tvhclient.ui.features.playback.internal.utils;
 
 import android.text.TextUtils;
 
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.MimeTypes;
+import androidx.annotation.OptIn;
+import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.UnstableApi;
 
 import java.util.Locale;
 
@@ -41,6 +43,7 @@ class ExoPlayerUtils {
      * @param format {@link Format} of the track.
      * @return a generated name specific to the track.
      */
+    @OptIn(markerClass = UnstableApi.class)
     static String buildTrackName(Format format) {
         String trackName;
         if (MimeTypes.isVideo(format.sampleMimeType)) {
@@ -75,6 +78,7 @@ class ExoPlayerUtils {
                 : format.language;
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     private static String buildBitrateString(Format format) {
         return format.bitrate == Format.NO_VALUE ? ""
                 : String.format(Locale.US, "%.2fMbit", format.bitrate / 1000000f);

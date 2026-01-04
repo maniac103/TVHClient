@@ -1,19 +1,19 @@
 package org.tvheadend.tvhclient.ui.features.playback.internal.utils
 
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.Format
-import com.google.android.exoplayer2.RendererCapabilities
-import com.google.android.exoplayer2.analytics.AnalyticsListener
-import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime
-import com.google.android.exoplayer2.source.TrackGroupArray
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import androidx.media3.common.C
+import androidx.media3.common.Format
+import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.RendererCapabilities
+import androidx.media3.exoplayer.analytics.AnalyticsListener
+import androidx.media3.exoplayer.trackselection.MappingTrackSelector
 import timber.log.Timber
 
+@UnstableApi
 class CustomEventLogger(private val trackSelector: MappingTrackSelector) : AnalyticsListener {
 
-    override fun onTracksChanged(eventTime: EventTime, ignored: TrackGroupArray, trackSelections: TrackSelectionArray) {
-
+    @androidx.annotation.OptIn(UnstableApi::class)
+    override fun onTracksChanged(eventTime: AnalyticsListener.EventTime, tracks: Tracks) {
         val mappedTrackInfo = trackSelector.currentMappedTrackInfo
         if (mappedTrackInfo == null) {
             Timber.d("No media tracks available")
@@ -22,40 +22,18 @@ class CustomEventLogger(private val trackSelector: MappingTrackSelector) : Analy
 
         Timber.d("Available media tracks:")
 
-        // Log tracks associated to renderers.
-        for (rendererIndex in 0 until mappedTrackInfo.rendererCount) {
-            val rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex)
-            val trackSelection = trackSelections[rendererIndex]
-
-            if (rendererTrackGroups.length > 0) {
-                Timber.d("  Renderer:$rendererIndex")
-
-                for (groupIndex in 0 until rendererTrackGroups.length) {
-                    val trackGroup = rendererTrackGroups[groupIndex]
-                    val adaptiveSupport = getAdaptiveSupportString(trackGroup.length, mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false))
-                    Timber.d("    Group:$groupIndex, adaptive streaming supported:$adaptiveSupport")
-
-                    for (trackIndex in 0 until trackGroup.length) {
-                        val isEnabled = getTrackStatusString(trackSelection != null && trackSelection.trackGroup === trackGroup && trackSelection.indexOf(trackIndex) != C.INDEX_UNSET)
-                        val metadata = Format.toLogString(trackGroup.getFormat(trackIndex))
-                        val formatSupport = getFormatSupportString(mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex))
-                        Timber.d("      Track:$trackIndex, selected=$isEnabled, $metadata, supported=$formatSupport")
-                    }
-                }
-                // Log metadata for at most one of the tracks selected for the renderer.
-                if (trackSelection != null) {
-                    for (selectionIndex in 0 until trackSelection.length()) {
-                        val metadata = trackSelection.getFormat(selectionIndex).metadata
-                        if (metadata != null) {
-                            Timber.d("    Metadata:")
-                            for (i in 0 until metadata.length()) {
-                                Timber.d("      ${metadata[i]}")
-                            }
-                            break
-                        }
-                    }
-                }
+        tracks.groups.forEach { group ->
+            Timber.d("  Track group ${group.type}: adaptive streaming supported: ${group.isAdaptiveSupported}")
+            (0 until group.length).forEach { index ->
+                val isEnabled = getTrackStatusString(group.isSupported)
+                val metadata = Format.toLogString(group.mediaTrackGroup.getFormat(index))
+                val formatSupport = getFormatSupportString(group.getTrackSupport(index))
+                Timber.d("    Track:$index, selected=$isEnabled, $metadata, supported=$formatSupport")
             }
+            (0 until group.length)
+                .firstOrNull { group.isTrackSelected(it) }
+                ?.let { group.mediaTrackGroup.getFormat(it).metadata }
+                ?.let { Timber.d("  Metadata: $it") }
         }
 
         // Log tracks not associated with a renderer.
@@ -68,7 +46,7 @@ class CustomEventLogger(private val trackSelector: MappingTrackSelector) : Analy
                 for (trackIndex in 0 until trackGroup.length) {
                     val isEnabled = getTrackStatusString(false)
                     val metadata = Format.toLogString(trackGroup.getFormat(trackIndex))
-                    val formatSupport = getFormatSupportString(RendererCapabilities.FORMAT_UNSUPPORTED_TYPE)
+                    val formatSupport = getFormatSupportString(C.FORMAT_UNSUPPORTED_TYPE)
                     Timber.d("      Track:$trackIndex, selected=$isEnabled, $metadata, supported=$formatSupport")
                 }
             }
@@ -77,15 +55,16 @@ class CustomEventLogger(private val trackSelector: MappingTrackSelector) : Analy
 
     private fun getFormatSupportString(formatSupport: Int): String {
         return when (formatSupport) {
-            RendererCapabilities.FORMAT_HANDLED -> "yes"
-            RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES -> "no, exceeds capabilities"
-            RendererCapabilities.FORMAT_UNSUPPORTED_DRM -> "no, unsupported drm"
-            RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE -> "no, unsupported type"
-            RendererCapabilities.FORMAT_UNSUPPORTED_TYPE -> "no"
+            C.FORMAT_HANDLED -> "yes"
+            C.FORMAT_EXCEEDS_CAPABILITIES -> "no, exceeds capabilities"
+            C.FORMAT_UNSUPPORTED_DRM -> "no, unsupported drm"
+            C.FORMAT_UNSUPPORTED_SUBTYPE -> "no, unsupported type"
+            C.FORMAT_UNSUPPORTED_TYPE -> "no"
             else -> "unknown"
         }
     }
 
+    @androidx.annotation.OptIn(UnstableApi::class)
     private fun getAdaptiveSupportString(trackCount: Int, adaptiveSupport: Int): String {
         return if (trackCount < 2) {
             "n/a"

@@ -16,12 +16,13 @@
 
 package org.tvheadend.tvhclient.ui.features.playback.internal.reader
 
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.C.SELECTION_FLAG_DEFAULT
-import com.google.android.exoplayer2.Format
-import com.google.android.exoplayer2.util.MimeTypes
+import androidx.media3.common.C
+import androidx.media3.common.Format
+import androidx.media3.common.MimeTypes
+import androidx.media3.common.util.UnstableApi
 import org.tvheadend.htsp.HtspMessage
 
+@UnstableApi
 internal class DvbsubStreamReader : PlainStreamReader(C.TRACK_TYPE_TEXT) {
 
     override fun buildFormat(streamIndex: Int, stream: HtspMessage): Format {
@@ -29,14 +30,12 @@ internal class DvbsubStreamReader : PlainStreamReader(C.TRACK_TYPE_TEXT) {
         val ancillaryId = stream.getInteger("ancillary_id")
         val initializationData = listOf(byteArrayOf((compositionId shr 8 and 0xFF).toByte(), (compositionId and 0xFF).toByte(), (ancillaryId shr 8 and 0xFF).toByte(), (ancillaryId and 0xFF).toByte()))
 
-        return Format.createImageSampleFormat(
-                streamIndex.toString(),
-                MimeTypes.APPLICATION_DVBSUBS,
-                null,
-                Format.NO_VALUE,
-                SELECTION_FLAG_DEFAULT,
-                initializationData,
-                stream.getString("language", "und"), null)
+        return Format.Builder()
+            .setId(streamIndex)
+            .setSampleMimeType(MimeTypes.APPLICATION_DVBSUBS)
+            .setInitializationData(initializationData)
+            .setLanguage(stream.getString("language", "und"))
+            .build()
     }
 
     override val trackType: Int

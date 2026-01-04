@@ -16,25 +16,22 @@
 
 package org.tvheadend.tvhclient.ui.features.playback.internal.reader
 
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.Format
-import com.google.android.exoplayer2.util.MimeTypes
-
+import androidx.media3.common.C
+import androidx.media3.common.Format
+import androidx.media3.common.MimeTypes
+import androidx.media3.common.util.UnstableApi
 import org.tvheadend.htsp.HtspMessage
 
+@UnstableApi
 internal class Mpeg2VideoStreamReader : PlainStreamReader(C.TRACK_TYPE_VIDEO) {
 
-    override fun buildFormat(streamIndex: Int, stream: HtspMessage): Format {
-        return Format.createVideoSampleFormat(
-                streamIndex.toString(),
-                MimeTypes.VIDEO_MPEG2,
-                null,
-                Format.NO_VALUE,
-                Format.NO_VALUE,
-                stream.getInteger("width"),
-                stream.getInteger("height"),
-                StreamReaderUtils.frameDurationToFrameRate(stream.getInteger("duration", Format.NO_VALUE)), null, null)
-    }
+    override fun buildFormat(streamIndex: Int, stream: HtspMessage) = Format.Builder()
+        .setId(streamIndex)
+        .setSampleMimeType(MimeTypes.VIDEO_MPEG2)
+        .setWidth(stream.getInteger("width"))
+        .setHeight(stream.getInteger("height"))
+        .setFrameRate(StreamReaderUtils.frameDurationToFrameRate(stream.getInteger("duration", Format.NO_VALUE)))
+        .build()
 
     override val trackType: Int
         get() = C.TRACK_TYPE_VIDEO

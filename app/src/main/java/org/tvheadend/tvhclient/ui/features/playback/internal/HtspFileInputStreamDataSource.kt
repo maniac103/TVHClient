@@ -1,10 +1,11 @@
 package org.tvheadend.tvhclient.ui.features.playback.internal
 
 import android.net.Uri
-import com.google.android.exoplayer2.C.RESULT_END_OF_INPUT
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DataSpec
-import com.google.android.exoplayer2.upstream.TransferListener
+import androidx.media3.common.C
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DataSpec
+import androidx.media3.datasource.TransferListener
 import org.tvheadend.htsp.HtspConnection
 import org.tvheadend.htsp.HtspMessage
 import org.tvheadend.api.ServerMessageListener
@@ -18,6 +19,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.math.min
 
+@UnstableApi
 class HtspFileInputStreamDataSource private constructor(val connection: HtspConnection) : DataSource, Closeable, ServerMessageListener<HtspMessage>, HtspDataSourceInterface {
 
     private val dataSourceCount = AtomicInteger()
@@ -34,15 +36,17 @@ class HtspFileInputStreamDataSource private constructor(val connection: HtspConn
     private var filePosition: Long = 0
 
 
+    @UnstableApi
     class Factory internal constructor(htspConnection: HtspConnection) : DataSource.Factory {
 
         private val htspConnection: HtspConnection
         private var dataSource: HtspFileInputStreamDataSource? = null
 
-        override fun createDataSource(): DataSource? {
+        override fun createDataSource(): DataSource {
             Timber.d("Created new data source from factory")
-            dataSource = HtspFileInputStreamDataSource(htspConnection)
-            return dataSource
+            return HtspFileInputStreamDataSource(htspConnection).also {
+                dataSource = it
+            }
         }
 
         val currentDataSource: HtspFileInputStreamDataSource?
@@ -89,7 +93,7 @@ class HtspFileInputStreamDataSource private constructor(val connection: HtspConn
         // No action needed
     }
 
-    override fun addTransferListener(transferListener: TransferListener?) {
+    override fun addTransferListener(transferListener: TransferListener) {
         // NOP
     }
 
@@ -168,7 +172,7 @@ class HtspFileInputStreamDataSource private constructor(val connection: HtspConn
         // If we've reached the end of the file, we're done :)
         if (fileSize == filePosition && !byteBuffer.hasRemaining()) {
             Timber.d("File has been read, returning -1")
-            return RESULT_END_OF_INPUT
+            return C.RESULT_END_OF_INPUT
         }
 
         sendFileRead(filePosition)
@@ -177,11 +181,11 @@ class HtspFileInputStreamDataSource private constructor(val connection: HtspConn
             Timber.d("No data and no known size, returning -1")
             // If we still don't have any data, and we
             // don't have a known size, then we're done.
-            return RESULT_END_OF_INPUT
+            return C.RESULT_END_OF_INPUT
         } else if (!byteBuffer.hasRemaining()) {
             // If we don't have data here, something went wrong
             Timber.d("Failed to read data for %s, returning -1", fileName)
-            return RESULT_END_OF_INPUT
+            return C.RESULT_END_OF_INPUT
         }
 
         Timber.d("Getting bytes %s from offset %s, read length: %s, buffer elements remaining: %s", bytes.size, offset, readLength, byteBuffer.remaining())
